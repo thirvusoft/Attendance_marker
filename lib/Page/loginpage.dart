@@ -103,7 +103,6 @@ class Loginpage extends StatelessWidget {
                     CustomFormButton(
                       innerText: 'Login',
                       onPressed: () {
-                        print("[][][][][]");
                         Get.toNamed("/homepage");
                       },
                       backgroundColor: const Color(0xFF212A1D),

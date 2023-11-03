@@ -43,7 +43,6 @@ MaterialColor createMaterialColor(Color color) {
       1,
     );
   }
-  print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-  print(MaterialColor(color.value, swatch));
+
   return MaterialColor(color.value, swatch);
 }
