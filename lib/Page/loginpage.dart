@@ -1,3 +1,5 @@
+import 'package:attendancemarker/Controller/apiservice.dart';
+import 'package:attendancemarker/Controller/batterycontroller.dart';
 import 'package:attendancemarker/widgets/resuable_textfield.dart';
 import 'package:attendancemarker/widgets/reusable_button.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,8 @@ import 'package:heroicons/heroicons.dart';
 
 class Loginpage extends StatelessWidget {
   final _loginFormkey = GlobalKey<FormState>();
+  final ApiService apiService = ApiService();
+  final Batteryprecntage controller = Get.put(Batteryprecntage());
 
   final TextEditingController _mobilenumberController = TextEditingController();
 
@@ -102,8 +106,17 @@ class Loginpage extends StatelessWidget {
                     ),
                     CustomFormButton(
                       innerText: 'Login',
-                      onPressed: () {
-                        Get.toNamed("/homepage");
+                      onPressed: () async {
+                        print(controller.percentage);
+                        print("*********************************************");
+                        final response = await apiService.get(
+                            "/api/method/thirvu__attendance.utils.api.api.login",
+                            {
+                              "username": _mobilenumberController.text,
+                              "pwd": _passwordController.text
+                            });
+                        print(response.body);
+                        // Get.toNamed("/homepage");
                       },
                       backgroundColor: const Color(0xFF212A1D),
                     )
