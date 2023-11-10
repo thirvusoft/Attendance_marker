@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: Routes.loginpage,
+      initialRoute: Routes.mappage,
       getPages: getPages,
     );
   }
