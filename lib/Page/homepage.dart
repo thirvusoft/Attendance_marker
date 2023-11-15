@@ -1,7 +1,11 @@
+import 'package:attendancemarker/Controller/batterycontroller.dart';
+import 'package:attendancemarker/Controller/dbhelpercontroller.dart';
 import 'package:attendancemarker/constant.dart';
 import 'package:attendancemarker/widgets/resuable_appbar.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
+import 'package:get/get.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -11,6 +15,23 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+  late String dateStr;
+  final Databasehelper controller = Get.put(Databasehelper());
+  final Batteryprecntage locationcontroller = Get.put(Batteryprecntage());
+  List temp = [
+    {"item_code": "2", "qty": "2"}
+  ];
+  @override
+  initState() {
+    super.initState();
+    // ignore: avoid_print
+    print("initState Called");
+    DateTime today = DateTime.now();
+    dateStr = "${today.day}.${today.month}.${today.year}";
+
+    print(dateStr);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +47,7 @@ class _HomepageState extends State<Homepage> {
                   color: Colors.white, width: 3.0, style: BorderStyle.solid),
               image: const DecorationImage(
                   fit: BoxFit.cover,
-                  image: NetworkImage(
+                  image: CachedNetworkImageProvider(
                       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1887&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")),
             ),
           ),
@@ -83,10 +104,10 @@ class _HomepageState extends State<Homepage> {
                                   style: TextStyle(fontSize: 12)),
                             ),
                           ],
-                          rows: const [
+                          rows: [
                             DataRow(cells: [
                               DataCell(Text(
-                                '23.11.1999',
+                                dateStr.toString(),
                                 style: TextStyle(fontSize: 12),
                               )),
                               DataCell(Text('09:45:23 AM',
@@ -106,7 +127,24 @@ class _HomepageState extends State<Homepage> {
                                 child: SizedBox(
                                   height: 50,
                                   child: OutlinedButton(
-                                    onPressed: () {},
+                                    onPressed: () async {
+                                      print("aaaa");
+                                      final location = await locationcontroller
+                                          .getLocation();
+                                      final batteryprecntage =
+                                          await locationcontroller
+                                              .batteryprecntage();
+                                      print(location);
+
+                                      print(locationcontroller.longitude);
+                                      final test = await controller.createItem(
+                                          "vicky",
+                                          dateStr,
+                                          "",
+                                          location.toString(),
+                                          batteryprecntage.toString());
+                                      print(test);
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(
@@ -137,7 +175,27 @@ class _HomepageState extends State<Homepage> {
                                   child: SizedBox(
                                 height: 50,
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    DateTime today = DateTime.now();
+                                    dateStr =
+                                        "${today.day}.${today.month}.${today.year}";
+                                    final location =
+                                        await locationcontroller.getLocation();
+                                    print(location["position"]);
+                                    final address = await locationcontroller
+                                        .getAddressFromLatLang(
+                                            location["position"]);
+                                    print(address);
+                                    final batteryprecntage =
+                                        await locationcontroller
+                                            .batteryprecntage();
+                                    final test = await controller.updateItem(
+                                        1,
+                                        batteryprecntage.toString(),
+                                        address.toString(),
+                                        dateStr);
+                                    print(test);
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(
