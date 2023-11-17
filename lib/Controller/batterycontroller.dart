@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:attendancemarker/Controller/apiservice.dart';
+import 'package:attendancemarker/Controller/dbhelpercontroller.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -7,6 +10,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 class Batteryprecntage extends GetxController {
+  final Databasehelper controller = Get.put(Databasehelper());
+  final ApiService apiService = ApiService();
+  double roundDistanceInKM = 0.0;
   var latitude = 0.0.obs;
   var longitude = 0.0.obs;
   var address = ''.obs;
@@ -73,31 +79,63 @@ class Batteryprecntage extends GetxController {
   }
 
   getAddressFromLatLang(Position position) async {
-    print(position);
+    final data = await controller.getItems();
+
+    print("[][][]");
+
+    late List result = [];
+    var myData = [];
+
+    print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+
+    print("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
+
     List<Placemark> newPlace = await GeocodingPlatform.instance
         .placemarkFromCoordinates(position.latitude, position.longitude,
             localeIdentifier: "en");
 
     Placemark place = newPlace[0];
-    print(place);
-    address.value = {
+    String addressString = [
       place.name,
       place.street,
       place.thoroughfare,
       place.locality,
       place.administrativeArea,
       place.postalCode
-    }.toString();
-    var des = [
-      {"address": address}
-    ];
-    // address_.add(des);
-    // address_.add(place.name);
-    // address_.add(place.street);
-    // address_.add(place.thoroughfare);
-    // address_.add(place.administrativeArea);
-    // address_.add(place.postalCode);
+    ].join(', ');
+    if (data.isNotEmpty) {
+      double distanceInMeters = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        data.last['lat'],
+        data.last['long'],
+      );
+      double distanceInKilometers = distanceInMeters / 1000;
+      roundDistanceInKM =
+          double.parse((distanceInKilometers).toStringAsFixed(2));
+    }
 
-    return des;
+    print('Distance in kilometers: $roundDistanceInKM kilometers');
+    final location = await controller.createAddress(
+      addressString,
+      "user",
+      position.latitude.toString(),
+      position.longitude.toString(),
+      roundDistanceInKM.toString(),
+    );
+
+    result.add({"address": addressString});
+
+    return location;
+  }
+
+  Future splash() async {
+    final response =
+        await apiService.get("/api/method/frappe.auth.get_logged_user", {});
+    if (response.statusCode == 200) {
+      Get.offAllNamed("/homepage");
+    } else {
+      Get.offAllNamed("/loginpage");
+    }
   }
 }

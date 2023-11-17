@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:attendancemarker/Controller/apiservice.dart';
 import 'package:attendancemarker/Controller/batterycontroller.dart';
 import 'package:attendancemarker/widgets/resuable_textfield.dart';
 import 'package:attendancemarker/widgets/reusable_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:heroicons/heroicons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Loginpage extends StatelessWidget {
   final _loginFormkey = GlobalKey<FormState>();
@@ -112,11 +116,51 @@ class Loginpage extends StatelessWidget {
                         final response = await apiService.get(
                             "/api/method/thirvu__attendance.utils.api.api.login",
                             {
-                              "username": _mobilenumberController.text,
+                              "usr": _mobilenumberController.text,
                               "pwd": _passwordController.text
                             });
                         print(response.body);
-                        // Get.toNamed("/homepage");
+                        if (response.statusCode == 200) {
+                          Get.toNamed("/homepage");
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          final Response = json.decode(response.body);
+                          await prefs.setString(
+                              'full_name', Response["full_name"]);
+                          response.header['cookie'] =
+                              "${response.header['set-cookie'].toString()};";
+                          response.header.removeWhere((key, value) =>
+                              ["set-cookie", 'content-length'].contains(key));
+
+                          await prefs.setString(
+                              'request-header', json.encode(response.header));
+                          var temp =
+                              json.encode(response.header["cookie"]).toString();
+                          Object extractUserImage(String input) {
+                            RegExp regExp = RegExp(r'user_image=([^;]+)');
+                            RegExp regExp1 = RegExp(r'user_id=([^;]+)');
+
+                            Match? match = regExp.firstMatch(input);
+                            Match? match1 = regExp1.firstMatch(input);
+
+                            if (match != null) {
+                              return {
+                                "image": Uri.decodeComponent(match.group(1)!),
+                                "email": Uri.decodeComponent(match1!.group(1)!)
+                              };
+                            }
+
+                            return "";
+                          }
+
+                          List t = [];
+                          t.add((extractUserImage(temp)));
+                          var userImage =
+                              "${dotenv.env['API_URL']}${t[0]["image"].toString()}";
+                          var email = t[0]["email"];
+                          await prefs.setString('image', userImage);
+                          await prefs.setString('email', email);
+                        }
                       },
                       backgroundColor: const Color(0xFF212A1D),
                     )
