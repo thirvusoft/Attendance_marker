@@ -1,7 +1,13 @@
+import 'package:attendancemarker/Controller/apiservice.dart';
+import 'package:attendancemarker/Controller/batterycontroller.dart';
+import 'package:attendancemarker/Controller/dbhelpercontroller.dart';
 import 'package:attendancemarker/constant.dart';
 import 'package:attendancemarker/widgets/resuable_appbar.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -11,11 +17,34 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+  late String dateStr;
+  final ApiService apiService = ApiService();
+  final Databasehelper controller = Get.put(Databasehelper());
+  final Batteryprecntage locationcontroller = Get.put(Batteryprecntage());
+  String imgurl =
+      "https://i.pinimg.com/736x/87/67/64/8767644bc68a14c50addf8cb2de8c59e.jpg";
+  List temp = [
+    {"item_code": "2", "qty": "2"}
+  ];
+  String fullname = "";
+
+  late List pinglocation_ = [];
+  @override
+  initState() {
+    super.initState();
+    // ignore: avoid_print
+    print("initState Called");
+    DateTime today = DateTime.now();
+    dateStr = "${today.day}.${today.month}.${today.year}";
+    getdata();
+    print(dateStr);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ReusableAppBar(
-        title: 'Vignesh M',
+        title: fullname,
         subtitle: "Sales Executive",
         actions: [
           Container(
@@ -24,10 +53,8 @@ class _HomepageState extends State<Homepage> {
               shape: BoxShape.circle,
               border: Border.all(
                   color: Colors.white, width: 3.0, style: BorderStyle.solid),
-              image: const DecorationImage(
-                  fit: BoxFit.cover,
-                  image: NetworkImage(
-                      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1887&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")),
+              image: DecorationImage(
+                  fit: BoxFit.cover, image: CachedNetworkImageProvider(imgurl)),
             ),
           ),
         ],
@@ -83,15 +110,15 @@ class _HomepageState extends State<Homepage> {
                                   style: TextStyle(fontSize: 12)),
                             ),
                           ],
-                          rows: const [
+                          rows: [
                             DataRow(cells: [
                               DataCell(Text(
-                                '23.11.1999',
+                                dateStr.toString(),
                                 style: TextStyle(fontSize: 12),
                               )),
-                              DataCell(Text('09:45:23 AM',
+                              const DataCell(Text('09:45:23 AM',
                                   style: TextStyle(fontSize: 12))),
-                              DataCell(Text('09:45:23 PM',
+                              const DataCell(Text('09:45:23 PM',
                                   style: TextStyle(fontSize: 12))),
                             ])
                           ],
@@ -106,7 +133,33 @@ class _HomepageState extends State<Homepage> {
                                 child: SizedBox(
                                   height: 50,
                                   child: OutlinedButton(
-                                    onPressed: () {},
+                                    onPressed: () async {
+                                      final response = await apiService.get(
+                                          "/api/method/thirvu__attendance.utils.api.api.checkin",
+                                          {
+                                            "username": "VigneshMDDD",
+                                            "long": "2333",
+                                            "lat": "8888"
+                                          });
+                                      print(response.body);
+
+                                      // print("aaaa");
+                                      // final location = await locationcontroller
+                                      //     .getLocation();
+                                      // final batteryprecntage =
+                                      //     await locationcontroller
+                                      //         .batteryprecntage();
+                                      // print(location);
+
+                                      // print(locationcontroller.longitude);
+                                      // final test = await controller.createItem(
+                                      //     "vicky",
+                                      //     dateStr,
+                                      //     "",
+                                      //     location.toString(),
+                                      //     batteryprecntage.toString());
+                                      // print(test);
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(
@@ -137,7 +190,28 @@ class _HomepageState extends State<Homepage> {
                                   child: SizedBox(
                                 height: 50,
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    DateTime today = DateTime.now();
+                                    dateStr =
+                                        "${today.day}.${today.month}.${today.year}";
+                                    final location =
+                                        await locationcontroller.getLocation();
+                                    print(location["position"]);
+                                    final address = await locationcontroller
+                                        .getAddressFromLatLang(
+                                            location["position"]);
+                                    print(address);
+                                    final batteryprecntage =
+                                        await locationcontroller
+                                            .batteryprecntage();
+                                    final test = await controller.updateItem(
+                                        1,
+                                        batteryprecntage.toString(),
+                                        address.toString(),
+                                        dateStr);
+                                    print(test);
+                                    getdata();
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(
@@ -212,7 +286,7 @@ class _HomepageState extends State<Homepage> {
                                         fontWeight: FontWeight.bold,
                                         letterSpacing: .1))),
                           ],
-                          rows: data
+                          rows: pinglocation_
                               .asMap()
                               .map((index, map) {
                                 return MapEntry(
@@ -240,14 +314,15 @@ class _HomepageState extends State<Homepage> {
                                         height: 80.0,
                                         child: Center(
                                             child: Text(
-                                          map['Name'] ?? '',
+                                          map['address'] ?? '',
                                           style: const TextStyle(fontSize: 10),
                                         )),
                                       )),
                                       DataCell(SizedBox(
                                         height: 40.0,
                                         child: Center(
-                                            child: Text(map['Code'] ?? '',
+                                            child: Text(
+                                                map['distance'] + " Km" ?? '',
                                                 style: const TextStyle(
                                                     fontSize: 10))),
                                       )),
@@ -268,5 +343,20 @@ class _HomepageState extends State<Homepage> {
         ],
       ),
     );
+  }
+
+  getdata() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    final data = await controller.getItems();
+    print("[][][][][]");
+    print(prefs.getString('image'));
+    setState(() {
+      if (prefs.getString('image') != null) {
+        imgurl = prefs.getString('image')!;
+      }
+      fullname = prefs.getString('full_name')!;
+      pinglocation_ = data;
+    });
   }
 }
