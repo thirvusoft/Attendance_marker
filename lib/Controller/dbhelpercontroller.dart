@@ -17,21 +17,6 @@ class Databasehelper extends GetxController {
     });
   }
 
-  static Future<void> createTables(sql.Database database) async {
-    // await database.execute("DROP TABLE IF EXISTS attendancetable");
-
-    await database.execute("""CREATE TABLE attendancetable(
-        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        user TEXT,
-        checkin TEXT,
-        checkout TEXT,
-        location TEXT,
-        batter_percentage TEXT,
-        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-      )
-      """);
-  }
-
   static Future<void> location(sql.Database database) async {
     // await database.execute("DROP TABLE IF EXISTS attendancetable");
 
@@ -47,20 +32,54 @@ class Databasehelper extends GetxController {
       """);
   }
 
-  createItem(String? user, String? checkin, String? checkout, String? location,
-      String? batterpercentage) async {
+  static Future<void> createTables(sql.Database database) async {
+    // await database.execute("DROP TABLE IF EXISTS attendancetable");
+
+    await database.execute("""CREATE TABLE userdetails(
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    fullname TEXT,
+    cookie TEXT,
+    requestheader TEXT,
+    image TEXT,
+    email TEXT,
+    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )
+  """);
+  }
+
+  createUser(String? fullname, String? cookie, String? requestheader,
+      String? image, String? email) async {
     final db = await Databasehelper.openDatabase();
 
     final data = {
-      'user': user,
-      'checkin': checkin,
-      'checkout': checkout,
-      "location": location,
-      "batter_percentage": batterpercentage
+      'fullname': fullname,
+      'cookie': cookie,
+      'requestheader': requestheader,
+      "image": image,
+      "email": email
     };
-    final id = await db.insert('attendancetable', data,
+    final id = await db.insert('userdetails', data,
         conflictAlgorithm: sql.ConflictAlgorithm.replace);
-    return db.query('attendancetable', orderBy: "id");
+    return db.query('userdetails', orderBy: "id");
+  }
+
+  updateUser(
+    int id,
+    String image,
+    String? email,
+  ) async {
+    final db = await Databasehelper.openDatabase();
+
+    final data = {
+      'image': image,
+
+      'email': email,
+      // 'createdAt': DateTime.now().toString()
+    };
+
+    final result =
+        await db.update('userdetails', data, where: "id = ?", whereArgs: [id]);
+    return db.query('userdetails', orderBy: "id");
   }
 
   createAddress(
@@ -84,22 +103,6 @@ class Databasehelper extends GetxController {
     return db.query('addresstable', orderBy: "id");
   }
 
-  updateItem(int id, String batterpercentage, String? descrption,
-      String? checkout) async {
-    final db = await Databasehelper.openDatabase();
-
-    final data = {
-      'location': descrption,
-      "batter_percentage": batterpercentage,
-      'checkout': checkout,
-      // 'createdAt': DateTime.now().toString()
-    };
-
-    final result = await db
-        .update('attendancetable', data, where: "id = ?", whereArgs: [id]);
-    return db.query('attendancetable', orderBy: "id");
-  }
-
   static Future<void> initializeDatabase() async {
     final database = await openDatabase();
 
@@ -121,8 +124,9 @@ class Databasehelper extends GetxController {
     return db.query('addresstable', orderBy: "id");
   }
 
-  Future<List<Map<String, dynamic>>> getColumnData(int id) async {
+  Future<void> deleteAllItems() async {
     final db = await Databasehelper.openDatabase();
-    return db.query('addresstable', orderBy: "id");
+
+    await db.delete('addresstable');
   }
 }

@@ -36,16 +36,19 @@ class Batteryprecntage extends GetxController {
   }
 
   getLocation() async {
+    print("error");
     try {
       bool serviceEnabled;
       LocationPermission permission;
 
       serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      print("error1");
       if (!serviceEnabled) {
         return Future.error('Location services are disabled.');
       }
 
       permission = await Geolocator.checkPermission();
+      print(permission);
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
@@ -57,20 +60,21 @@ class Batteryprecntage extends GetxController {
         return Future.error(
             'Location permissions are permanently denied, we cannot request permissions.');
       }
-
-      await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.medium)
+      print("error-2");
+      await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.low)
           .then((Position position) {
         _currentPosition = position;
         latitude.value = position.latitude;
         longitude.value = position.longitude;
-        // getAddressFromLatLang(position);
+        getAddressFromLatLang(position);
       }).catchError((e) {
-        debugPrint(e);
+        print('Error obtaining location: $e');
       });
     } catch (e) {
       Get.snackbar('Error', e.toString());
     }
+    print(_currentPosition.toString());
+
     return {
       'latitude': latitude,
       'longitude': longitude,
@@ -79,6 +83,8 @@ class Batteryprecntage extends GetxController {
   }
 
   getAddressFromLatLang(Position position) async {
+    print("xxxxxxxxxxxxxxxxxxxxxx");
+    print(position);
     final data = await controller.getItems();
 
     print("[][][]");
@@ -123,6 +129,7 @@ class Batteryprecntage extends GetxController {
       position.longitude.toString(),
       roundDistanceInKM.toString(),
     );
+    print(location);
 
     result.add({"address": addressString});
 

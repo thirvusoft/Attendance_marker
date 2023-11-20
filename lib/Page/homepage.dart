@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:attendancemarker/Controller/apiservice.dart';
 import 'package:attendancemarker/Controller/batterycontroller.dart';
 import 'package:attendancemarker/Controller/dbhelpercontroller.dart';
@@ -28,7 +30,7 @@ class _HomepageState extends State<Homepage> {
   ];
   String fullname = "";
 
-  late List pinglocation_ = [];
+  List pinglocation_ = [];
   @override
   initState() {
     super.initState();
@@ -114,7 +116,7 @@ class _HomepageState extends State<Homepage> {
                             DataRow(cells: [
                               DataCell(Text(
                                 dateStr.toString(),
-                                style: TextStyle(fontSize: 12),
+                                style: const TextStyle(fontSize: 12),
                               )),
                               const DataCell(Text('09:45:23 AM',
                                   style: TextStyle(fontSize: 12))),
@@ -134,6 +136,9 @@ class _HomepageState extends State<Homepage> {
                                   height: 50,
                                   child: OutlinedButton(
                                     onPressed: () async {
+                                      final data =
+                                          await controller.deleteAllItems();
+                                      getdata();
                                       final response = await apiService.get(
                                           "/api/method/thirvu__attendance.utils.api.api.checkin",
                                           {
@@ -160,11 +165,10 @@ class _HomepageState extends State<Homepage> {
                                       //     batteryprecntage.toString());
                                       // print(test);
                                     },
-                                    style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            12), // <-- Radius
-                                      ),
+                                    style: OutlinedButton.styleFrom(
+                                      primary: const Color(0xFFEA5455),
+                                      side: const BorderSide(
+                                          color: Color(0xFFEA5455), width: 2),
                                     ),
                                     child: const Center(
                                       child: Row(
@@ -174,7 +178,7 @@ class _HomepageState extends State<Homepage> {
                                           Text("Check In",
                                               style: TextStyle(fontSize: 15)),
                                           SizedBox(
-                                            width: 15,
+                                            width: 10,
                                           ),
                                           Icon(Icons.arrow_forward),
                                         ],
@@ -191,28 +195,21 @@ class _HomepageState extends State<Homepage> {
                                 height: 50,
                                 child: ElevatedButton(
                                   onPressed: () async {
+                                    print("ping......");
                                     DateTime today = DateTime.now();
                                     dateStr =
                                         "${today.day}.${today.month}.${today.year}";
+                                    print("ping......1");
                                     final location =
                                         await locationcontroller.getLocation();
-                                    print(location["position"]);
-                                    final address = await locationcontroller
-                                        .getAddressFromLatLang(
-                                            location["position"]);
-                                    print(address);
-                                    final batteryprecntage =
-                                        await locationcontroller
-                                            .batteryprecntage();
-                                    final test = await controller.updateItem(
-                                        1,
-                                        batteryprecntage.toString(),
-                                        address.toString(),
-                                        dateStr);
-                                    print(test);
-                                    getdata();
+
+                                    Future.delayed(const Duration(seconds: 1),
+                                        () {
+                                      getdata();
+                                    });
                                   },
                                   style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFEA5455),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(
                                           12), // <-- Radius
@@ -225,13 +222,18 @@ class _HomepageState extends State<Homepage> {
                                       children: [
                                         Text(
                                           "Ping",
-                                          style: TextStyle(fontSize: 15),
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              color: Color.fromARGB(
+                                                  255, 255, 255, 255)),
                                         ),
                                         SizedBox(
                                           width: 15,
                                         ),
                                         Icon(
                                           PhosphorIcons.telegram_logo_fill,
+                                          color: Color.fromARGB(
+                                              255, 250, 249, 249),
                                         )
                                       ],
                                     ),
@@ -279,11 +281,13 @@ class _HomepageState extends State<Homepage> {
                                 label: Text('Addresss',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
+                                        color: Colors.black,
                                         letterSpacing: .1))),
                             DataColumn(
                                 label: Text('Distance',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
+                                        color: Colors.black,
                                         letterSpacing: .1))),
                           ],
                           rows: pinglocation_
@@ -345,18 +349,20 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  getdata() async {
+  void getdata() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     final data = await controller.getItems();
-    print("[][][][][]");
-    print(prefs.getString('image'));
+    print(data.length);
     setState(() {
+      pinglocation_ = data;
+
       if (prefs.getString('image') != null) {
         imgurl = prefs.getString('image')!;
       }
       fullname = prefs.getString('full_name')!;
-      pinglocation_ = data;
     });
+    print("datatatata");
+    print(jsonEncode(pinglocation_));
   }
 }

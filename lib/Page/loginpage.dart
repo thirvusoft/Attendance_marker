@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:attendancemarker/Controller/apiservice.dart';
 import 'package:attendancemarker/Controller/batterycontroller.dart';
+import 'package:attendancemarker/Controller/dbhelpercontroller.dart';
 import 'package:attendancemarker/widgets/resuable_textfield.dart';
 import 'package:attendancemarker/widgets/reusable_button.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ class Loginpage extends StatelessWidget {
   final _loginFormkey = GlobalKey<FormState>();
   final ApiService apiService = ApiService();
   final Batteryprecntage controller = Get.put(Batteryprecntage());
+  final Databasehelper databasecontroller = Get.put(Databasehelper());
 
   final TextEditingController _mobilenumberController = TextEditingController();
 
@@ -121,7 +123,7 @@ class Loginpage extends StatelessWidget {
                             });
                         print(response.body);
                         if (response.statusCode == 200) {
-                          Get.toNamed("/homepage");
+                          // Get.toNamed("/homepage");
                           SharedPreferences prefs =
                               await SharedPreferences.getInstance();
                           final Response = json.decode(response.body);
@@ -136,6 +138,14 @@ class Loginpage extends StatelessWidget {
                               'request-header', json.encode(response.header));
                           var temp =
                               json.encode(response.header["cookie"]).toString();
+                          final location = await databasecontroller.createUser(
+                            Response["full_name"],
+                            response.header['set-cookie'].toString(),
+                            json.encode(response.header),
+                            "",
+                            "",
+                          );
+                          print(location);
                           Object extractUserImage(String input) {
                             RegExp regExp = RegExp(r'user_image=([^;]+)');
                             RegExp regExp1 = RegExp(r'user_id=([^;]+)');
@@ -158,6 +168,12 @@ class Loginpage extends StatelessWidget {
                           var userImage =
                               "${dotenv.env['API_URL']}${t[0]["image"].toString()}";
                           var email = t[0]["email"];
+                          final userupdate = await databasecontroller
+                              .updateUser(location.length, userImage, email);
+                          print(
+                              "+++++++++++++++++Finall data++++++++++++++++++++");
+                          print(userupdate);
+                          print(userupdate.length);
                           await prefs.setString('image', userImage);
                           await prefs.setString('email', email);
                         }
