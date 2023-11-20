@@ -123,7 +123,6 @@ class Loginpage extends StatelessWidget {
                             });
                         print(response.body);
                         if (response.statusCode == 200) {
-                          // Get.toNamed("/homepage");
                           SharedPreferences prefs =
                               await SharedPreferences.getInstance();
                           final Response = json.decode(response.body);
@@ -168,14 +167,20 @@ class Loginpage extends StatelessWidget {
                           var userImage =
                               "${dotenv.env['API_URL']}${t[0]["image"].toString()}";
                           var email = t[0]["email"];
-                          final userupdate = await databasecontroller
-                              .updateUser(location.length, userImage, email);
+                          print(userImage);
+                          databasecontroller.deleteItem(location.length - 1);
+                          print("[][][][][][][aadadadaaadaddad]");
+                          print(location.length);
+                          final userupdate =
+                              await databasecontroller.updateUser(
+                                  location.length, userImage, email, "");
                           print(
                               "+++++++++++++++++Finall data++++++++++++++++++++");
                           print(userupdate);
                           print(userupdate.length);
                           await prefs.setString('image', userImage);
                           await prefs.setString('email', email);
+                          Get.toNamed("/homepage");
                         }
                       },
                       backgroundColor: const Color(0xFF212A1D),

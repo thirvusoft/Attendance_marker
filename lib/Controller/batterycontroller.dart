@@ -35,7 +35,7 @@ class Batteryprecntage extends GetxController {
     return percentage;
   }
 
-  getLocation() async {
+  getLocation(bool value) async {
     print("error");
     try {
       bool serviceEnabled;
@@ -66,7 +66,9 @@ class Batteryprecntage extends GetxController {
         _currentPosition = position;
         latitude.value = position.latitude;
         longitude.value = position.longitude;
-        getAddressFromLatLang(position);
+        if (value) {
+          getAddressFromLatLang(position);
+        }
       }).catchError((e) {
         print('Error obtaining location: $e');
       });
@@ -75,11 +77,7 @@ class Batteryprecntage extends GetxController {
     }
     print(_currentPosition.toString());
 
-    return {
-      'latitude': latitude,
-      'longitude': longitude,
-      'position': _currentPosition
-    };
+    return _currentPosition;
   }
 
   getAddressFromLatLang(Position position) async {
@@ -139,6 +137,8 @@ class Batteryprecntage extends GetxController {
   Future splash() async {
     final response =
         await apiService.get("/api/method/frappe.auth.get_logged_user", {});
+    print("xxxxxxxxxxxxx");
+    print(response.statusCode);
     if (response.statusCode == 200) {
       Get.offAllNamed("/homepage");
     } else {

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:get/get.dart';
 
@@ -42,6 +43,7 @@ class Databasehelper extends GetxController {
     requestheader TEXT,
     image TEXT,
     email TEXT,
+    attendanceid TEXT,
     createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
   )
   """);
@@ -56,29 +58,36 @@ class Databasehelper extends GetxController {
       'cookie': cookie,
       'requestheader': requestheader,
       "image": image,
-      "email": email
+      "email": email,
+      "attendanceid": ""
     };
     final id = await db.insert('userdetails', data,
         conflictAlgorithm: sql.ConflictAlgorithm.replace);
     return db.query('userdetails', orderBy: "id");
   }
 
-  updateUser(
-    int id,
-    String image,
-    String? email,
-  ) async {
+  updateUser(int id, String image, String? email, String? attendanceid) async {
     final db = await Databasehelper.openDatabase();
 
     final data = {
       'image': image,
-
       'email': email,
-      // 'createdAt': DateTime.now().toString()
+      'attendanceid': attendanceid,
+      'createdAt': DateTime.now().toString()
     };
 
     final result =
         await db.update('userdetails', data, where: "id = ?", whereArgs: [id]);
+    return db.query('userdetails', orderBy: "id");
+  }
+
+  deleteItem(int id) async {
+    final db = await Databasehelper.openDatabase();
+    await db.delete("userdetails", where: "id = ?", whereArgs: [id]);
+  }
+
+  Future<List<Map<String, dynamic>>> getUser() async {
+    final db = await Databasehelper.openDatabase();
     return db.query('userdetails', orderBy: "id");
   }
 
@@ -105,16 +114,11 @@ class Databasehelper extends GetxController {
 
   static Future<void> initializeDatabase() async {
     final database = await openDatabase();
-
     print(database);
-    // Check if the database is null before initializing
     if (database == null) {
       print('Database path: ${database.path}');
-
       await createTables(database);
     } else {
-      // await database.execute("DROP TABLE IF EXISTS attendancetable");
-
       print('Error opening the database.');
     }
   }
@@ -126,7 +130,6 @@ class Databasehelper extends GetxController {
 
   Future<void> deleteAllItems() async {
     final db = await Databasehelper.openDatabase();
-
     await db.delete('addresstable');
   }
 }
