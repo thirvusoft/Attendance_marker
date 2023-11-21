@@ -145,7 +145,38 @@ class Loginpage extends StatelessWidget {
                                 .deleteItem(location.last['id'] - 1);
                           }
 
-                          Get.toNamed("/homepage");
+                          Get.offAllNamed("/homepage");
+                          Get.snackbar(
+                            "Success",
+                            Response["message"],
+                            icon: const HeroIcon(HeroIcons.check,
+                                color: Colors.white),
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: const Color(0xff35394e),
+                            borderRadius: 20,
+                            margin: const EdgeInsets.all(15),
+                            colorText: Colors.white,
+                            duration: const Duration(seconds: 2),
+                            isDismissible: true,
+                            forwardAnimationCurve: Curves.easeOutBack,
+                          );
+                        } else {
+                          final Response = json.decode(response.body);
+
+                          Get.snackbar(
+                            "Success",
+                            Response["message"]["message"].toString(),
+                            icon: const HeroIcon(HeroIcons.xMark,
+                                color: Colors.white),
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: const Color(0xff35394e),
+                            borderRadius: 20,
+                            margin: const EdgeInsets.all(15),
+                            colorText: Colors.white,
+                            duration: const Duration(seconds: 2),
+                            isDismissible: true,
+                            forwardAnimationCurve: Curves.easeOutBack,
+                          );
                         }
                       },
                       backgroundColor: const Color(0xFF212A1D),

@@ -10,6 +10,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:get/get.dart';
+import 'package:heroicons/heroicons.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -166,6 +167,29 @@ class _HomepageState extends State<Homepage> {
                                                       .toString()
                                                 });
                                             if (response.statusCode == 200) {
+                                              final Response =
+                                                  json.decode(response.body);
+
+                                              Get.snackbar(
+                                                "Success",
+                                                Response["message"].toString(),
+                                                icon: const HeroIcon(
+                                                    HeroIcons.check,
+                                                    color: Colors.white),
+                                                snackPosition:
+                                                    SnackPosition.BOTTOM,
+                                                backgroundColor:
+                                                    const Color(0xff35394e),
+                                                borderRadius: 20,
+                                                margin:
+                                                    const EdgeInsets.all(15),
+                                                colorText: Colors.white,
+                                                duration:
+                                                    const Duration(seconds: 2),
+                                                isDismissible: true,
+                                                forwardAnimationCurve:
+                                                    Curves.easeOutBack,
+                                              );
                                               DateTime today = DateTime.now();
                                               nowtime =
                                                   "${today.hour}:${today.minute}:${today.second}";
@@ -201,6 +225,28 @@ class _HomepageState extends State<Homepage> {
                                                 });
 
                                             if (response.statusCode == 200) {
+                                              final Response =
+                                                  json.decode(response.body);
+                                              Get.snackbar(
+                                                "Success",
+                                                Response["message"].toString(),
+                                                icon: const HeroIcon(
+                                                    HeroIcons.check,
+                                                    color: Colors.white),
+                                                snackPosition:
+                                                    SnackPosition.BOTTOM,
+                                                backgroundColor:
+                                                    const Color(0xff35394e),
+                                                borderRadius: 20,
+                                                margin:
+                                                    const EdgeInsets.all(15),
+                                                colorText: Colors.white,
+                                                duration:
+                                                    const Duration(seconds: 2),
+                                                isDismissible: true,
+                                                forwardAnimationCurve:
+                                                    Curves.easeOutBack,
+                                              );
                                               final data = await controller
                                                   .deleteAllItems();
                                               DateTime today = DateTime.now();
@@ -480,7 +526,7 @@ class _HomepageState extends State<Homepage> {
 
                       if (response.statusCode == 200) {
                         final userlist = await controller.getUser();
-                        
+
                         // controller.deleteItem(location.length - 1);
 
                         Get.offAllNamed("/loginpage");
