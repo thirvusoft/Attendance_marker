@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dbhelpercontroller.dart';
 
@@ -17,17 +16,13 @@ class ApiService extends GetxService {
     args,
   ) async {
     final data = await controller.getUser();
-    print("///////////////////////////////////////////");
 
     final url = "${dotenv.env['API_URL']}$methodName";
-    print(url);
-    print(url);
+   
     if (data.isEmpty) {
-      print(data);
       if (args.toString() == '{}') {
         final uri = Uri.parse(url);
         final response = await http.get(uri, headers: apiHeaders);
-        print(response.headers.toString());
         // if (response.headers.toString().contains("system_user=no")) {
         //   Get.toNamed("/loginpage");
         // }
@@ -53,10 +48,8 @@ class ApiService extends GetxService {
             .forEach((k, v) => {apiHeaders[k.toString()] = v.toString()});
       }
       if (args.toString() == '{}') {
-         print(data);
         final uri = Uri.parse(url);
         final response = await http.get(uri, headers: apiHeaders);
-        print(response.headers.toString());
         // if (response.headers.toString().contains("system_user=no")) {
         //   Get.toNamed("/loginpage");
         // }
