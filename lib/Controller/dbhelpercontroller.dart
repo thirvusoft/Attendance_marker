@@ -46,13 +46,14 @@ class Databasehelper extends GetxController {
     attendanceid TEXT,
     checkin TEXT,
     checkout TEXT,
+    role Text,
     createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
   )
   """);
   }
 
   createUser(String? fullname, String? cookie, String? requestheader,
-      String? image, String? email) async {
+      String? image, String? email, String role) async {
     final db = await Databasehelper.openDatabase();
 
     final data = {
@@ -63,7 +64,8 @@ class Databasehelper extends GetxController {
       "email": email,
       "attendanceid": "",
       "checkin": "-",
-      "checkout": "-"
+      "checkout": "-",
+      "role": role
     };
     final id = await db.insert('userdetails', data,
         conflictAlgorithm: sql.ConflictAlgorithm.replace);

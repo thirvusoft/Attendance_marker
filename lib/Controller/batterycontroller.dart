@@ -76,14 +76,10 @@ class Batteryprecntage extends GetxController {
   }
 
   getAddressFromLatLang(Position position) async {
-   
     final data = await controller.getItems();
-
 
     late List result = [];
     var myData = [];
-
-
 
     List<Placemark> newPlace = await GeocodingPlatform.instance
         .placemarkFromCoordinates(position.latitude, position.longitude,
@@ -127,7 +123,14 @@ class Batteryprecntage extends GetxController {
     final response =
         await apiService.get("/api/method/frappe.auth.get_logged_user", {});
     if (response.statusCode == 200) {
-      Get.offAllNamed("/homepage");
+      final user = await controller.getUser();
+      print(user);
+      print(user[0]['cookie']);
+      if (user[0]['cookie'] == "Mobile admin user" && user.isNotEmpty) {
+        Get.offAllNamed("/mappage");
+      } else {
+        Get.offAllNamed("/homepage");
+      }
     } else {
       Get.offAllNamed("/loginpage");
     }

@@ -223,7 +223,7 @@ class _HomepageState extends State<Homepage> {
                                                   "address_list":
                                                       jsonEncode(pinglocation_)
                                                 });
-
+                                            print(response.body);
                                             if (response.statusCode == 200) {
                                               final Response =
                                                   json.decode(response.body);
@@ -525,6 +525,7 @@ class _HomepageState extends State<Homepage> {
                           await apiService.get("/api/method/logout", {});
 
                       if (response.statusCode == 200) {
+                        final data = await controller.deleteAllItems();
                         final userlist = await controller.getUser();
 
                         // controller.deleteItem(location.length - 1);

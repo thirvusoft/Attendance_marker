@@ -133,19 +133,27 @@ class Loginpage extends StatelessWidget {
                               "${dotenv.env['API_URL']}${Response["image"].toString()}";
 
                           final location = await databasecontroller.createUser(
-                            Response["full_name"],
-                            response.header['set-cookie'].toString(),
-                            json.encode(response.header),
-                            userImage,
-                            Response["email"],
-                          );
-
+                              Response["full_name"],
+                              Response["role"],
+                              json.encode(response.header),
+                              userImage,
+                              Response["email"],
+                              Response["role"]);
+                          print(response.header['set-cookie'].toString());
+                          print("pppppppppppppppppppppppppppppppppppppp");
+                          print(Response["role"]);
+                          print(location);
+                          print(location[0]['role']);
                           if (location.length > 1) {
                             final delete = await databasecontroller
                                 .deleteItem(location.last['id'] - 1);
                           }
+                          if (Response["role"] == "Mobile admin user") {
+                            Get.offAllNamed("/mappage");
+                          } else {
+                            Get.offAllNamed("/homepage");
+                          }
 
-                          Get.offAllNamed("/homepage");
                           Get.snackbar(
                             "Success",
                             Response["message"],
