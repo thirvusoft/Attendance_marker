@@ -1,7 +1,11 @@
 import 'dart:async';
 
+import 'package:attendancemarker/Controller/apiservice.dart';
+import 'package:attendancemarker/Controller/dbhelpercontroller.dart';
+import 'package:attendancemarker/widgets/resubale_popup.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../widgets/resuable_appbar.dart';
@@ -15,6 +19,13 @@ class Mapview extends StatefulWidget {
 
 class _MapviewState extends State<Mapview> {
   @override
+  initState() {
+    super.initState();
+
+    // getdata();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Completer<GoogleMapController> _controller = Completer();
 
@@ -24,27 +35,90 @@ class _MapviewState extends State<Mapview> {
       _controller.complete(controller);
     }
 
+    String fullname = "";
+    late String imgurl = "";
+    late String gmail = "";
     return Scaffold(
       appBar: ReusableAppBar(
-        title: 'Vignesh M',
-        subtitle: "Sales Executive",
+        title: fullname,
+        subtitle: gmail,
         actions: [
-          Container(
-            width: 60,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                  color: Colors.white, width: 2.0, style: BorderStyle.solid),
-              image: const DecorationImage(
-                  fit: BoxFit.cover,
-                  image: CachedNetworkImageProvider(
-                      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1887&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")),
+          GestureDetector(
+            onTap: () {
+              showPopup(context);
+            },
+            child: Container(
+              width: 60,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                    color: Colors.white, width: 3.0, style: BorderStyle.solid),
+                image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: CachedNetworkImageProvider(imgurl)),
+              ),
             ),
           ),
         ],
       ),
       body: const GoogleMap(
           initialCameraPosition: CameraPosition(target: _center, zoom: 7.0)),
+    );
+  }
+
+  void showPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return PopupWidget(
+          title: 'Logout',
+          content:
+              '    Do you want to log out from \n             Attendance marker?',
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  TextButton(
+                      child: const Text(
+                        'Cancel',
+                        style:
+                            TextStyle(fontSize: 15, color: Color(0xFFEA5455)),
+                      ),
+                      onPressed: () {
+                        Get.back();
+                      }),
+                  const SizedBox(
+                    width: 30,
+                  ),
+                  ElevatedButton(
+                    child: const Text(
+                      'Yes, Logout',
+                      style: TextStyle(fontSize: 15, color: Color(0xFFEA5455)),
+                    ),
+                    onPressed: () async {
+                      final ApiService apiService = ApiService();
+                      final Databasehelper controller =
+                          Get.put(Databasehelper());
+
+                      final response =
+                          await apiService.get("/api/method/logout", {});
+
+                      if (response.statusCode == 200) {
+                        final data = await controller.deleteAllItems();
+                        final userlist = await controller.getUser();
+
+                        // controller.deleteItem(location.length - 1);
+
+                        Get.offAllNamed("/loginpage");
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

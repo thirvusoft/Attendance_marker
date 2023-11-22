@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:heroicons/heroicons.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Loginpage extends StatelessWidget {
   final _loginFormkey = GlobalKey<FormState>();
@@ -113,74 +112,79 @@ class Loginpage extends StatelessWidget {
                     CustomFormButton(
                       innerText: 'Login',
                       onPressed: () async {
-                        print(controller.percentage);
-                        print("*********************************************");
+                        FocusScope.of(context).unfocus();
+
                         final response = await apiService.get(
                             "/api/method/thirvu__attendance.utils.api.api.login",
                             {
                               "usr": _mobilenumberController.text,
                               "pwd": _passwordController.text
                             });
-                        print(response.body);
+
                         if (response.statusCode == 200) {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
                           final Response = json.decode(response.body);
-                          await prefs.setString(
-                              'full_name', Response["full_name"]);
+
                           response.header['cookie'] =
                               "${response.header['set-cookie'].toString()};";
                           response.header.removeWhere((key, value) =>
                               ["set-cookie", 'content-length'].contains(key));
 
-                          await prefs.setString(
-                              'request-header', json.encode(response.header));
-                          var temp =
-                              json.encode(response.header["cookie"]).toString();
+                          var userImage =
+                              "${dotenv.env['API_URL']}${Response["image"].toString()}";
+
                           final location = await databasecontroller.createUser(
-                            Response["full_name"],
-                            response.header['set-cookie'].toString(),
-                            json.encode(response.header),
-                            "",
-                            "",
-                          );
+                              Response["full_name"],
+                              Response["role"],
+                              json.encode(response.header),
+                              userImage,
+                              Response["email"],
+                              Response["role"].toString());
+                          print(response.header['set-cookie'].toString());
+                          print("pppppppppppppppppppppppppppppppppppppp");
+                          print(Response["role"]);
                           print(location);
-                          Object extractUserImage(String input) {
-                            RegExp regExp = RegExp(r'user_image=([^;]+)');
-                            RegExp regExp1 = RegExp(r'user_id=([^;]+)');
-
-                            Match? match = regExp.firstMatch(input);
-                            Match? match1 = regExp1.firstMatch(input);
-
-                            if (match != null) {
-                              return {
-                                "image": Uri.decodeComponent(match.group(1)!),
-                                "email": Uri.decodeComponent(match1!.group(1)!)
-                              };
-                            }
-
-                            return "";
+                          print(location[0]['role']);
+                          if (location.length > 1) {
+                            final delete = await databasecontroller
+                                .deleteItem(location.last['id'] - 1);
+                          }
+                          if (Response["role"] == "Mobile admin user") {
+                            Get.offAllNamed("/loglist");
+                          } else {
+                            Get.offAllNamed("/homepage");
                           }
 
-                          List t = [];
-                          t.add((extractUserImage(temp)));
-                          var userImage =
-                              "${dotenv.env['API_URL']}${t[0]["image"].toString()}";
-                          var email = t[0]["email"];
-                          print(userImage);
-                          databasecontroller.deleteItem(location.length - 1);
-                          print("[][][][][][][aadadadaaadaddad]");
-                          print(location.length);
-                          final userupdate =
-                              await databasecontroller.updateUser(
-                                  location.length, userImage, email, "");
-                          print(
-                              "+++++++++++++++++Finall data++++++++++++++++++++");
-                          print(userupdate);
-                          print(userupdate.length);
-                          await prefs.setString('image', userImage);
-                          await prefs.setString('email', email);
-                          Get.toNamed("/homepage");
+                          Get.snackbar(
+                            "Success",
+                            Response["message"],
+                            icon: const HeroIcon(HeroIcons.check,
+                                color: Colors.white),
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: const Color(0xff35394e),
+                            borderRadius: 20,
+                            margin: const EdgeInsets.all(15),
+                            colorText: Colors.white,
+                            duration: const Duration(seconds: 2),
+                            isDismissible: true,
+                            forwardAnimationCurve: Curves.easeOutBack,
+                          );
+                        } else {
+                          final Response = json.decode(response.body);
+
+                          Get.snackbar(
+                            "Success",
+                            Response["message"]["message"].toString(),
+                            icon: const HeroIcon(HeroIcons.xMark,
+                                color: Colors.white),
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: const Color(0xff35394e),
+                            borderRadius: 20,
+                            margin: const EdgeInsets.all(15),
+                            colorText: Colors.white,
+                            duration: const Duration(seconds: 2),
+                            isDismissible: true,
+                            forwardAnimationCurve: Curves.easeOutBack,
+                          );
                         }
                       },
                       backgroundColor: const Color(0xFF212A1D),

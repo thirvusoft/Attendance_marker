@@ -44,13 +44,16 @@ class Databasehelper extends GetxController {
     image TEXT,
     email TEXT,
     attendanceid TEXT,
+    checkin TEXT,
+    checkout TEXT,
+    role Text,
     createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
   )
   """);
   }
 
   createUser(String? fullname, String? cookie, String? requestheader,
-      String? image, String? email) async {
+      String? image, String? email, String role) async {
     final db = await Databasehelper.openDatabase();
 
     final data = {
@@ -59,21 +62,27 @@ class Databasehelper extends GetxController {
       'requestheader': requestheader,
       "image": image,
       "email": email,
-      "attendanceid": ""
+      "attendanceid": "",
+      "checkin": "-",
+      "checkout": "-",
+      "role": role
     };
     final id = await db.insert('userdetails', data,
         conflictAlgorithm: sql.ConflictAlgorithm.replace);
     return db.query('userdetails', orderBy: "id");
   }
 
-  updateUser(int id, String image, String? email, String? attendanceid) async {
+  updateUser(int id, String image, String? email, String? attendanceid,
+      String checkintime, String checkouttime) async {
     final db = await Databasehelper.openDatabase();
 
     final data = {
       'image': image,
       'email': email,
       'attendanceid': attendanceid,
-      'createdAt': DateTime.now().toString()
+      'createdAt': DateTime.now().toString(),
+      'checkin': checkintime,
+      'checkout': checkouttime
     };
 
     final result =
@@ -84,6 +93,7 @@ class Databasehelper extends GetxController {
   deleteItem(int id) async {
     final db = await Databasehelper.openDatabase();
     await db.delete("userdetails", where: "id = ?", whereArgs: [id]);
+    return db.query('userdetails', orderBy: "id");
   }
 
   Future<List<Map<String, dynamic>>> getUser() async {
@@ -114,9 +124,7 @@ class Databasehelper extends GetxController {
 
   static Future<void> initializeDatabase() async {
     final database = await openDatabase();
-    print(database);
     if (database == null) {
-      print('Database path: ${database.path}');
       await createTables(database);
     } else {
       print('Error opening the database.');

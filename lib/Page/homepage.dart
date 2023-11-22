@@ -5,11 +5,12 @@ import 'package:attendancemarker/Controller/batterycontroller.dart';
 import 'package:attendancemarker/Controller/dbhelpercontroller.dart';
 import 'package:attendancemarker/constant.dart';
 import 'package:attendancemarker/widgets/resuable_appbar.dart';
+import 'package:attendancemarker/widgets/resubale_popup.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:heroicons/heroicons.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -20,6 +21,9 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   late String dateStr;
+  late String nowtime;
+  String checkintime = "-";
+  String checkouttime = "-";
   final ApiService apiService = ApiService();
   final Databasehelper controller = Get.put(Databasehelper());
   final Batteryprecntage locationcontroller = Get.put(Batteryprecntage());
@@ -35,12 +39,10 @@ class _HomepageState extends State<Homepage> {
   @override
   initState() {
     super.initState();
-
-    print("initState Called");
     DateTime today = DateTime.now();
+
     dateStr = "${today.day}.${today.month}.${today.year}";
     getdata();
-    print(dateStr);
   }
 
   @override
@@ -50,14 +52,20 @@ class _HomepageState extends State<Homepage> {
         title: fullname,
         subtitle: gmail,
         actions: [
-          Container(
-            width: 60,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                  color: Colors.white, width: 3.0, style: BorderStyle.solid),
-              image: DecorationImage(
-                  fit: BoxFit.cover, image: CachedNetworkImageProvider(imgurl)),
+          GestureDetector(
+            onTap: () {
+              showPopup(context);
+            },
+            child: Container(
+              width: 60,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                    color: Colors.white, width: 3.0, style: BorderStyle.solid),
+                image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: CachedNetworkImageProvider(imgurl)),
+              ),
             ),
           ),
         ],
@@ -119,10 +127,10 @@ class _HomepageState extends State<Homepage> {
                                 dateStr.toString(),
                                 style: const TextStyle(fontSize: 12),
                               )),
-                              const DataCell(Text('09:45:23 AM',
-                                  style: TextStyle(fontSize: 12))),
-                              const DataCell(Text('09:45:23 PM',
-                                  style: TextStyle(fontSize: 12))),
+                              DataCell(Text(checkintime,
+                                  style: const TextStyle(fontSize: 12))),
+                              DataCell(Text(checkouttime,
+                                  style: const TextStyle(fontSize: 12))),
                             ])
                           ],
                           dividerThickness: 0,
@@ -144,9 +152,7 @@ class _HomepageState extends State<Homepage> {
                                             final location =
                                                 await locationcontroller
                                                     .getLocation(false);
-                                            print(
-                                                "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-                                            print(user);
+
                                             // final data =
                                             //     await controller.deleteAllItems();
                                             getdata();
@@ -160,29 +166,53 @@ class _HomepageState extends State<Homepage> {
                                                   "lat": location.latitude
                                                       .toString()
                                                 });
-                                            print(response.body);
-                                            print(jsonDecode(response.body)[
-                                                'attendance_id']);
+                                            if (response.statusCode == 200) {
+                                              final Response =
+                                                  json.decode(response.body);
 
-                                            final userupdate =
-                                                await controller.updateUser(
-                                                    user[0]["id"],
-                                                    user[0]["image"],
-                                                    user[0]["email"],
-                                                    jsonDecode(response.body)[
-                                                            'attendance_id']
-                                                        .toString());
-                                            print(userupdate);
-                                            Future.delayed(
-                                                const Duration(seconds: 1), () {
-                                              getdata();
-                                            });
+                                              Get.snackbar(
+                                                "Success",
+                                                Response["message"].toString(),
+                                                icon: const HeroIcon(
+                                                    HeroIcons.check,
+                                                    color: Colors.white),
+                                                snackPosition:
+                                                    SnackPosition.BOTTOM,
+                                                backgroundColor:
+                                                    const Color(0xff35394e),
+                                                borderRadius: 20,
+                                                margin:
+                                                    const EdgeInsets.all(15),
+                                                colorText: Colors.white,
+                                                duration:
+                                                    const Duration(seconds: 2),
+                                                isDismissible: true,
+                                                forwardAnimationCurve:
+                                                    Curves.easeOutBack,
+                                              );
+                                              DateTime today = DateTime.now();
+                                              nowtime =
+                                                  "${today.hour}:${today.minute}:${today.second}";
+                                              final userupdate =
+                                                  await controller.updateUser(
+                                                      user[0]["id"],
+                                                      user[0]["image"],
+                                                      user[0]["email"],
+                                                      jsonDecode(response.body)[
+                                                              'attendance_id']
+                                                          .toString(),
+                                                      nowtime,
+                                                      "-");
+                                              Future.delayed(
+                                                  const Duration(seconds: 1),
+                                                  () {
+                                                getdata();
+                                              });
+                                            }
                                           }
                                         : () async {
-                                            print("checkout");
                                             final user =
                                                 await controller.getUser();
-                                            print(pinglocation_);
                                             final response = await apiService.get(
                                                 "/api/method/thirvu__attendance.utils.api.api.checkout",
                                                 {
@@ -193,11 +223,55 @@ class _HomepageState extends State<Homepage> {
                                                   "address_list":
                                                       jsonEncode(pinglocation_)
                                                 });
-                                            print(response.statusCode);
                                             print(response.body);
+                                            if (response.statusCode == 200) {
+                                              final Response =
+                                                  json.decode(response.body);
+                                              Get.snackbar(
+                                                "Success",
+                                                Response["message"].toString(),
+                                                icon: const HeroIcon(
+                                                    HeroIcons.check,
+                                                    color: Colors.white),
+                                                snackPosition:
+                                                    SnackPosition.BOTTOM,
+                                                backgroundColor:
+                                                    const Color(0xff35394e),
+                                                borderRadius: 20,
+                                                margin:
+                                                    const EdgeInsets.all(15),
+                                                colorText: Colors.white,
+                                                duration:
+                                                    const Duration(seconds: 2),
+                                                isDismissible: true,
+                                                forwardAnimationCurve:
+                                                    Curves.easeOutBack,
+                                              );
+                                              final data = await controller
+                                                  .deleteAllItems();
+                                              DateTime today = DateTime.now();
+                                              nowtime =
+                                                  "${today.hour}:${today.minute}:${today.second}";
+                                              final user =
+                                                  await controller.getUser();
+                                              final userupdate =
+                                                  await controller.updateUser(
+                                                      user[0]["id"],
+                                                      user[0]["image"],
+                                                      user[0]["email"],
+                                                      "",
+                                                      user[0]["checkin"],
+                                                      nowtime);
+
+                                              Future.delayed(
+                                                  const Duration(seconds: 1),
+                                                  () {
+                                                getdata();
+                                              });
+                                            }
                                           },
                                     style: OutlinedButton.styleFrom(
-                                      primary: const Color(0xFFEA5455),
+                                      foregroundColor: const Color(0xFFEA5455),
                                       side: const BorderSide(
                                           color: Color(0xFFEA5455), width: 2),
                                     ),
@@ -232,11 +306,9 @@ class _HomepageState extends State<Homepage> {
                                   onPressed: (button)
                                       ? () {}
                                       : () async {
-                                          print("ping......");
                                           DateTime today = DateTime.now();
                                           dateStr =
                                               "${today.day}.${today.month}.${today.year}";
-                                          print("ping......1");
                                           final location =
                                               await locationcontroller
                                                   .getLocation(true);
@@ -388,23 +460,17 @@ class _HomepageState extends State<Homepage> {
   }
 
   void getdata() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     final Databasehelper controller = Get.put(Databasehelper());
 
     final data = await controller.getItems();
     final user = await controller.getUser();
-    print("pppppppppppppppppppppppppppppppppppp");
-    print(user);
-    print(user.length);
-    print(user[0]['image']);
+
     setState(() {
       pinglocation_ = data;
-      print("oooooooooooooooooooooooooo");
-      print(user[0]['attendanceid']);
-      print(user[0]['attendanceid'].runtimeType);
-      print(user[0]['attendanceid'].isEmpty);
+      checkintime = user[0]['checkin'].toString();
+      checkouttime = user[0]['checkout'].toString();
+
       if (user[0]['attendanceid'].isEmpty) {
-        print("user[0]['attendanceid'].runtimeType");
         setState(() {
           button = true;
         });
@@ -415,18 +481,65 @@ class _HomepageState extends State<Homepage> {
       }
 
       if (user[0]['image'] != null) {
-        print("img1");
         imgurl = user[0]['image'].toString();
       } else {
-        print("img2");
-
         imgurl =
             "https://i.pinimg.com/736x/87/67/64/8767644bc68a14c50addf8cb2de8c59e.jpg";
       }
       fullname = user[0]['fullname'];
       gmail = user[0]['email'];
     });
-    print("datatatata");
-    print(jsonEncode(pinglocation_));
+  }
+
+  void showPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return PopupWidget(
+          title: 'Logout',
+          content:
+              '    Do you want to log out from \n             Attendance marker?',
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  TextButton(
+                      child: const Text(
+                        'Cancel',
+                        style:
+                            TextStyle(fontSize: 15, color: Color(0xFFEA5455)),
+                      ),
+                      onPressed: () {
+                        Get.back();
+                      }),
+                  const SizedBox(
+                    width: 30,
+                  ),
+                  ElevatedButton(
+                    child: const Text(
+                      'Yes, Logout',
+                      style: TextStyle(fontSize: 15, color: Color(0xFFEA5455)),
+                    ),
+                    onPressed: () async {
+                      final response =
+                          await apiService.get("/api/method/logout", {});
+
+                      if (response.statusCode == 200) {
+                        final data = await controller.deleteAllItems();
+                        final userlist = await controller.getUser();
+
+                        // controller.deleteItem(location.length - 1);
+
+                        Get.offAllNamed("/loginpage");
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
