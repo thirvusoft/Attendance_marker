@@ -4,21 +4,24 @@ import 'package:google_fonts/google_fonts.dart';
 class ReusableAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final String? subtitle;
-
+  final TabBar? tabBar;
   final List<Widget>? actions;
   final Widget? leading;
-  const ReusableAppBar(
-      {super.key,
-      required this.title,
-      this.actions,
-      this.leading,
-      this.subtitle});
+  const ReusableAppBar({
+    super.key,
+    required this.title,
+    this.actions,
+    this.leading,
+    this.subtitle,
+    this.tabBar,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(250),
+      child: AppBar(
         backgroundColor: const Color(0xFFEA5455),
-        // toolbarHeight: 240,
         elevation: 0,
         actions: actions,
         automaticallyImplyLeading: false,
@@ -32,7 +35,16 @@ class ReusableAppBar extends StatelessWidget implements PreferredSizeWidget {
             style: GoogleFonts.poppins(color: Colors.white),
           ),
           leading: leading,
-        ));
+        ),
+        bottom: tabBar != null
+            ? PreferredSize(
+                preferredSize:
+                    Size.fromHeight(30), // Adjust the height as needed
+                child: tabBar!,
+              )
+            : null,
+      ),
+    );
   }
 
   @override

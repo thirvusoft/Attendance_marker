@@ -127,7 +127,7 @@ class Batteryprecntage extends GetxController {
       print(user);
       print(user[0]['cookie']);
       if (user[0]['cookie'] == "Mobile admin user" && user.isNotEmpty) {
-        Get.offAllNamed("/mappage");
+        Get.offAllNamed("/loglist");
       } else {
         Get.offAllNamed("/homepage");
       }

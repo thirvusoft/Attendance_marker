@@ -138,7 +138,7 @@ class Loginpage extends StatelessWidget {
                               json.encode(response.header),
                               userImage,
                               Response["email"],
-                              Response["role"]);
+                              Response["role"].toString());
                           print(response.header['set-cookie'].toString());
                           print("pppppppppppppppppppppppppppppppppppppp");
                           print(Response["role"]);
@@ -149,7 +149,7 @@ class Loginpage extends StatelessWidget {
                                 .deleteItem(location.last['id'] - 1);
                           }
                           if (Response["role"] == "Mobile admin user") {
-                            Get.offAllNamed("/mappage");
+                            Get.offAllNamed("/loglist");
                           } else {
                             Get.offAllNamed("/homepage");
                           }
