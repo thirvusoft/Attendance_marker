@@ -35,17 +35,20 @@ class Batteryprecntage extends GetxController {
     return percentage;
   }
 
-  getLocation() async {
+  getLocation(bool value) async {
+    print("error");
     try {
       bool serviceEnabled;
       LocationPermission permission;
 
       serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      print("error1");
       if (!serviceEnabled) {
         return Future.error('Location services are disabled.');
       }
 
       permission = await Geolocator.checkPermission();
+      print(permission);
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
@@ -57,28 +60,29 @@ class Batteryprecntage extends GetxController {
         return Future.error(
             'Location permissions are permanently denied, we cannot request permissions.');
       }
-
-      await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.medium)
+      print("error-2");
+      await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.low)
           .then((Position position) {
         _currentPosition = position;
         latitude.value = position.latitude;
         longitude.value = position.longitude;
-        // getAddressFromLatLang(position);
+        if (value) {
+          getAddressFromLatLang(position);
+        }
       }).catchError((e) {
-        debugPrint(e);
+        print('Error obtaining location: $e');
       });
     } catch (e) {
       Get.snackbar('Error', e.toString());
     }
-    return {
-      'latitude': latitude,
-      'longitude': longitude,
-      'position': _currentPosition
-    };
+    print(_currentPosition.toString());
+
+    return _currentPosition;
   }
 
   getAddressFromLatLang(Position position) async {
+    print("xxxxxxxxxxxxxxxxxxxxxx");
+    print(position);
     final data = await controller.getItems();
 
     print("[][][]");
@@ -123,6 +127,7 @@ class Batteryprecntage extends GetxController {
       position.longitude.toString(),
       roundDistanceInKM.toString(),
     );
+    print(location);
 
     result.add({"address": addressString});
 
@@ -132,6 +137,8 @@ class Batteryprecntage extends GetxController {
   Future splash() async {
     final response =
         await apiService.get("/api/method/frappe.auth.get_logged_user", {});
+    print("xxxxxxxxxxxxx");
+    print(response.statusCode);
     if (response.statusCode == 200) {
       Get.offAllNamed("/homepage");
     } else {

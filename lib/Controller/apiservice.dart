@@ -7,41 +7,74 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'dbhelpercontroller.dart';
+
 class ApiService extends GetxService {
+  final Databasehelper controller = Get.put(Databasehelper());
+
   Future<ApiResponse> get(
     String methodName,
     args,
   ) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final data = await controller.getUser();
+    print("///////////////////////////////////////////");
+
     final url = "${dotenv.env['API_URL']}$methodName";
     print(url);
     print(url);
-    if ((prefs.getString('request-header') ?? "").toString().isNotEmpty) {
-      json
-          .decode(prefs.getString('request-header').toString())
-          .forEach((k, v) => {apiHeaders[k.toString()] = v.toString()});
-    }
-    if (args.toString() == '{}') {
-      final uri = Uri.parse(url);
-      final response = await http.get(uri, headers: apiHeaders);
-      print(response.headers.toString());
-      // if (response.headers.toString().contains("system_user=no")) {
-      //   Get.toNamed("/loginpage");
-      // }
-      return ApiResponse(
-          statusCode: response.statusCode,
-          body: response.body,
-          header: response.headers);
+    if (data.isEmpty) {
+      print(data);
+      if (args.toString() == '{}') {
+        final uri = Uri.parse(url);
+        final response = await http.get(uri, headers: apiHeaders);
+        print(response.headers.toString());
+        // if (response.headers.toString().contains("system_user=no")) {
+        //   Get.toNamed("/loginpage");
+        // }
+        return ApiResponse(
+            statusCode: response.statusCode,
+            body: response.body,
+            header: response.headers);
+      } else {
+        final uri = Uri.parse(url).replace(queryParameters: args);
+        final response = await http.get(uri, headers: apiHeaders);
+        // if (response.headers.toString().contains("system_user=no")) {
+        //   Get.toNamed("/loginpage");
+        // }
+        return ApiResponse(
+            statusCode: response.statusCode,
+            body: response.body,
+            header: response.headers);
+      }
     } else {
-      final uri = Uri.parse(url).replace(queryParameters: args);
-      final response = await http.get(uri, headers: apiHeaders);
-      // if (response.headers.toString().contains("system_user=no")) {
-      //   Get.toNamed("/loginpage");
-      // }
-      return ApiResponse(
-          statusCode: response.statusCode,
-          body: response.body,
-          header: response.headers);
+      if ((data[0]["requestheader"] ?? "").toString().isNotEmpty) {
+        json
+            .decode(data[0]["requestheader"].toString())
+            .forEach((k, v) => {apiHeaders[k.toString()] = v.toString()});
+      }
+      if (args.toString() == '{}') {
+         print(data);
+        final uri = Uri.parse(url);
+        final response = await http.get(uri, headers: apiHeaders);
+        print(response.headers.toString());
+        // if (response.headers.toString().contains("system_user=no")) {
+        //   Get.toNamed("/loginpage");
+        // }
+        return ApiResponse(
+            statusCode: response.statusCode,
+            body: response.body,
+            header: response.headers);
+      } else {
+        final uri = Uri.parse(url).replace(queryParameters: args);
+        final response = await http.get(uri, headers: apiHeaders);
+        // if (response.headers.toString().contains("system_user=no")) {
+        //   Get.toNamed("/loginpage");
+        // }
+        return ApiResponse(
+            statusCode: response.statusCode,
+            body: response.body,
+            header: response.headers);
+      }
     }
   }
 }

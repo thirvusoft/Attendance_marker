@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:attendancemarker/Controller/apiservice.dart';
 import 'package:attendancemarker/Controller/batterycontroller.dart';
 import 'package:attendancemarker/Controller/dbhelpercontroller.dart';
@@ -21,18 +23,19 @@ class _HomepageState extends State<Homepage> {
   final ApiService apiService = ApiService();
   final Databasehelper controller = Get.put(Databasehelper());
   final Batteryprecntage locationcontroller = Get.put(Batteryprecntage());
-  String imgurl =
-      "https://i.pinimg.com/736x/87/67/64/8767644bc68a14c50addf8cb2de8c59e.jpg";
+  late String imgurl = "";
+  late String gmail = "";
+  bool button = false;
   List temp = [
     {"item_code": "2", "qty": "2"}
   ];
   String fullname = "";
 
-  late List pinglocation_ = [];
+  List pinglocation_ = [];
   @override
   initState() {
     super.initState();
-    // ignore: avoid_print
+
     print("initState Called");
     DateTime today = DateTime.now();
     dateStr = "${today.day}.${today.month}.${today.year}";
@@ -45,7 +48,7 @@ class _HomepageState extends State<Homepage> {
     return Scaffold(
       appBar: ReusableAppBar(
         title: fullname,
-        subtitle: "Sales Executive",
+        subtitle: gmail,
         actions: [
           Container(
             width: 60,
@@ -114,7 +117,7 @@ class _HomepageState extends State<Homepage> {
                             DataRow(cells: [
                               DataCell(Text(
                                 dateStr.toString(),
-                                style: TextStyle(fontSize: 12),
+                                style: const TextStyle(fontSize: 12),
                               )),
                               const DataCell(Text('09:45:23 AM',
                                   style: TextStyle(fontSize: 12))),
@@ -133,50 +136,86 @@ class _HomepageState extends State<Homepage> {
                                 child: SizedBox(
                                   height: 50,
                                   child: OutlinedButton(
-                                    onPressed: () async {
-                                      final response = await apiService.get(
-                                          "/api/method/thirvu__attendance.utils.api.api.checkin",
-                                          {
-                                            "username": "VigneshMDDD",
-                                            "long": "2333",
-                                            "lat": "8888"
-                                          });
-                                      print(response.body);
+                                    onPressed: (button)
+                                        ? () async {
+                                            final user =
+                                                await controller.getUser();
 
-                                      // print("aaaa");
-                                      // final location = await locationcontroller
-                                      //     .getLocation();
-                                      // final batteryprecntage =
-                                      //     await locationcontroller
-                                      //         .batteryprecntage();
-                                      // print(location);
+                                            final location =
+                                                await locationcontroller
+                                                    .getLocation(false);
+                                            print(
+                                                "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+                                            print(user);
+                                            // final data =
+                                            //     await controller.deleteAllItems();
+                                            getdata();
+                                            final response = await apiService.get(
+                                                "/api/method/thirvu__attendance.utils.api.api.checkin",
+                                                {
+                                                  "username": user[0]
+                                                      ["fullname"],
+                                                  "long": location.longitude
+                                                      .toString(),
+                                                  "lat": location.latitude
+                                                      .toString()
+                                                });
+                                            print(response.body);
+                                            print(jsonDecode(response.body)[
+                                                'attendance_id']);
 
-                                      // print(locationcontroller.longitude);
-                                      // final test = await controller.createItem(
-                                      //     "vicky",
-                                      //     dateStr,
-                                      //     "",
-                                      //     location.toString(),
-                                      //     batteryprecntage.toString());
-                                      // print(test);
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            12), // <-- Radius
-                                      ),
+                                            final userupdate =
+                                                await controller.updateUser(
+                                                    user[0]["id"],
+                                                    user[0]["image"],
+                                                    user[0]["email"],
+                                                    jsonDecode(response.body)[
+                                                            'attendance_id']
+                                                        .toString());
+                                            print(userupdate);
+                                            Future.delayed(
+                                                const Duration(seconds: 1), () {
+                                              getdata();
+                                            });
+                                          }
+                                        : () async {
+                                            print("checkout");
+                                            final user =
+                                                await controller.getUser();
+                                            print(pinglocation_);
+                                            final response = await apiService.get(
+                                                "/api/method/thirvu__attendance.utils.api.api.checkout",
+                                                {
+                                                  "username": user[0]
+                                                      ["fullname"],
+                                                  "attendance": user[0]
+                                                      ["attendanceid"],
+                                                  "address_list":
+                                                      jsonEncode(pinglocation_)
+                                                });
+                                            print(response.statusCode);
+                                            print(response.body);
+                                          },
+                                    style: OutlinedButton.styleFrom(
+                                      primary: const Color(0xFFEA5455),
+                                      side: const BorderSide(
+                                          color: Color(0xFFEA5455), width: 2),
                                     ),
-                                    child: const Center(
+                                    child: Center(
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          Text("Check In",
-                                              style: TextStyle(fontSize: 15)),
-                                          SizedBox(
-                                            width: 15,
+                                          Text(
+                                              (button)
+                                                  ? "Check In"
+                                                  : "Check Out",
+                                              style: const TextStyle(
+                                                  fontSize: 13)),
+                                          const SizedBox(
+                                            width: 5,
                                           ),
-                                          Icon(Icons.arrow_forward),
+                                          const Icon(Icons.arrow_forward),
                                         ],
                                       ),
                                     ),
@@ -190,29 +229,25 @@ class _HomepageState extends State<Homepage> {
                                   child: SizedBox(
                                 height: 50,
                                 child: ElevatedButton(
-                                  onPressed: () async {
-                                    DateTime today = DateTime.now();
-                                    dateStr =
-                                        "${today.day}.${today.month}.${today.year}";
-                                    final location =
-                                        await locationcontroller.getLocation();
-                                    print(location["position"]);
-                                    final address = await locationcontroller
-                                        .getAddressFromLatLang(
-                                            location["position"]);
-                                    print(address);
-                                    final batteryprecntage =
-                                        await locationcontroller
-                                            .batteryprecntage();
-                                    final test = await controller.updateItem(
-                                        1,
-                                        batteryprecntage.toString(),
-                                        address.toString(),
-                                        dateStr);
-                                    print(test);
-                                    getdata();
-                                  },
+                                  onPressed: (button)
+                                      ? () {}
+                                      : () async {
+                                          print("ping......");
+                                          DateTime today = DateTime.now();
+                                          dateStr =
+                                              "${today.day}.${today.month}.${today.year}";
+                                          print("ping......1");
+                                          final location =
+                                              await locationcontroller
+                                                  .getLocation(true);
+
+                                          Future.delayed(
+                                              const Duration(seconds: 1), () {
+                                            getdata();
+                                          });
+                                        },
                                   style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFEA5455),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(
                                           12), // <-- Radius
@@ -225,13 +260,18 @@ class _HomepageState extends State<Homepage> {
                                       children: [
                                         Text(
                                           "Ping",
-                                          style: TextStyle(fontSize: 15),
+                                          style: TextStyle(
+                                              fontSize: 13,
+                                              color: Color.fromARGB(
+                                                  255, 255, 255, 255)),
                                         ),
                                         SizedBox(
                                           width: 15,
                                         ),
                                         Icon(
                                           PhosphorIcons.telegram_logo_fill,
+                                          color: Color.fromARGB(
+                                              255, 250, 249, 249),
                                         )
                                       ],
                                     ),
@@ -279,11 +319,13 @@ class _HomepageState extends State<Homepage> {
                                 label: Text('Addresss',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
+                                        color: Colors.black,
                                         letterSpacing: .1))),
                             DataColumn(
                                 label: Text('Distance',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
+                                        color: Colors.black,
                                         letterSpacing: .1))),
                           ],
                           rows: pinglocation_
@@ -345,18 +387,46 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  getdata() async {
+  void getdata() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    final Databasehelper controller = Get.put(Databasehelper());
 
     final data = await controller.getItems();
-    print("[][][][][]");
-    print(prefs.getString('image'));
+    final user = await controller.getUser();
+    print("pppppppppppppppppppppppppppppppppppp");
+    print(user);
+    print(user.length);
+    print(user[0]['image']);
     setState(() {
-      if (prefs.getString('image') != null) {
-        imgurl = prefs.getString('image')!;
-      }
-      fullname = prefs.getString('full_name')!;
       pinglocation_ = data;
+      print("oooooooooooooooooooooooooo");
+      print(user[0]['attendanceid']);
+      print(user[0]['attendanceid'].runtimeType);
+      print(user[0]['attendanceid'].isEmpty);
+      if (user[0]['attendanceid'].isEmpty) {
+        print("user[0]['attendanceid'].runtimeType");
+        setState(() {
+          button = true;
+        });
+      } else {
+        setState(() {
+          button = false;
+        });
+      }
+
+      if (user[0]['image'] != null) {
+        print("img1");
+        imgurl = user[0]['image'].toString();
+      } else {
+        print("img2");
+
+        imgurl =
+            "https://i.pinimg.com/736x/87/67/64/8767644bc68a14c50addf8cb2de8c59e.jpg";
+      }
+      fullname = user[0]['fullname'];
+      gmail = user[0]['email'];
     });
+    print("datatatata");
+    print(jsonEncode(pinglocation_));
   }
 }
