@@ -115,11 +115,10 @@ class Loginpage extends StatelessWidget {
                         FocusScope.of(context).unfocus();
 
                         final response = await apiService.get(
-                            "/api/method/thirvu__attendance.utils.api.api.login",
-                            {
-                              "usr": _mobilenumberController.text,
-                              "pwd": _passwordController.text
-                            });
+                            "thirvu__attendance.utils.api.api.login", {
+                          "usr": _mobilenumberController.text,
+                          "pwd": _passwordController.text
+                        });
 
                         if (response.statusCode == 200) {
                           final Response = json.decode(response.body);

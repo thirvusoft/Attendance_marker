@@ -162,8 +162,7 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
                       style: TextStyle(fontSize: 15, color: Color(0xFFEA5455)),
                     ),
                     onPressed: () async {
-                      final response =
-                          await apiService.get("/api/method/logout", {});
+                      final response = await apiService.get("logout", {});
 
                       if (response.statusCode == 200) {
                         final data = await controller.deleteAllItems();
@@ -188,10 +187,10 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
     print("[[]]");
     final Databasehelper controller = Get.put(Databasehelper());
     final user = await controller.getUser();
-    final checkinstatus = await apiService
-        .get("/api/method/thirvu__attendance.utils.api.api.loglist", {});
-    final nolog = await apiService
-        .get("/api/method/thirvu__attendance.utils.api.api.nolog", {});
+    final checkinstatus =
+        await apiService.get("thirvu__attendance.utils.api.api.loglist", {});
+    final nolog =
+        await apiService.get("thirvu__attendance.utils.api.api.nolog", {});
 
     setState(() {
       if (user[0]['image'] != null) {

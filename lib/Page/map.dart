@@ -100,8 +100,7 @@ class _MapviewState extends State<Mapview> {
                       final Databasehelper controller =
                           Get.put(Databasehelper());
 
-                      final response =
-                          await apiService.get("/api/method/logout", {});
+                      final response = await apiService.get("logout", {});
 
                       if (response.statusCode == 200) {
                         final data = await controller.deleteAllItems();

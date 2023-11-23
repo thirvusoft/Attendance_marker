@@ -157,7 +157,7 @@ class _HomepageState extends State<Homepage> {
                                             //     await controller.deleteAllItems();
                                             getdata();
                                             final response = await apiService.get(
-                                                "/api/method/thirvu__attendance.utils.api.api.checkin",
+                                                "thirvu__attendance.utils.api.api.checkin",
                                                 {
                                                   "username": user[0]
                                                       ["fullname"],
@@ -214,7 +214,7 @@ class _HomepageState extends State<Homepage> {
                                             final user =
                                                 await controller.getUser();
                                             final response = await apiService.get(
-                                                "/api/method/thirvu__attendance.utils.api.api.checkout",
+                                                "thirvu__attendance.utils.api.api.checkout",
                                                 {
                                                   "username": user[0]
                                                       ["fullname"],
@@ -533,8 +533,7 @@ class _HomepageState extends State<Homepage> {
                       style: TextStyle(fontSize: 15, color: Color(0xFFEA5455)),
                     ),
                     onPressed: () async {
-                      final response =
-                          await apiService.get("/api/method/logout", {});
+                      final response = await apiService.get("logout", {});
 
                       if (response.statusCode == 200) {
                         final data = await controller.deleteAllItems();
