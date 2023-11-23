@@ -14,12 +14,15 @@ class LeadPage extends StatefulWidget {
 class _LeadPageState extends State<LeadPage> {
   final _formKey = GlobalKey<FormState>();
   final Search searching = Search();
-
+  final LeadCreation lead = LeadCreation();
   final ApiService apiService = ApiService();
   TextEditingController _nameController = TextEditingController();
+  TextEditingController _organizationController = TextEditingController();
   TextEditingController _mobilenoController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _sourceController = TextEditingController();
+  TextEditingController _industryController = TextEditingController();
+  TextEditingController _territoryController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +56,17 @@ class _LeadPageState extends State<LeadPage> {
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
+                    controller: _organizationController,
+                    label: 'Organization Name',
+                    // validator: (value) {
+                    //   if (value == null || value.isEmpty) {
+                    //     return 'Please enter your name';
+                    //   }
+                    //   return null;
+                    // },
+                  ),
+                  const SizedBox(height: 16),
+                  CustomTextField(
                     controller: _mobilenoController,
                     label: 'Mobile No',
                     keyboardType: TextInputType.phone,
@@ -60,7 +74,6 @@ class _LeadPageState extends State<LeadPage> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your mobile no';
                       }
-                      // You can add more sophisticated email validation logic here
                       return null;
                     },
                   ),
@@ -73,21 +86,40 @@ class _LeadPageState extends State<LeadPage> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
                       }
-                      // You can add more sophisticated email validation logic here
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
                   _buildSearchField('Source', 'Please enter Source name',
-                      _sourceController, 'Lead Source'),
+                      _sourceController, 'Lead Source', searching.searchlist_),
+                  const SizedBox(height: 16),
+                  _buildSearchField(
+                      'Industry Type',
+                      'Please enter industry type',
+                      _industryController,
+                      'Industry Type',
+                      searching.searchlistindustry_),
+                  const SizedBox(height: 16),
+                  _buildSearchField(
+                      'Territory',
+                      'Please enter territory',
+                      _territoryController,
+                      'Territory',
+                      searching.searchlistterritory_),
                   SizedBox(height: 32),
                   Center(
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          // Form is valid, handle lead creation logic here
-                          print(
-                              'Lead created: ${_nameController.text}, ${_emailController.text}');
+                          lead.Lead(
+                              "Lead",
+                              _nameController.text,
+                              _organizationController.text,
+                              _mobilenoController.text,
+                              _emailController.text,
+                              _sourceController.text,
+                              _industryController.text,
+                              _territoryController.text);
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -95,7 +127,7 @@ class _LeadPageState extends State<LeadPage> {
                             EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                         textStyle: TextStyle(fontSize: 18),
                       ),
-                      child: Text('Create Lead'),
+                      child: const Text('Create Lead'),
                     ),
                   ),
                 ],
@@ -106,7 +138,7 @@ class _LeadPageState extends State<LeadPage> {
   }
 
   Widget _buildSearchField(String label, String errorMessage,
-      TextEditingController controller, String doctype) {
+      TextEditingController controller, String doctype, List suggestion) {
     return Obx(
       () => SearchField(
         controller: controller,
@@ -125,10 +157,9 @@ class _LeadPageState extends State<LeadPage> {
 
           return null;
         },
-        suggestions: searching.searchlist_
-            .map((String) => SearchFieldListItem(String))
-            .toList(),
-        suggestionStyle: TextStyle(fontSize: 16),
+        suggestions:
+            suggestion.map((String) => SearchFieldListItem(String)).toList(),
+        suggestionStyle: const TextStyle(fontSize: 16),
         suggestionState: Suggestion.expand,
         suggestionsDecoration: SuggestionDecoration(
             padding: const EdgeInsets.only(top: 10.0, left: 5, bottom: 20),
