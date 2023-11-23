@@ -1,4 +1,5 @@
 import 'package:attendancemarker/Page/homepage.dart';
+import 'package:attendancemarker/Page/lead.dart';
 import 'package:attendancemarker/Page/loginpage.dart';
 import 'package:attendancemarker/Page/loglistpage.dart';
 import 'package:attendancemarker/Page/splash_screen.dart';
@@ -12,6 +13,7 @@ class Routes {
   static String mappage = '/mappage';
   static String splashscreen = '/Splashs';
   static String loglist = '/loglist';
+  static String leadpage = '/leadpage';
 }
 
 final getPages = [
@@ -34,5 +36,9 @@ final getPages = [
   GetPage(
     name: Routes.loglist,
     page: () => const Loglist(),
+  ),
+  GetPage(
+    name: Routes.leadpage,
+    page: () =>  LeadPage(),
   ),
 ];

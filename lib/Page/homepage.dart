@@ -515,6 +515,18 @@ class _HomepageState extends State<Homepage> {
                   const SizedBox(
                     width: 30,
                   ),
+                  TextButton(
+                      child: const Text(
+                        'Lead',
+                        style:
+                            TextStyle(fontSize: 15, color: Color(0xFFEA5455)),
+                      ),
+                      onPressed: () {
+                        Get.offAllNamed("/leadpage");
+                      }),
+                  const SizedBox(
+                    width: 30,
+                  ),
                   ElevatedButton(
                     child: const Text(
                       'Yes, Logout',

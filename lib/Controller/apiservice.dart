@@ -18,7 +18,7 @@ class ApiService extends GetxService {
     final data = await controller.getUser();
 
     final url = "${dotenv.env['API_URL']}$methodName";
-   
+
     if (data.isEmpty) {
       if (args.toString() == '{}') {
         final uri = Uri.parse(url);
