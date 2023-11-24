@@ -46,6 +46,8 @@ dependencies:
   geolocator: ^10.1.0
   geocoding: ^2.1.1
   searchfield: ^0.8.8
+  bottom_bar_matu: ^1.3.0
+
 
 dev_dependencies:
   flutter_test:

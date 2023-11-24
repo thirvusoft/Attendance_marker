@@ -44,6 +44,7 @@ class ReusableAppBar extends StatelessWidget implements PreferredSizeWidget {
               )
             : null,
       ),
+      
     );
   }
 

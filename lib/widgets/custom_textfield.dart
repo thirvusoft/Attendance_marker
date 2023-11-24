@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final TextInputType keyboardType;
   final FormFieldValidator<String>? validator;
+  final int? maxLength;
 
   const CustomTextField({
     required this.controller,
     required this.label,
     this.keyboardType = TextInputType.text,
     this.validator,
+    this.maxLength,
   });
 
   @override
@@ -28,6 +31,9 @@ class CustomTextField extends StatelessWidget {
             borderSide: BorderSide(color: Colors.black)),
       ),
       validator: validator,
+      inputFormatters: maxLength != null
+          ? [LengthLimitingTextInputFormatter(maxLength)]
+          : null,
     );
   }
 }

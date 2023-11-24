@@ -39,6 +39,6 @@ final getPages = [
   ),
   GetPage(
     name: Routes.leadpage,
-    page: () =>  LeadPage(),
+    page: () => LeadPage(),
   ),
 ];

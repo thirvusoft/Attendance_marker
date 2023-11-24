@@ -94,6 +94,7 @@ class LeadCreation extends GetxController {
         isDismissible: true,
         forwardAnimationCurve: Curves.easeOutBack,
       );
+      return true;
     } else {
       final Response = json.decode(response.body);
       Get.snackbar(
@@ -109,6 +110,7 @@ class LeadCreation extends GetxController {
         isDismissible: true,
         forwardAnimationCurve: Curves.easeOutBack,
       );
+      return false;
     }
   }
 }

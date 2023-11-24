@@ -2,6 +2,8 @@ import 'package:attendancemarker/Controller/api.dart';
 import 'package:attendancemarker/Controller/apiservice.dart';
 import 'package:attendancemarker/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
@@ -23,6 +25,7 @@ class _LeadPageState extends State<LeadPage> {
   TextEditingController _sourceController = TextEditingController();
   TextEditingController _industryController = TextEditingController();
   TextEditingController _territoryController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +37,12 @@ class _LeadPageState extends State<LeadPage> {
               "Lead",
               style: GoogleFonts.sansita(fontSize: 20, color: Colors.white),
             ),
+          ),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              Get.offAllNamed("/homepage");
+            },
           ),
         ),
         body: SingleChildScrollView(
@@ -76,6 +85,7 @@ class _LeadPageState extends State<LeadPage> {
                       }
                       return null;
                     },
+                    maxLength: 10,
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
@@ -83,8 +93,12 @@ class _LeadPageState extends State<LeadPage> {
                     label: 'Email',
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
+                      if (value!.isNotEmpty) {
+                        final RegExp emailRegExp = RegExp(
+                            r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
+                        if (!emailRegExp.hasMatch(value)) {
+                          return 'Please enter a valid email address';
+                        }
                       }
                       return null;
                     },
@@ -109,9 +123,13 @@ class _LeadPageState extends State<LeadPage> {
                   SizedBox(height: 32),
                   Center(
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          lead.Lead(
+                          setState(() {
+                            _isLoading = true;
+                          });
+
+                          bool leadCreated = await lead.Lead(
                               "Lead",
                               _nameController.text,
                               _organizationController.text,
@@ -120,6 +138,12 @@ class _LeadPageState extends State<LeadPage> {
                               _sourceController.text,
                               _industryController.text,
                               _territoryController.text);
+                          setState(() {
+                            _isLoading = false;
+                          });
+                          if (leadCreated) {
+                            Get.offAllNamed("/homepage");
+                          }
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -127,7 +151,9 @@ class _LeadPageState extends State<LeadPage> {
                             EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                         textStyle: TextStyle(fontSize: 18),
                       ),
-                      child: const Text('Create Lead'),
+                      child: _isLoading
+                          ? const CircularProgressIndicator()
+                          : const Text('Create Lead'),
                     ),
                   ),
                 ],
