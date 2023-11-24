@@ -568,12 +568,14 @@ class _HomepageState extends State<Homepage> {
               itemCount: items.length,
               itemBuilder: (context, index) {
                 return Card(
-                  elevation: 4,
+                  elevation: 6,
                   margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   child: ListTile(
-                    // contentPadding: EdgeInsets.all(10),
+                    leading: CircleAvatar(
+                      child: Text((index + 1).toString()),
+                    ),
                     title: Text(
-                      'Name: ${items[index]["first_name"]}',
+                      'Name: ${items[index]["first_name"]} ',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -601,7 +603,7 @@ class _HomepageState extends State<Homepage> {
                   ),
                 );
               },
-            ),
+            )
           ]),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
