@@ -152,9 +152,15 @@ class _HomepageState extends State<Homepage> {
                                             final location =
                                                 await locationcontroller
                                                     .getLocation(false);
-
-                                            // final data =
-                                            //     await controller.deleteAllItems();
+                                            print(location);
+                                            print("lo");
+                                            if (location ==
+                                                "Locatuon not enabled") {
+                                              print("lo");
+                                              showLocationServicesDialog();
+                                            }
+                                            // final data = await controller
+                                            //     .deleteAllItems();
                                             getdata();
                                             final response = await apiService.get(
                                                 "/api/method/thirvu__attendance.utils.api.api.checkin",
@@ -166,6 +172,7 @@ class _HomepageState extends State<Homepage> {
                                                   "lat": location.latitude
                                                       .toString()
                                                 });
+                                            print(response.body);
                                             if (response.statusCode == 200) {
                                               final Response =
                                                   json.decode(response.body);
@@ -211,6 +218,7 @@ class _HomepageState extends State<Homepage> {
                                             }
                                           }
                                         : () async {
+                                            print(1);
                                             final user =
                                                 await controller.getUser();
                                             final response = await apiService.get(
@@ -224,6 +232,7 @@ class _HomepageState extends State<Homepage> {
                                                       jsonEncode(pinglocation_)
                                                 });
                                             print(response.body);
+                                            print(response.statusCode);
                                             if (response.statusCode == 200) {
                                               final Response =
                                                   json.decode(response.body);
@@ -268,6 +277,28 @@ class _HomepageState extends State<Homepage> {
                                                   () {
                                                 getdata();
                                               });
+                                            } else if (response.statusCode ==
+                                                417) {
+                                              Get.snackbar(
+                                                "Failed",
+                                                "Duplicate entry detected",
+                                                icon: const HeroIcon(
+                                                    HeroIcons.xMark,
+                                                    color: Colors.white),
+                                                snackPosition:
+                                                    SnackPosition.BOTTOM,
+                                                backgroundColor:
+                                                    const Color(0xff35394e),
+                                                borderRadius: 20,
+                                                margin:
+                                                    const EdgeInsets.all(15),
+                                                colorText: Colors.white,
+                                                duration:
+                                                    const Duration(seconds: 2),
+                                                isDismissible: true,
+                                                forwardAnimationCurve:
+                                                    Curves.easeOutBack,
+                                              );
                                             }
                                           },
                                     style: OutlinedButton.styleFrom(
@@ -312,7 +343,10 @@ class _HomepageState extends State<Homepage> {
                                           final location =
                                               await locationcontroller
                                                   .getLocation(true);
-
+                                          if (location ==
+                                              "Locatuon not enabled") {
+                                            showLocationServicesDialog();
+                                          }
                                           Future.delayed(
                                               const Duration(seconds: 1), () {
                                             getdata();
@@ -341,7 +375,7 @@ class _HomepageState extends State<Homepage> {
                                           width: 15,
                                         ),
                                         Icon(
-                                          PhosphorIcons.telegram_logo_fill,
+                                          PhosphorIcons.map_pin_light,
                                           color: Color.fromARGB(
                                               255, 250, 249, 249),
                                         )
@@ -538,6 +572,30 @@ class _HomepageState extends State<Homepage> {
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  void showLocationServicesDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Location Services Disabled'),
+          content: const Text(
+              'Please enable location services to fetch the current location.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(color: Color(0xFFEA5455)),
+              ),
+            ),
+          ],
         );
       },
     );

@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-
 import 'package:attendancemarker/Controller/apiservice.dart';
 import 'package:attendancemarker/Controller/dbhelpercontroller.dart';
 import 'package:battery_plus/battery_plus.dart';
@@ -8,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Batteryprecntage extends GetxController {
   final Databasehelper controller = Get.put(Databasehelper());
@@ -42,7 +41,7 @@ class Batteryprecntage extends GetxController {
 
       serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        return Future.error('Location services are disabled.');
+        return "Locatuon not enabled";
       }
 
       permission = await Geolocator.checkPermission();
@@ -63,6 +62,8 @@ class Batteryprecntage extends GetxController {
         latitude.value = position.latitude;
         longitude.value = position.longitude;
         if (value) {
+          print("ttttttttttttttttttttttttttttttttttttt");
+          print(position);
           getAddressFromLatLang(position);
         }
       }).catchError((e) {
@@ -76,6 +77,7 @@ class Batteryprecntage extends GetxController {
   }
 
   getAddressFromLatLang(Position position) async {
+    print(position);
     final data = await controller.getItems();
 
     late List result = [];
@@ -84,7 +86,7 @@ class Batteryprecntage extends GetxController {
     List<Placemark> newPlace = await GeocodingPlatform.instance
         .placemarkFromCoordinates(position.latitude, position.longitude,
             localeIdentifier: "en");
-
+    print(newPlace);
     Placemark place = newPlace[0];
     String addressString = [
       place.name,

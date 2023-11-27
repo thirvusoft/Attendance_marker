@@ -69,6 +69,9 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
         bottom: TabBar(
           controller: _tabController,
           labelColor: Colors.white,
+          onTap: (index) {
+            getdata();
+          },
           tabs: const <Widget>[
             Tab(
               text: 'Loged',
@@ -84,27 +87,34 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
       body: TabBarView(controller: _tabController, children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(4, 4, 2, 4),
-          child: RefreshIndicator(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: log.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Card(
-                    color: Colors.white,
-                    child: ListTile(
-                      leading: Text((index + 1).toString()),
-                      title: Text(log[index]["employee_name"].trim()),
-                      trailing: Text("Status: ${log[index]["log_type"]}"),
-                      subtitle: Text("Time: ${log[index]["time"]}"),
-                    ),
-                  );
-                },
-              ),
-              onRefresh: () {
-                return Future.delayed(const Duration(seconds: 1), () {
-                  getdata();
-                });
-              }),
+          child: (log.isEmpty)
+              ? const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                  ],
+                )
+              : RefreshIndicator(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: log.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Card(
+                        color: Colors.white,
+                        child: ListTile(
+                          leading: Text((index + 1).toString()),
+                          title: Text(log[index]["employee_name"].trim()),
+                          trailing: Text("Status: ${log[index]["log_type"]}"),
+                          subtitle: Text("Time: ${log[index]["time"]}"),
+                        ),
+                      );
+                    },
+                  ),
+                  onRefresh: () {
+                    return Future.delayed(const Duration(seconds: 1), () {
+                      getdata();
+                    });
+                  }),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(4, 4, 2, 4),
@@ -185,7 +195,6 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
   }
 
   void getdata() async {
-    print("[[]]");
     final Databasehelper controller = Get.put(Databasehelper());
     final user = await controller.getUser();
     final checkinstatus = await apiService
@@ -200,17 +209,18 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
         imgurl =
             "https://i.pinimg.com/736x/87/67/64/8767644bc68a14c50addf8cb2de8c59e.jpg";
       }
+      print(
+          "**********************************************************************************************************************************88");
+      print(imgurl);
       fullname = user[0]['fullname'];
       gmail = user[0]['email'];
       if (checkinstatus.statusCode == 200) {
         final responsedata = json.decode(checkinstatus.body);
         log = responsedata["message"];
-        print(log);
       }
       if (nolog.statusCode == 200) {
         final responsedata = json.decode(nolog.body);
         nolog_ = responsedata["message"];
-        print(nolog_);
       }
     });
   }
