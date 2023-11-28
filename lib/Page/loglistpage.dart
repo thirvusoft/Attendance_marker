@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:heroicons/heroicons.dart';
 
 class Loglist extends StatefulWidget {
   const Loglist({super.key});
@@ -50,18 +51,31 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
         ),
         actions: [
           GestureDetector(
+              onTap: () {
+                Get.toNamed("/mappage");
+              },
+              child: const Padding(
+                padding: EdgeInsets.only(right: 20.0),
+                child: HeroIcon(HeroIcons.mapPin, color: Colors.white),
+              )),
+          GestureDetector(
             onTap: () {
               showPopup(context);
             },
-            child: Container(
-              width: 60,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                    color: Colors.white, width: 3.0, style: BorderStyle.solid),
-                image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: CachedNetworkImageProvider(imgurl)),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: 70,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                      color: Colors.white,
+                      width: 3.0,
+                      style: BorderStyle.solid),
+                  image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: CachedNetworkImageProvider(imgurl)),
+                ),
               ),
             ),
           ),
