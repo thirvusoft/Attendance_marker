@@ -44,28 +44,30 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
             "Hi  $fullname !",
             style: GoogleFonts.sansita(fontSize: 20, color: Colors.white),
           ),
-          subtitle: Text(
-            gmail,
-            style: GoogleFonts.poppins(color: Colors.white),
-          ),
+          // subtitle: Text(
+          //   gmail,
+          //   style: GoogleFonts.poppins(color: Colors.white),
+          // ),
         ),
         actions: [
-          GestureDetector(
-              onTap: () {
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: IconButton(
+              icon: const HeroIcon(HeroIcons.mapPin, color: Colors.white),
+              onPressed: () {
                 Get.toNamed("/mappage");
               },
-              child: const Padding(
-                padding: EdgeInsets.only(right: 20.0),
-                child: HeroIcon(HeroIcons.mapPin, color: Colors.white),
-              )),
+            ),
+          ),
           GestureDetector(
             onTap: () {
               showPopup(context);
             },
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(right: 5),
               child: Container(
-                width: 70,
+                width: 50,
+                height: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(

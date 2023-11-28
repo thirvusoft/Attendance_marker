@@ -1,3 +1,5 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 final List<Map<String, String>> data = [
   {
     'ID': '1',
@@ -36,3 +38,4 @@ final List<Map<String, String>> data = [
   },
 ];
 Map<String, String> apiHeaders = {};
+Set<Marker> markers = {};
