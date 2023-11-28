@@ -64,7 +64,9 @@ class _HomepageState extends State<Homepage> {
                     color: Colors.white, width: 3.0, style: BorderStyle.solid),
                 image: DecorationImage(
                     fit: BoxFit.cover,
-                    image: CachedNetworkImageProvider(imgurl)),
+                    image: CachedNetworkImageProvider(imgurl.isEmpty
+                        ? "https://i.pinimg.com/736x/87/67/64/8767644bc68a14c50addf8cb2de8c59e.jpg"
+                        : imgurl)),
               ),
             ),
           ),
@@ -152,9 +154,15 @@ class _HomepageState extends State<Homepage> {
                                             final location =
                                                 await locationcontroller
                                                     .getLocation(false);
-
-                                            // final data =
-                                            //     await controller.deleteAllItems();
+                                            print(location);
+                                            print("lo");
+                                            if (location ==
+                                                "Locatuon not enabled") {
+                                              print("lo");
+                                              showLocationServicesDialog();
+                                            }
+                                            // final data = await controller
+                                            //     .deleteAllItems();
                                             getdata();
                                             final response = await apiService.get(
                                                 "/api/method/thirvu__attendance.utils.api.api.checkin",
@@ -166,6 +174,7 @@ class _HomepageState extends State<Homepage> {
                                                   "lat": location.latitude
                                                       .toString()
                                                 });
+                                            print(response.body);
                                             if (response.statusCode == 200) {
                                               final Response =
                                                   json.decode(response.body);
@@ -179,7 +188,7 @@ class _HomepageState extends State<Homepage> {
                                                 snackPosition:
                                                     SnackPosition.BOTTOM,
                                                 backgroundColor:
-                                                    const Color(0xff35394e),
+                                                    const Color(0xFF212A1D),
                                                 borderRadius: 20,
                                                 margin:
                                                     const EdgeInsets.all(15),
@@ -211,6 +220,7 @@ class _HomepageState extends State<Homepage> {
                                             }
                                           }
                                         : () async {
+                                            print(1);
                                             final user =
                                                 await controller.getUser();
                                             final response = await apiService.get(
@@ -224,6 +234,7 @@ class _HomepageState extends State<Homepage> {
                                                       jsonEncode(pinglocation_)
                                                 });
                                             print(response.body);
+                                            print(response.statusCode);
                                             if (response.statusCode == 200) {
                                               final Response =
                                                   json.decode(response.body);
@@ -236,7 +247,7 @@ class _HomepageState extends State<Homepage> {
                                                 snackPosition:
                                                     SnackPosition.BOTTOM,
                                                 backgroundColor:
-                                                    const Color(0xff35394e),
+                                                    const Color(0xFF212A1D),
                                                 borderRadius: 20,
                                                 margin:
                                                     const EdgeInsets.all(15),
@@ -268,6 +279,28 @@ class _HomepageState extends State<Homepage> {
                                                   () {
                                                 getdata();
                                               });
+                                            } else if (response.statusCode ==
+                                                417) {
+                                              Get.snackbar(
+                                                "Failed",
+                                                "Duplicate entry detected",
+                                                icon: const HeroIcon(
+                                                    HeroIcons.xMark,
+                                                    color: Colors.white),
+                                                snackPosition:
+                                                    SnackPosition.BOTTOM,
+                                                backgroundColor:
+                                                    const Color(0xFF212A1D),
+                                                borderRadius: 20,
+                                                margin:
+                                                    const EdgeInsets.all(15),
+                                                colorText: Colors.white,
+                                                duration:
+                                                    const Duration(seconds: 2),
+                                                isDismissible: true,
+                                                forwardAnimationCurve:
+                                                    Curves.easeOutBack,
+                                              );
                                             }
                                           },
                                     style: OutlinedButton.styleFrom(
@@ -312,7 +345,10 @@ class _HomepageState extends State<Homepage> {
                                           final location =
                                               await locationcontroller
                                                   .getLocation(true);
-
+                                          if (location ==
+                                              "Locatuon not enabled") {
+                                            showLocationServicesDialog();
+                                          }
                                           Future.delayed(
                                               const Duration(seconds: 1), () {
                                             getdata();
@@ -321,8 +357,7 @@ class _HomepageState extends State<Homepage> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFEA5455),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          12), // <-- Radius
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
                                   child: const Center(
@@ -333,7 +368,7 @@ class _HomepageState extends State<Homepage> {
                                         Text(
                                           "Ping",
                                           style: TextStyle(
-                                              fontSize: 13,
+                                              fontSize: 14,
                                               color: Color.fromARGB(
                                                   255, 255, 255, 255)),
                                         ),
@@ -341,7 +376,7 @@ class _HomepageState extends State<Homepage> {
                                           width: 15,
                                         ),
                                         Icon(
-                                          PhosphorIcons.telegram_logo_fill,
+                                          PhosphorIcons.map_pin_bold,
                                           color: Color.fromARGB(
                                               255, 250, 249, 249),
                                         )
@@ -480,15 +515,19 @@ class _HomepageState extends State<Homepage> {
         });
       }
 
-      if (user[0]['image'] != null) {
+      if (user[0]['image'].contains("files")) {
         imgurl = user[0]['image'].toString();
-      } else {
-        imgurl =
-            "https://i.pinimg.com/736x/87/67/64/8767644bc68a14c50addf8cb2de8c59e.jpg";
       }
       fullname = user[0]['fullname'];
-      gmail = user[0]['email'];
+      gmail = user[0]['email']; 
     });
+    final response = await apiService.get(
+        "/api/method/thirvu__attendance.utils.api.api.locationtable_updation", {
+      "attendance": user[0]["attendanceid"],
+      "address_list": jsonEncode(pinglocation_)
+    });
+    print(response.statusCode);
+    print(response.body);
   }
 
   void showPopup(BuildContext context) {
@@ -523,13 +562,9 @@ class _HomepageState extends State<Homepage> {
                     onPressed: () async {
                       final response =
                           await apiService.get("/api/method/logout", {});
-
                       if (response.statusCode == 200) {
-                        final data = await controller.deleteAllItems();
-                        final userlist = await controller.getUser();
-
-                        // controller.deleteItem(location.length - 1);
-
+                        await controller.deleteAllItems();
+                        await controller.getUser();
                         Get.offAllNamed("/loginpage");
                       }
                     },
@@ -538,6 +573,30 @@ class _HomepageState extends State<Homepage> {
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  void showLocationServicesDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Location Services Disabled'),
+          content: const Text(
+              'Please enable location services to fetch the current location.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(color: Color(0xFFEA5455)),
+              ),
+            ),
+          ],
         );
       },
     );

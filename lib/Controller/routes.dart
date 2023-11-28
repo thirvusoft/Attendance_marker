@@ -34,5 +34,5 @@ final getPages = [
   GetPage(
     name: Routes.loglist,
     page: () => const Loglist(),
-  ),
+  ),  
 ];
