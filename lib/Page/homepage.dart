@@ -188,7 +188,7 @@ class _HomepageState extends State<Homepage> {
                                                 snackPosition:
                                                     SnackPosition.BOTTOM,
                                                 backgroundColor:
-                                                    const Color(0xff35394e),
+                                                    const Color(0xFF212A1D),
                                                 borderRadius: 20,
                                                 margin:
                                                     const EdgeInsets.all(15),
@@ -247,7 +247,7 @@ class _HomepageState extends State<Homepage> {
                                                 snackPosition:
                                                     SnackPosition.BOTTOM,
                                                 backgroundColor:
-                                                    const Color(0xff35394e),
+                                                    const Color(0xFF212A1D),
                                                 borderRadius: 20,
                                                 margin:
                                                     const EdgeInsets.all(15),
@@ -290,7 +290,7 @@ class _HomepageState extends State<Homepage> {
                                                 snackPosition:
                                                     SnackPosition.BOTTOM,
                                                 backgroundColor:
-                                                    const Color(0xff35394e),
+                                                    const Color(0xFF212A1D),
                                                 borderRadius: 20,
                                                 margin:
                                                     const EdgeInsets.all(15),
@@ -519,8 +519,15 @@ class _HomepageState extends State<Homepage> {
         imgurl = user[0]['image'].toString();
       }
       fullname = user[0]['fullname'];
-      gmail = user[0]['email'];
+      gmail = user[0]['email']; 
     });
+    final response = await apiService.get(
+        "/api/method/thirvu__attendance.utils.api.api.locationtable_updation", {
+      "attendance": user[0]["attendanceid"],
+      "address_list": jsonEncode(pinglocation_)
+    });
+    print(response.statusCode);
+    print(response.body);
   }
 
   void showPopup(BuildContext context) {
