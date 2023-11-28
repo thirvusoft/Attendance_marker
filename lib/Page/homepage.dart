@@ -64,7 +64,9 @@ class _HomepageState extends State<Homepage> {
                     color: Colors.white, width: 3.0, style: BorderStyle.solid),
                 image: DecorationImage(
                     fit: BoxFit.cover,
-                    image: CachedNetworkImageProvider(imgurl)),
+                    image: CachedNetworkImageProvider(imgurl.isEmpty
+                        ? "https://i.pinimg.com/736x/87/67/64/8767644bc68a14c50addf8cb2de8c59e.jpg"
+                        : imgurl)),
               ),
             ),
           ),
@@ -355,8 +357,7 @@ class _HomepageState extends State<Homepage> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFEA5455),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          12), // <-- Radius
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
                                   child: const Center(
@@ -367,7 +368,7 @@ class _HomepageState extends State<Homepage> {
                                         Text(
                                           "Ping",
                                           style: TextStyle(
-                                              fontSize: 13,
+                                              fontSize: 14,
                                               color: Color.fromARGB(
                                                   255, 255, 255, 255)),
                                         ),
@@ -375,7 +376,7 @@ class _HomepageState extends State<Homepage> {
                                           width: 15,
                                         ),
                                         Icon(
-                                          PhosphorIcons.map_pin_light,
+                                          PhosphorIcons.map_pin_bold,
                                           color: Color.fromARGB(
                                               255, 250, 249, 249),
                                         )
@@ -514,11 +515,8 @@ class _HomepageState extends State<Homepage> {
         });
       }
 
-      if (user[0]['image'] != null) {
+      if (user[0]['image'].contains("files")) {
         imgurl = user[0]['image'].toString();
-      } else {
-        imgurl =
-            "https://i.pinimg.com/736x/87/67/64/8767644bc68a14c50addf8cb2de8c59e.jpg";
       }
       fullname = user[0]['fullname'];
       gmail = user[0]['email'];
@@ -557,13 +555,9 @@ class _HomepageState extends State<Homepage> {
                     onPressed: () async {
                       final response =
                           await apiService.get("/api/method/logout", {});
-
                       if (response.statusCode == 200) {
-                        final data = await controller.deleteAllItems();
-                        final userlist = await controller.getUser();
-
-                        // controller.deleteItem(location.length - 1);
-
+                        await controller.deleteAllItems();
+                        await controller.getUser();
                         Get.offAllNamed("/loginpage");
                       }
                     },
