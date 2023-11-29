@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:attendancemarker/Controller/apiservice.dart';
 import 'package:attendancemarker/Controller/dbhelpercontroller.dart';
+import 'package:attendancemarker/Page/map_page.dart';
 import 'package:attendancemarker/widgets/resubale_popup.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +56,7 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
             child: IconButton(
               icon: const HeroIcon(HeroIcons.mapPin, color: Colors.white),
               onPressed: () {
-                Get.toNamed("/mappage");
+                Get.to(Mapview());
               },
             ),
           ),
@@ -76,7 +77,9 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
                       style: BorderStyle.solid),
                   image: DecorationImage(
                       fit: BoxFit.cover,
-                      image: CachedNetworkImageProvider(imgurl)),
+                      image: CachedNetworkImageProvider(imgurl.isEmpty
+                          ? "https://i.pinimg.com/736x/87/67/64/8767644bc68a14c50addf8cb2de8c59e.jpg"
+                          : imgurl)),
                 ),
               ),
             ),
@@ -219,14 +222,10 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
         .get("/api/method/thirvu__attendance.utils.api.api.nolog", {});
 
     setState(() {
-      if (user[0]['image'] != null) {
+      if (user[0]['image'].contains("files")) {
         imgurl = user[0]['image'].toString();
-      } else {
-        imgurl =
-            "https://i.pinimg.com/736x/87/67/64/8767644bc68a14c50addf8cb2de8c59e.jpg";
       }
-      print(
-          "**********************************************************************************************************************************88");
+
       print(imgurl);
       fullname = user[0]['fullname'];
       gmail = user[0]['email'];

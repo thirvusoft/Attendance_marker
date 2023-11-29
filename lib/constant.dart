@@ -38,4 +38,3 @@ final List<Map<String, String>> data = [
   },
 ];
 Map<String, String> apiHeaders = {};
-Set<Marker> markers = {};

@@ -1,18 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
-
 import 'package:attendancemarker/Controller/apiservice.dart';
-import 'package:attendancemarker/Controller/dbhelpercontroller.dart';
-import 'package:attendancemarker/constant.dart';
-import 'package:attendancemarker/widgets/resubale_popup.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:label_marker/label_marker.dart';
-import 'package:heroicons/heroicons.dart';
-
-import '../widgets/resuable_appbar.dart';
 
 class Mapview extends StatefulWidget {
   const Mapview({super.key});
@@ -22,13 +15,13 @@ class Mapview extends StatefulWidget {
 }
 
 class _MapviewState extends State<Mapview> {
-  final LatLng initialPosition = const LatLng(15.3702058, 78.7362404);
-  BitmapDescriptor markerIcon = BitmapDescriptor.defaultMarker;
   late GoogleMapController mapController;
   MapType currentMapType = MapType.normal;
+  Set<Marker> markers = {};
 
   List empLocations = [];
   final ApiService apiService = ApiService();
+
   @override
   initState() {
     super.initState();
@@ -36,32 +29,32 @@ class _MapviewState extends State<Mapview> {
   }
 
   Future getEmployeeData() async {
-    ApiService();
-
     final response = await apiService.get(
         "/api/method/thirvu__attendance.utils.api.api.get_employee_locations",
         {});
-    print(response.statusCode);
-    print(response.body);
+
     if (response.statusCode == 200) {
       final Response = json.decode(response.body);
-      empLocations = Response["message"];
-
+      setState(() {
+        empLocations = Response["message"];
+      });
       for (var empDetail in empLocations) {
-        String empName = empDetail[0];
-        double latitude = double.parse(empDetail[1]);
-        double longitude = double.parse(empDetail[2]);
-
-        markers.addLabelMarker(LabelMarker(
-          label: empName,
-          textStyle: const TextStyle(fontSize: 150),
-          markerId: MarkerId(empName),
-          position: LatLng(latitude, longitude),
+        markers
+            .addLabelMarker(LabelMarker(
+          label: empDetail[0],
+          textStyle: const TextStyle(fontSize: 50),
+          markerId: MarkerId(empDetail[0]),
+          position:
+              LatLng(double.parse(empDetail[1]), double.parse(empDetail[2])),
           backgroundColor: Colors.red,
-        ));
+        ))
+            .then(
+          (value) {
+            setState(() {});
+          },
+        );
       }
 
-      print(markers);
       if (empLocations.isEmpty) {
         Get.snackbar(
           "No Records Found",
@@ -78,10 +71,9 @@ class _MapviewState extends State<Mapview> {
         );
       }
     }
-    // createMarkers();
   }
 
-  void onMapCreated(controller) {
+  void _onMapCreated(GoogleMapController controller) {
     setState(() {
       mapController = controller;
     });
@@ -90,14 +82,20 @@ class _MapviewState extends State<Mapview> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: markers.isEmpty
+      body: SafeArea(
+        child: empLocations.isEmpty
             ? const Center(
                 child: Column(
-                  children: [CircularProgressIndicator()],
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      color: Colors.red,
+                    )
+                  ],
                 ),
               )
             : GoogleMap(
-                onMapCreated: onMapCreated,
+                onMapCreated: _onMapCreated,
                 myLocationEnabled: false,
                 trafficEnabled: true,
                 indoorViewEnabled: true,
@@ -108,22 +106,24 @@ class _MapviewState extends State<Mapview> {
                   8,
                   MediaQuery.of(context).padding.bottom,
                 ),
-                initialCameraPosition: CameraPosition(
-                  target: initialPosition,
+                initialCameraPosition: const CameraPosition(
+                  target: LatLng(15.3702058, 78.7362404),
                   zoom: 6,
                 ),
-                markers: Set<Marker>.of(markers),
+                markers: markers,
               ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            setState(() {
-              currentMapType = currentMapType == MapType.normal
-                  ? MapType.hybrid
-                  : MapType.normal;
-            });
-          },
-          child: const Icon(Icons.layers),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.startFloat);
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            currentMapType = currentMapType == MapType.normal
+                ? MapType.hybrid
+                : MapType.normal;
+          });
+        },
+        child: const Icon(Icons.layers),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+    );
   }
 }
