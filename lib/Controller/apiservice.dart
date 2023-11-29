@@ -11,18 +11,18 @@ import 'dbhelpercontroller.dart';
 class ApiService extends GetxService {
   final Databasehelper controller = Get.put(Databasehelper());
 
-  Future<ApiResponse> get(
-    String methodName,
-    args,
-  ) async {
+  Future<ApiResponse> get(String methodName, args, method) async {
+    print(args);
+    print(method);
+    print(methodName);
     final data = await controller.getUser();
 
-    final url = "${dotenv.env['API_URL']}/api/method/$methodName";
+    final url = "${dotenv.env['API_URL']}$methodName";
 
     if (data.isEmpty) {
       if (args.toString() == '{}') {
         final uri = Uri.parse(url);
-        final response = await http.get(uri, headers: apiHeaders);
+        final response = await method(uri, headers: apiHeaders);
         // if (response.headers.toString().contains("system_user=no")) {
         //   Get.toNamed("/loginpage");
         // }
@@ -71,32 +71,31 @@ class ApiService extends GetxService {
     }
   }
 
-  Future<ApiResponse> post(
-    String methodName,
-    args,
-  ) async {
-    final data = await controller.getUser();
+  // Future<ApiResponse> post(String methodName, args, method) async {
+  //   print(metho);
 
-    final url = "${dotenv.env['API_URL']}/api/method/$methodName";
-    if (data.isNotEmpty) {
-      if ((data[0]["requestheader"] ?? "").toString().isNotEmpty) {
-        json
-            .decode(data[0]["requestheader"].toString())
-            .forEach((k, v) => {apiHeaders[k.toString()] = v.toString()});
-      }
-    }
+  //   final data = await controller.getUser();
 
-    final uri = Uri.parse(url);
-    final response = await http.post(uri,
-        headers: apiHeaders, body: json.encode(args ?? {}));
-    // if (response.headers.toString().contains("system_user=no")) {
-    //   Get.toNamed("/loginpage");
-    // }
-    return ApiResponse(
-        statusCode: response.statusCode,
-        body: response.body,
-        header: response.headers);
-  }
+  //   final url = "${dotenv.env['API_URL']}/api/method/$methodName";
+  //   if (data.isNotEmpty) {
+  //     if ((data[0]["requestheader"] ?? "").toString().isNotEmpty) {
+  //       json
+  //           .decode(data[0]["requestheader"].toString())
+  //           .forEach((k, v) => {apiHeaders[k.toString()] = v.toString()});
+  //     }
+  //   }
+
+  //   final uri = Uri.parse(url);
+  //   final response =
+  //       await method(uri, headers: apiHeaders, body: json.encode(args ?? {}));
+  //   // if (response.headers.toString().contains("system_user=no")) {
+  //   //   Get.toNamed("/loginpage");
+  //   // }
+  //   return ApiResponse(
+  //       statusCode: response.statusCode,
+  //       body: response.body,
+  //       header: response.headers);
+  // }
 }
 
 class ApiResponse {

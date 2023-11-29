@@ -4,6 +4,7 @@ import 'package:attendancemarker/Controller/apiservice.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:heroicons/heroicons.dart';
+import 'package:http/http.dart' as http;
 
 class Search extends GetxController {
   final ApiService apiService = ApiService();
@@ -12,12 +13,15 @@ class Search extends GetxController {
   List searchlistterritory_ = [].obs;
 
   Future searchname(name, doctype) async {
-    final response = await apiService.get("frappe.desk.search.search_link", {
-      "txt": name,
-      "doctype": doctype,
-      "ignore_user_permissions": "1",
-      "reference_doctype": "Lead"
-    });
+    final response = await apiService.get(
+        "/api/method/frappe.desk.search.search_link",
+        {
+          "txt": name,
+          "doctype": doctype,
+          "ignore_user_permissions": "1",
+          "reference_doctype": "Lead"
+        },
+        http.get);
     if (response.statusCode == 200 && doctype == "Lead Source") {
       searchlist_.clear();
       List<String> valuesList = [];
@@ -76,9 +80,9 @@ class LeadCreation extends GetxController {
       'indusrty': indusrty,
       "ignore_user_permissions": "1",
     };
-    final response =
-        await apiService.post("frappe.client.insert", {'doc': docvalue});
-
+    final response = await apiService.get(
+        "/api/method/frappe.client.insert", {'doc': docvalue}, http.post);
+    print(response.body);
     if (response.statusCode == 200) {
       final Response = json.decode(response.body);
       Get.snackbar(

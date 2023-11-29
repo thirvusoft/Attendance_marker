@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:get/get.dart';
 import 'package:heroicons/heroicons.dart';
+import 'package:http/http.dart' as http;
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -53,8 +54,9 @@ class _HomepageState extends State<Homepage> {
   List<dynamic> items = [];
 
   void vehicleList() async {
-    final response =
-        await apiService.get('thirvu__attendance.utils.api.api.leadlist', {});
+    final response = await apiService.get(
+        '/api/method/thirvu__attendance.utils.api.api.leadlist', {}, http.get);
+    print(response.body);
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
       setState(() {
@@ -92,7 +94,9 @@ class _HomepageState extends State<Homepage> {
                     color: Colors.white, width: 3.0, style: BorderStyle.solid),
                 image: DecorationImage(
                     fit: BoxFit.cover,
-                    image: CachedNetworkImageProvider(imgurl)),
+                    image: CachedNetworkImageProvider(imgurl.isEmpty
+                        ? "https://i.pinimg.com/736x/87/67/64/8767644bc68a14c50addf8cb2de8c59e.jpg"
+                        : imgurl)),
               ),
             ),
           ),
@@ -102,11 +106,9 @@ class _HomepageState extends State<Homepage> {
         items: [
           BottomBarItem(
             iconData: Icons.home,
-            // label: 'Home',
           ),
           BottomBarItem(
             iconData: Icons.person_add_alt,
-            // label: 'Chat',
           ),
         ],
         selectedIndex: currentIndex,
@@ -221,7 +223,7 @@ class _HomepageState extends State<Homepage> {
                                                     getdata();
                                                     final response =
                                                         await apiService.get(
-                                                            "thirvu__attendance.utils.api.api.checkin",
+                                                            "/api/method/thirvu__attendance.utils.api.api.checkin",
                                                             {
                                                           "username": user[0]
                                                               ["fullname"],
@@ -231,7 +233,7 @@ class _HomepageState extends State<Homepage> {
                                                           "lat": location
                                                               .latitude
                                                               .toString()
-                                                        });
+                                                        },http.get);
                                                     if (response.statusCode ==
                                                         200) {
                                                       final Response =
@@ -291,16 +293,19 @@ class _HomepageState extends State<Homepage> {
                                                             .getUser();
                                                     final response =
                                                         await apiService.get(
-                                                            "thirvu__attendance.utils.api.api.checkout",
+                                                            "/api/method/thirvu__attendance.utils.api.api.checkout",
                                                             {
-                                                          "username": user[0]
-                                                              ["fullname"],
-                                                          "attendance": user[0]
-                                                              ["attendanceid"],
-                                                          "address_list":
-                                                              jsonEncode(
-                                                                  pinglocation_)
-                                                        });
+                                                              "username": user[
+                                                                      0]
+                                                                  ["fullname"],
+                                                              "attendance": user[
+                                                                      0][
+                                                                  "attendanceid"],
+                                                              "address_list":
+                                                                  jsonEncode(
+                                                                      pinglocation_)
+                                                            },
+                                                            http.get);
                                                     print(response.body);
                                                     if (response.statusCode ==
                                                         200) {
@@ -569,14 +574,15 @@ class _HomepageState extends State<Homepage> {
               itemBuilder: (context, index) {
                 return Card(
                   elevation: 6,
-                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   child: ListTile(
                     leading: CircleAvatar(
                       child: Text((index + 1).toString()),
                     ),
                     title: Text(
                       'Name: ${items[index]["first_name"]} ',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                       ),
@@ -605,13 +611,15 @@ class _HomepageState extends State<Homepage> {
               },
             )
           ]),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Get.offAllNamed("/leadpage");
-        },
-        child: Icon(Icons.add),
-        tooltip: "Lead Creation",
-      ),
+      floatingActionButton: (currentIndex == 1.0)
+          ? FloatingActionButton(
+              onPressed: () {
+                Get.offAllNamed("/leadpage");
+              },
+              tooltip: "Lead Creation",
+              child: const Icon(Icons.add),
+            )
+          : const SizedBox(),
     );
   }
 
@@ -636,15 +644,21 @@ class _HomepageState extends State<Homepage> {
         });
       }
 
-      if (user[0]['image'] != null) {
+      if (user[0]['image'].contains("files")) {
         imgurl = user[0]['image'].toString();
-      } else {
-        imgurl =
-            "https://i.pinimg.com/736x/87/67/64/8767644bc68a14c50addf8cb2de8c59e.jpg";
       }
       fullname = user[0]['fullname'];
       gmail = user[0]['email'];
     });
+    final response = await apiService.get(
+        "/api/method/thirvu__attendance.utils.api.api.locationtable_updation",
+        {
+          "attendance": user[0]["attendanceid"],
+          "address_list": jsonEncode(pinglocation_)
+        },
+        http.post);
+    print(response.statusCode);
+    print(response.body);
   }
 
   void showPopup(BuildContext context) {
@@ -677,14 +691,11 @@ class _HomepageState extends State<Homepage> {
                       style: TextStyle(fontSize: 15, color: Color(0xFFEA5455)),
                     ),
                     onPressed: () async {
-                      final response = await apiService.get("logout", {});
-
+                      final response = await apiService.get(
+                          "/api/method/logout", {}, http.get);
                       if (response.statusCode == 200) {
-                        final data = await controller.deleteAllItems();
-                        final userlist = await controller.getUser();
-
-                        // controller.deleteItem(location.length - 1);
-
+                        await controller.deleteAllItems();
+                        await controller.getUser();
                         Get.offAllNamed("/loginpage");
                       }
                     },
@@ -693,6 +704,30 @@ class _HomepageState extends State<Homepage> {
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  void showLocationServicesDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Location Services Disabled'),
+          content: const Text(
+              'Please enable location services to fetch the current location.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(color: Color(0xFFEA5455)),
+              ),
+            ),
+          ],
         );
       },
     );

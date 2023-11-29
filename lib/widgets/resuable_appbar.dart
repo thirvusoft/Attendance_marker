@@ -18,33 +18,28 @@ class ReusableAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(250),
-      child: AppBar(
-        backgroundColor: const Color(0xFFEA5455),
-        elevation: 0,
-        actions: actions,
-        automaticallyImplyLeading: false,
-        title: ListTile(
-          title: Text(
-            "Hi  $title !",
-            style: GoogleFonts.sansita(fontSize: 20, color: Colors.white),
-          ),
-          subtitle: Text(
-            subtitle.toString(),
-            style: GoogleFonts.poppins(color: Colors.white),
-          ),
-          leading: leading,
+    return AppBar(
+      backgroundColor: const Color(0xFFEA5455),
+      elevation: 0,
+      actions: actions,
+      automaticallyImplyLeading: false,
+      title: ListTile(
+        title: Text(
+          "Hi  $title !",
+          style: GoogleFonts.sansita(fontSize: 20, color: Colors.white),
         ),
-        bottom: tabBar != null
-            ? PreferredSize(
-                preferredSize:
-                    Size.fromHeight(30), // Adjust the height as needed
-                child: tabBar!,
-              )
-            : null,
+        subtitle: Text(
+          subtitle.toString(),
+          style: GoogleFonts.poppins(color: Colors.white),
+        ),
+        leading: leading,
       ),
-      
+      bottom: tabBar != null
+          ? PreferredSize(
+              preferredSize: Size.fromHeight(30), // Adjust the height as needed
+              child: tabBar!,
+            )
+          : null,
     );
   }
 
