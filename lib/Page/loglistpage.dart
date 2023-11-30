@@ -193,7 +193,9 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
                     ),
                     onPressed: () async {
                       final response = await apiService.get(
-                          "/api/method/logout", {}, http.get);
+                        "/api/method/logout",
+                        {},
+                      );
 
                       if (response.statusCode == 200) {
                         final data = await controller.deleteAllItems();
@@ -218,9 +220,13 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
     final Databasehelper controller = Get.put(Databasehelper());
     final user = await controller.getUser();
     final checkinstatus = await apiService.get(
-        "/api/method/thirvu__attendance.utils.api.api.loglist", {}, http.get);
+      "/api/method/thirvu__attendance.utils.api.api.loglist",
+      {},
+    );
     final nolog = await apiService.get(
-        "/api/method/thirvu__attendance.utils.api.api.nolog", {}, http.get);
+      "/api/method/thirvu__attendance.utils.api.api.nolog",
+      {},
+    );
 
     setState(() {
       if (user[0]['image'].contains("files")) {

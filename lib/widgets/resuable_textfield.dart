@@ -12,6 +12,7 @@ class ReusableTextField extends StatefulWidget {
   final Function(String)? onChange;
   final bool readyonly;
   final AutovalidateMode autovalidateMode;
+  final inputFormatters;
   const ReusableTextField({
     super.key,
     required this.labelText,
@@ -22,6 +23,7 @@ class ReusableTextField extends StatefulWidget {
     this.maxLength,
     this.validator,
     this.onChange,
+    this.inputFormatters,
     required this.readyonly,
     required this.autovalidateMode,
   });
@@ -56,20 +58,27 @@ class _ReusableTextFieldState extends State<ReusableTextField> {
         labelStyle: const TextStyle(color: Colors.black),
         border: const OutlineInputBorder(
             borderSide: BorderSide(color: Color(0x0ff2d2e4))),
-        suffixIcon: (widget.obscureText != true)
-            ? HeroIcon(widget.suffixIcon as HeroIcons)
-            : IconButton(
-                icon: HeroIcon(
-                  _obscureText ? HeroIcons.lockClosed : HeroIcons.lockOpen,
-                  color: Colors.black54,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscureText = !_obscureText;
-                  });
-                },
-              ),
+        suffixIcon: widget.suffixIcon != null
+            ? (widget.obscureText != true)
+                ? HeroIcon(widget.suffixIcon as HeroIcons)
+                : IconButton(
+                    icon: HeroIcon(
+                      _obscureText ? HeroIcons.lockClosed : HeroIcons.lockOpen,
+                      color: Colors.black54,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    },
+                  )
+            : null,
       ),
+      inputFormatters: widget.inputFormatters != null
+          ? [
+              widget.inputFormatters,
+            ]
+          : null,
     );
   }
 }

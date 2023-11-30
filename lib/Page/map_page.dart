@@ -32,7 +32,7 @@ class _MapviewState extends State<Mapview> {
   Future getEmployeeData() async {
     final response = await apiService.get(
         "/api/method/thirvu__attendance.utils.api.api.get_employee_locations",
-        {},http.get);
+        {},);
 
     if (response.statusCode == 200) {
       final Response = json.decode(response.body);

@@ -4,7 +4,6 @@ import 'package:attendancemarker/Controller/apiservice.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:heroicons/heroicons.dart';
-import 'package:http/http.dart' as http;
 
 class Search extends GetxController {
   final ApiService apiService = ApiService();
@@ -14,14 +13,14 @@ class Search extends GetxController {
 
   Future searchname(name, doctype) async {
     final response = await apiService.get(
-        "/api/method/frappe.desk.search.search_link",
-        {
-          "txt": name,
-          "doctype": doctype,
-          "ignore_user_permissions": "1",
-          "reference_doctype": "Lead"
-        },
-        http.get);
+      "/api/method/frappe.desk.search.search_link",
+      {
+        "txt": name,
+        "doctype": doctype,
+        "ignore_user_permissions": "1",
+        "reference_doctype": "Lead"
+      },
+    );
     if (response.statusCode == 200 && doctype == "Lead Source") {
       searchlist_.clear();
       List<String> valuesList = [];
@@ -68,7 +67,7 @@ class Search extends GetxController {
 
 class LeadCreation extends GetxController {
   final ApiService apiService = ApiService();
-  Future Lead(doctype, name, org_name, mobile, email, source, indusrty,
+  Future leadCreation(doctype, name, org_name, mobile, email, source, indusrty,
       territory) async {
     final docvalue = {
       "doctype": doctype,
@@ -80,9 +79,11 @@ class LeadCreation extends GetxController {
       'indusrty': indusrty,
       "ignore_user_permissions": "1",
     };
-    final response = await apiService.get(
-        "/api/method/frappe.client.insert", {'doc': docvalue}, http.post);
+    final response =
+        await apiService.post("frappe.client.insert", {'doc': docvalue});
+    print(response.statusCode);
     print(response.body);
+    print(jsonEncode(docvalue));
     if (response.statusCode == 200) {
       final Response = json.decode(response.body);
       Get.snackbar(

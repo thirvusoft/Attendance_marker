@@ -6,6 +6,7 @@ import 'package:attendancemarker/Controller/dbhelpercontroller.dart';
 import 'package:attendancemarker/widgets/resuable_textfield.dart';
 import 'package:attendancemarker/widgets/reusable_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:heroicons/heroicons.dart';
@@ -65,6 +66,7 @@ class Loginpage extends StatelessWidget {
                         labelText: 'Mobile Number',
                         controller: _mobilenumberController,
                         obscureText: false,
+                        inputFormatters: FilteringTextInputFormatter.digitsOnly,
                         suffixIcon: HeroIcons.devicePhoneMobile,
                         keyboardType: TextInputType.phone,
                         validator: (value) {
@@ -123,8 +125,7 @@ class Loginpage extends StatelessWidget {
                                 {
                                   "usr": _mobilenumberController.text,
                                   "pwd": _passwordController.text
-                                },
-                                http.get);
+                                });
 
                             if (response.statusCode == 200) {
                               final Response = json.decode(response.body);
