@@ -124,7 +124,7 @@ class Batteryprecntage extends GetxController {
 
   Future splash() async {
     final response = await apiService.get(
-        "/api/method/frappe.auth.get_logged_user", {}, http.get);
+        "/api/method/frappe.auth.get_logged_user", {}, );
     if (response.statusCode == 200) {
       final user = await controller.getUser();
       print(user);
