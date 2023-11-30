@@ -7,6 +7,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:http/http.dart' as http;
 
 class Batteryprecntage extends GetxController {
   final Databasehelper controller = Get.put(Databasehelper());
@@ -122,8 +123,8 @@ class Batteryprecntage extends GetxController {
   }
 
   Future splash() async {
-    final response =
-        await apiService.get("/api/method/frappe.auth.get_logged_user", {});
+    final response = await apiService.get(
+        "/api/method/frappe.auth.get_logged_user", {}, http.get);
     if (response.statusCode == 200) {
       final user = await controller.getUser();
       print(user);

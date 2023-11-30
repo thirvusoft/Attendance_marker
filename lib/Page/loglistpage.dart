@@ -10,6 +10,7 @@ import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:heroicons/heroicons.dart';
+import 'package:http/http.dart' as http;
 
 class Loglist extends StatefulWidget {
   const Loglist({super.key});
@@ -93,11 +94,11 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
           },
           tabs: const <Widget>[
             Tab(
-              text: 'Loged',
+              text: 'Logged',
               icon: Icon(PhosphorIcons.fingerprint_simple),
             ),
             Tab(
-              text: 'Not Loged',
+              text: 'Not Logged',
               icon: Icon(PhosphorIcons.prohibit),
             ),
           ],
@@ -191,8 +192,8 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
                       style: TextStyle(fontSize: 15, color: Color(0xFFEA5455)),
                     ),
                     onPressed: () async {
-                      final response =
-                          await apiService.get("/api/method/logout", {});
+                      final response = await apiService.get(
+                          "/api/method/logout", {}, http.get);
 
                       if (response.statusCode == 200) {
                         final data = await controller.deleteAllItems();
@@ -216,10 +217,10 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
   void getdata() async {
     final Databasehelper controller = Get.put(Databasehelper());
     final user = await controller.getUser();
-    final checkinstatus = await apiService
-        .get("/api/method/thirvu__attendance.utils.api.api.loglist", {});
-    final nolog = await apiService
-        .get("/api/method/thirvu__attendance.utils.api.api.nolog", {});
+    final checkinstatus = await apiService.get(
+        "/api/method/thirvu__attendance.utils.api.api.loglist", {}, http.get);
+    final nolog = await apiService.get(
+        "/api/method/thirvu__attendance.utils.api.api.nolog", {}, http.get);
 
     setState(() {
       if (user[0]['image'].contains("files")) {

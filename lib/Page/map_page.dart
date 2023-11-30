@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:label_marker/label_marker.dart';
+import 'package:http/http.dart' as http;
 
 class Mapview extends StatefulWidget {
   const Mapview({super.key});
@@ -31,7 +32,7 @@ class _MapviewState extends State<Mapview> {
   Future getEmployeeData() async {
     final response = await apiService.get(
         "/api/method/thirvu__attendance.utils.api.api.get_employee_locations",
-        {});
+        {},http.get);
 
     if (response.statusCode == 200) {
       final Response = json.decode(response.body);
