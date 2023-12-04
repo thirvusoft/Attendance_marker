@@ -759,9 +759,12 @@ class _HomepageState extends State<Homepage> {
   }
 
   void leadlist() async {
+    final user = await controller.getUser();
     items = [];
-    final response = await apiService
-        .get('/api/method/thirvu__attendance.utils.api.api.leadlist', {});
+    final response = await apiService.get(
+        '/api/method/thirvu__attendance.utils.api.api.leadlist',
+        {"user": user[0]['fullname']});
+    print("==============================================================");
     print(response.body);
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
