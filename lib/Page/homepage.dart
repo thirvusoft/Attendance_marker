@@ -641,7 +641,7 @@ class _HomepageState extends State<Homepage> {
       floatingActionButton: (currentIndex == 1.0)
           ? FloatingActionButton(
               onPressed: () {
-                Get.offAllNamed("/leadpage");
+                Get.offAllNamed("/followup");
               },
               tooltip: "Lead Creation",
               child: const Icon(Icons.add),

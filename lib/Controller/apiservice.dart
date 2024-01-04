@@ -85,7 +85,7 @@ class ApiService extends GetxService {
     final uri = Uri.parse(url);
     final response =
         await http.post(uri, headers: apiHeaders, body: json.encode(args));
-    
+
     // if (response.headers.toString().contains("system_user=no")) {
     //   Get.toNamed("/loginpage");
     // }
