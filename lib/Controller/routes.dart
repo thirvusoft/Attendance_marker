@@ -5,6 +5,7 @@ import 'package:attendancemarker/Page/loglistpage.dart';
 import 'package:attendancemarker/Page/splash_screen.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 
+import '../Page/lead_home.dart';
 import '../Page/map_page.dart';
 
 class Routes {
@@ -14,6 +15,7 @@ class Routes {
   static String splashscreen = '/Splashs';
   static String loglist = '/loglist';
   static String leadpage = '/leadpage';
+
 }
 
 final getPages = [
@@ -41,4 +43,5 @@ final getPages = [
     name: Routes.leadpage,
     page: () => LeadPage(),
   ),
+
 ];

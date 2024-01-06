@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:attendancemarker/Controller/apiservice.dart';
 import 'package:attendancemarker/Controller/batterycontroller.dart';
 import 'package:attendancemarker/Controller/dbhelpercontroller.dart';
+import 'package:attendancemarker/Page/lead_home.dart';
 import 'package:attendancemarker/constant.dart';
 import 'package:attendancemarker/widgets/resuable_appbar.dart';
 import 'package:attendancemarker/widgets/resubale_popup.dart';
@@ -641,7 +642,8 @@ class _HomepageState extends State<Homepage> {
       floatingActionButton: (currentIndex == 1.0)
           ? FloatingActionButton(
               onPressed: () {
-                Get.offAllNamed("/leadpage");
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomePage()));
+                // Get.offAllNamed("/leadhome");
               },
               tooltip: "Lead Creation",
               child: const Icon(Icons.add),
