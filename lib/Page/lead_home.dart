@@ -1,3 +1,4 @@
+import 'package:attendancemarker/Page/lead.dart';
 import 'package:flutter/material.dart';
 
 
@@ -8,12 +9,11 @@ class HomePage extends StatelessWidget {
 @override
 // Sample list of dictionaries
   final List<Map<String, dynamic>> dataList = [
-    {'title': 'Lead', 'image': 'https://w7.pngwing.com/pngs/652/528/png-transparent-computer-icons-business-lead-generation-company-lead-management-business-company-service-hand.png'},
-    {'title': 'Follow Up', 'image': 'https://img.freepik.com/premium-vector/circular-marketing-icon_1453-93.jpg?w=2000'},
-    {'title': 'Call History', 'image': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2HZk4rZUee8s-tSZroeQxaqyLpjyIjJpydA&usqp=CAU'},
-    {'title': 'Item 4', 'image': 'https://w7.pngwing.com/pngs/768/277/png-transparent-digital-marketing-business-icon-electronic-information-map-electronics-service-happy-birthday-vector-images.png'},
-    {'title': 'Item 5', 'image': 'https://w7.pngwing.com/pngs/855/25/png-transparent-digital-marketing-online-advertising-computer-icons-taekwondo-elements-service-logo-social-media-marketing.png'},
-    {'title': 'Item 6', 'image': 'https://cdn-icons-png.flaticon.com/512/7376/7376481.png'},
+    {'title': 'Lead', 'image': 'assets/images/lead.png'},
+    {'title': 'Follow Up', 'image': 'assets/images/followup.png'},
+    {'title': 'CallHistory', 'image': 'assets/images/callhistory.png'},
+   
+    {'title': 'Item 6', 'image': 'assets/images/lead.png'},
   ];
 
   @override
@@ -41,7 +41,12 @@ class HomePage extends StatelessWidget {
         ),
         itemCount: dataList.length,
         itemBuilder: (context, index) {
-          return Padding(
+           return GestureDetector(
+            onTap: () {
+              // Navigate to a new screen based on the title
+              navigateToScreen(context, dataList[index]['title']);
+            },
+          child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Container(
               decoration: BoxDecoration(
@@ -56,7 +61,7 @@ class HomePage extends StatelessWidget {
                     decoration: BoxDecoration(
                     
                       image: DecorationImage(
-                        image: NetworkImage(dataList[index]['image']),
+                        image:AssetImage(dataList[index]['image']) ,
                         fit: BoxFit.contain, // Ensures that the image covers the entire container
                       ),
                       borderRadius: BorderRadius.only(
@@ -77,9 +82,23 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-          );
+          ));
         },
       ),
     );
   }
+   void navigateToScreen(BuildContext context, String title) {
+    // Implement your navigation logic here
+    // Example: Navigate to different screens based on the title
+    if (title == 'Lead') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => LeadPage()));
+    } else if (title == 'Follow Up') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => LeadPage()));
+    } else if (title == 'CallHistory') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => LeadPage()));
+    } else {
+      // Handle other cases as needed
+    }
+  }
+
 }
