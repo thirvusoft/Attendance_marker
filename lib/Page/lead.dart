@@ -14,6 +14,10 @@ import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 class LeadPage extends StatefulWidget {
   @override
   State<LeadPage> createState() => _LeadPageState();
+  final String? initialName;
+  final String? initialPhoneNumber;
+
+  const LeadPage(this.initialName, this.initialPhoneNumber);
 }
 
 class _LeadPageState extends State<LeadPage> {
@@ -29,12 +33,15 @@ class _LeadPageState extends State<LeadPage> {
   TextEditingController industryController = TextEditingController();
   TextEditingController territoryController = TextEditingController();
   bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
     searching.searchname("a", "Lead Source");
     searching.searchname("a", "Industry Type");
     searching.searchname("a", "Territory");
+    nameController.text = widget.initialName ?? '';
+    mobilenoController.text = widget.initialPhoneNumber ?? '';
   }
 
   @override

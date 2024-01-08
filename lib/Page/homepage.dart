@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:attendancemarker/Controller/apiservice.dart';
 import 'package:attendancemarker/Controller/batterycontroller.dart';
 import 'package:attendancemarker/Controller/dbhelpercontroller.dart';
+import 'package:attendancemarker/Page/call_log.dart';
+import 'package:attendancemarker/Page/followuppage.dart';
 import 'package:attendancemarker/Page/lead_home.dart';
 import 'package:attendancemarker/constant.dart';
 import 'package:attendancemarker/widgets/resuable_appbar.dart';
@@ -27,9 +29,7 @@ class _HomepageState extends State<Homepage> {
   late String nowtime;
   String checkintime = "-";
   String checkouttime = "-";
-  final ApiService apiService = ApiService();
-  final Databasehelper controller = Get.put(Databasehelper());
-  final Batteryprecntage locationcontroller = Get.put(Batteryprecntage());
+
   late String imgurl = "";
   late String gmail = "";
   bool button = false;
@@ -39,8 +39,14 @@ class _HomepageState extends State<Homepage> {
   String fullname = "";
   final PageController bottomcontroller = PageController();
   int currentIndex = 0;
-  List<dynamic> items = [];
+
   List pinglocation_ = [];
+  final List<Map<String, dynamic>> dataList = [
+    {'title': 'Lead', 'image': 'assets/images/lead.png'},
+    {'title': 'Follow Up', 'image': 'assets/images/followup.png'},
+    {'title': 'CallHistory', 'image': 'assets/images/callhistory.png'},
+  ];
+
   @override
   initState() {
     super.initState();
@@ -89,12 +95,12 @@ class _HomepageState extends State<Homepage> {
         selectedIndex: currentIndex,
         color: const Color(0xFFEA5455),
         onSelect: (index) {
-          setState(() {
-            currentIndex = index;
-            if (currentIndex == 1) {
-              leadlist();
-            }
-          });
+          // setState(() {
+          //   currentIndex = index;
+          //   if (currentIndex == 1) {
+          //     print("fdfdfdf");
+          //   }
+          // });
           bottomcontroller.jumpToPage(index);
         },
       ),
@@ -434,7 +440,7 @@ class _HomepageState extends State<Homepage> {
                                                     await locationcontroller
                                                         .getLocation(true);
                                                 if (location ==
-                                                    "Locatuon not enabled") {
+                                                    "Location not enabled") {
                                                   showLocationServicesDialog();
                                                 }
                                                 Future.delayed(
@@ -587,7 +593,7 @@ class _HomepageState extends State<Homepage> {
               ],
             ),
           ),
-          (items.isEmpty)
+          (dataList.isEmpty)
               ? const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -596,59 +602,106 @@ class _HomepageState extends State<Homepage> {
                     ),
                   ],
                 )
-              : ListView.builder(
-                  itemCount: items.length,
+              : GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10.0,
+                    mainAxisSpacing: 10.0,
+                  ),
+                  itemCount: dataList.length,
                   itemBuilder: (context, index) {
-                    return Card(
-                      elevation: 6,
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          child: Text((index + 1).toString()),
-                        ),
-                        title: Text(
-                          'Name: ${items[index]["first_name"]} ',
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
+                    return GestureDetector(
+                        onTap: () {
+                          // Navigate to a new screen based on the title
+                          navigateToScreen(context, dataList[index]['title']);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xFFEA5455),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  height:
+                                      100, // Adjust the height of the image container as needed
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image:
+                                          AssetImage(dataList[index]['image']),
+                                      fit: BoxFit
+                                          .contain, // Ensures that the image covers the entire container
+                                    ),
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(20),
+                                      topRight: Radius.circular(20),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                    height:
+                                        10), // Adjust the spacing between image and text
+                                Text(
+                                  dataList[index]['title'],
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Company Name: ${items[index]["company_name"]}",
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            Text(
-                              "Mobile No: ${items[index]["mobile_no"]}",
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
+                        ));
                   },
-                )
+                ),
+          // ListView.builder(
+          //     itemCount: items.length,
+          //     itemBuilder: (context, index) {
+          //       return Card(
+          //         elevation: 6,
+          //         margin: const EdgeInsets.symmetric(
+          //             horizontal: 10, vertical: 5),
+          //         child: ListTile(
+          //           leading: CircleAvatar(
+          //             child: Text((index + 1).toString()),
+          //           ),
+          //           title: Text(
+          //             'Name: ${items[index]["first_name"]} ',
+          //             style: const TextStyle(
+          //               fontSize: 15,
+          //               fontWeight: FontWeight.bold,
+          //             ),
+          //           ),
+          //           subtitle: Column(
+          //             crossAxisAlignment: CrossAxisAlignment.start,
+          //             children: [
+          //               Text(
+          //                 "Company Name: ${items[index]["company_name"]}",
+          //                 style: TextStyle(
+          //                   fontSize: 13,
+          //                   color: Colors.grey[600],
+          //                 ),
+          //               ),
+          //               Text(
+          //                 "Mobile No: ${items[index]["mobile_no"]}",
+          //                 style: TextStyle(
+          //                   fontSize: 13,
+          //                   color: Colors.grey[600],
+          //                 ),
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //       );
+          //     },
+          //   )
         ],
       ),
-      floatingActionButton: (currentIndex == 1.0)
-          ? FloatingActionButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomePage()));
-                // Get.offAllNamed("/leadhome");
-              },
-              tooltip: "Lead Creation",
-              child: const Icon(Icons.add),
-            )
-          : const SizedBox(),
+      
     );
   }
 
@@ -760,27 +813,21 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  void leadlist() async {
-    final user = await controller.getUser();
-    items = [];
-    final response = await apiService.get(
-        '/api/method/thirvu__attendance.utils.api.api.leadlist',
-        {"user": user[0]['fullname']});
-    print("==============================================================");
-    print(response.body);
-    if (response.statusCode == 200) {
-      final jsonResponse = json.decode(response.body);
-      setState(() {
-        if (jsonResponse["message"] is List) {
-          Future.delayed(const Duration(seconds: 1), () {
-            setState(() {
-              items = jsonResponse["message"];
-            });
-          });
-        } else {
-          throw Exception('Invalid response format: "message" is not a list.');
-        }
-      });
+  void navigateToScreen(BuildContext context, String title) {
+    // Implement your navigation logic here
+    // Example: Navigate to different screens based on the title
+    if (title == 'Lead') {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => HomePage()));
+    }
+    else if (title == 'CallHistory') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => LeadManagerScreen()));
+    } 
+    else if (title == 'Follow Up') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => FollowUpPage()));
+    } 
+    else {
+      // Handle other cases as needed
     }
   }
 }
