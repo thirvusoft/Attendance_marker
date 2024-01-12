@@ -24,6 +24,8 @@ class _FollowUpPageState extends State<FollowUpPage> {
   List<String> displayedItems = [];
   TextEditingController nextFollowupDateController = TextEditingController();
   TextEditingController nextFollowupByController = TextEditingController();
+  TextEditingController nextFollowDiscriptionController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -165,34 +167,46 @@ class _FollowUpPageState extends State<FollowUpPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Next Followup Details $itemName'),
-          content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ResuableDateFormField(
-                  controller: nextFollowupDateController,
-                  label: 'Next Followup-Date',
-                  errorMessage: 'select the next Followup-date',
-                ),
-                const SizedBox(height: 10),
-                ReusableTextField(
-                  labelText: 'Next Follow-By',
-                  controller: nextFollowupByController,
-                  obscureText: false,
-                  readyonly: true,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                ),
-              ]),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Close'),
-            ),
-          ],
+        return SingleChildScrollView(
+          child: AlertDialog(
+            title: const Text('Next Followup'),
+            content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ResuableDateFormField(
+                    controller: nextFollowupDateController,
+                    label: 'Next Followup-Date',
+                    errorMessage: 'select the next Followup-date',
+                  ),
+                  const SizedBox(height: 10),
+                  ReusableTextField(
+                    labelText: 'Next Follow-By',
+                    controller: nextFollowupByController,
+                    obscureText: false,
+                    readyonly: false,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                  ),
+                  const SizedBox(height: 10),
+                  ReusableTextField(
+                    labelText: 'Discription',
+                    controller: nextFollowDiscriptionController,
+                    obscureText: false,
+                    keyboardType: TextInputType.multiline,
+                    readyonly: false,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    maxline: 3,
+                  ),
+                ]),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Save'),
+              ),
+            ],
+          ),
         );
       },
     );

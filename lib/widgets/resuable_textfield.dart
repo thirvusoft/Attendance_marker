@@ -13,10 +13,9 @@ class ReusableTextField extends StatefulWidget {
   final bool readyonly;
   final AutovalidateMode autovalidateMode;
   final inputFormatters;
-  final VoidCallback? onTap; // Added onTap callback
-
+  final VoidCallback? onTap;
+  final int? maxline;
   const ReusableTextField({
-    Key? key, // Add key parameter
     required this.labelText,
     required this.controller,
     this.keyboardType = TextInputType.text,
@@ -28,8 +27,9 @@ class ReusableTextField extends StatefulWidget {
     this.inputFormatters,
     required this.readyonly,
     required this.autovalidateMode,
-    this.onTap, // Added onTap parameter
-  }) : super(key: key); // Call super constructor
+    this.onTap,
+    this.maxline,
+  });
 
   @override
   State<ReusableTextField> createState() => _ReusableTextFieldState();
@@ -47,6 +47,7 @@ class _ReusableTextFieldState extends State<ReusableTextField> {
         controller: widget.controller,
         autovalidateMode: widget.autovalidateMode,
         keyboardType: widget.keyboardType,
+        maxLines: widget.maxline,
         obscureText:
             (widget.obscureText != true) ? widget.obscureText : _obscureText,
         validator: widget.validator,
