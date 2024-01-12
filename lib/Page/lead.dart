@@ -1,13 +1,11 @@
 import 'package:attendancemarker/Controller/api.dart';
 import 'package:attendancemarker/Controller/apiservice.dart';
-import 'package:attendancemarker/widgets/custom_textfield.dart';
 import 'package:attendancemarker/widgets/resuable_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:heroicons/heroicons.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 

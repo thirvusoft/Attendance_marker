@@ -1,10 +1,14 @@
 import 'package:attendancemarker/widgets/resuable_appbar.dart';
+import 'package:attendancemarker/widgets/resuable_datefield.dart';
 import 'package:attendancemarker/widgets/resuable_searchbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:async';
 
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+
+import '../widgets/resuable_textfield.dart';
 
 class FollowUpPage extends StatefulWidget {
   @override
@@ -18,6 +22,10 @@ class _FollowUpPageState extends State<FollowUpPage> {
   List<String> todayItems = ['Item 1A', 'Item 1B', 'Item 1C'];
   List<String> missedItems = ['Item 2A', 'Item 2B', 'Item 2C'];
   List<String> displayedItems = [];
+  TextEditingController nextFollowupDateController = TextEditingController();
+  TextEditingController nextFollowupByController = TextEditingController();
+  TextEditingController nextFollowDiscriptionController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -119,7 +127,7 @@ class _FollowUpPageState extends State<FollowUpPage> {
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             activeTab == option
-                ? BoxShadow(
+                ? const BoxShadow(
                     color: Colors.black12,
                     blurRadius: 10,
                     offset: Offset(0, 3),
@@ -138,24 +146,6 @@ class _FollowUpPageState extends State<FollowUpPage> {
     );
   }
 
-  // Widget buildSearchField(TextEditingController controller) {
-  //   return TextField(
-  //     controller: controller,
-  //     decoration: const InputDecoration(
-  //       labelText: 'Search',
-  //       prefixIcon: Icon(Icons.search),
-  //       border: OutlineInputBorder(
-  //           borderRadius: BorderRadius.all(Radius.circular(50.0)),
-  //           borderSide: BorderSide(color: Color(0xFFEA5455))),
-  //       focusedBorder: OutlineInputBorder(
-  //         borderRadius: BorderRadius.all(Radius.circular(10.0)),
-  //         borderSide:
-  //             BorderSide(color: Color(0xFFEA5455)), // Set border color here
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget buildListView(List<String> items) {
     return ListView.builder(
       itemCount: items.length,
@@ -164,6 +154,58 @@ class _FollowUpPageState extends State<FollowUpPage> {
           margin: EdgeInsets.all(10),
           child: ListTile(
             title: Text(items[index]),
+            onTap: () {
+              _showDetailsDialog(items[index]);
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void _showDetailsDialog(String itemName) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          child: AlertDialog(
+            title: const Text('Next Followup'),
+            content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ResuableDateFormField(
+                    controller: nextFollowupDateController,
+                    label: 'Next Followup-Date',
+                    errorMessage: 'select the next Followup-date',
+                  ),
+                  const SizedBox(height: 10),
+                  ReusableTextField(
+                    labelText: 'Next Follow-By',
+                    controller: nextFollowupByController,
+                    obscureText: false,
+                    readyonly: false,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                  ),
+                  const SizedBox(height: 10),
+                  ReusableTextField(
+                    labelText: 'Discription',
+                    controller: nextFollowDiscriptionController,
+                    obscureText: false,
+                    keyboardType: TextInputType.multiline,
+                    readyonly: false,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    maxline: 3,
+                  ),
+                ]),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Save'),
+              ),
+            ],
           ),
         );
       },

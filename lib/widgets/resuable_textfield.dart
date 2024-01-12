@@ -13,8 +13,9 @@ class ReusableTextField extends StatefulWidget {
   final bool readyonly;
   final AutovalidateMode autovalidateMode;
   final inputFormatters;
+  final VoidCallback? onTap;
+  final int? maxline;
   const ReusableTextField({
-    super.key,
     required this.labelText,
     required this.controller,
     this.keyboardType = TextInputType.text,
@@ -26,6 +27,8 @@ class ReusableTextField extends StatefulWidget {
     this.inputFormatters,
     required this.readyonly,
     required this.autovalidateMode,
+    this.onTap,
+    this.maxline,
   });
 
   @override
@@ -37,48 +40,54 @@ class _ReusableTextFieldState extends State<ReusableTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      readOnly: widget.readyonly,
-      controller: widget.controller,
-      autovalidateMode: widget.autovalidateMode,
-      keyboardType: widget.keyboardType,
-      obscureText:
-          (widget.obscureText != true) ? widget.obscureText : _obscureText,
-      validator: widget.validator,
-      maxLength: widget.maxLength,
-      onChanged: (text) {
-        if (widget.onChange != null) {
-          widget.onChange!(text);
-        }
-      },
-      decoration: InputDecoration(
-        focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.black)),
-        labelText: widget.labelText,
-        labelStyle: const TextStyle(color: Colors.black),
-        border: const OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0x0ff2d2e4))),
-        suffixIcon: widget.suffixIcon != null
-            ? (widget.obscureText != true)
-                ? HeroIcon(widget.suffixIcon as HeroIcons)
-                : IconButton(
-                    icon: HeroIcon(
-                      _obscureText ? HeroIcons.lockClosed : HeroIcons.lockOpen,
-                      color: Colors.black54,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureText = !_obscureText;
-                      });
-                    },
-                  )
+    return GestureDetector(
+      onTap: widget.onTap, // Use onTap callback
+      child: TextFormField(
+        readOnly: widget.readyonly,
+        controller: widget.controller,
+        autovalidateMode: widget.autovalidateMode,
+        keyboardType: widget.keyboardType,
+        maxLines: widget.maxline,
+        obscureText:
+            (widget.obscureText != true) ? widget.obscureText : _obscureText,
+        validator: widget.validator,
+        maxLength: widget.maxLength,
+        onChanged: (text) {
+          if (widget.onChange != null) {
+            widget.onChange!(text);
+          }
+        },
+        decoration: InputDecoration(
+          focusedBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.black)),
+          labelText: widget.labelText,
+          labelStyle: const TextStyle(color: Colors.black),
+          border: const OutlineInputBorder(
+              borderSide: BorderSide(color: Color(0x0ff2d2e4))),
+          suffixIcon: widget.suffixIcon != null
+              ? (widget.obscureText != true)
+                  ? HeroIcon(widget.suffixIcon as HeroIcons)
+                  : IconButton(
+                      icon: HeroIcon(
+                        _obscureText
+                            ? HeroIcons.lockClosed
+                            : HeroIcons.lockOpen,
+                        color: Colors.black54,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
+                    )
+              : null,
+        ),
+        inputFormatters: widget.inputFormatters != null
+            ? [
+                widget.inputFormatters,
+              ]
             : null,
       ),
-      inputFormatters: widget.inputFormatters != null
-          ? [
-              widget.inputFormatters,
-            ]
-          : null,
     );
   }
 }
