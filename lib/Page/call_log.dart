@@ -82,7 +82,7 @@ class _LeadManagerScreenState extends State<LeadManagerScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-             Navigator.pop(context);
+            Navigator.pop(context);
           },
         ),
       ),

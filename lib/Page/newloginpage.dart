@@ -375,3 +375,75 @@ class _LoginPageState extends State<LoginPage>
     super.dispose();
   }
 }
+
+
+
+
+// GridView.builder(
+//                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+//                     crossAxisCount: 2,
+//                     crossAxisSpacing: 16.0,
+//                     mainAxisSpacing: 16.0,
+//                   ),
+//                   itemCount: dataList.length,
+//                   itemBuilder: (context, index) {
+//                     return GestureDetector(
+//                       onTap: () {
+//                         navigateToScreen(context, dataList[index]['title']);
+//                       },
+//                       child: Card(
+//                         elevation: 8,
+//                         shape: RoundedRectangleBorder(
+//                           borderRadius: BorderRadius.circular(20),
+//                         ),
+//                         child: Stack(
+//                           children: [
+//                             ClipRRect(
+//                               borderRadius: BorderRadius.circular(20),
+//                               child: Image.asset(
+//                                 dataList[index]['image'],
+//                                 height: 150,
+//                                 width: double.infinity,
+//                                 fit: BoxFit.cover,
+//                               ),
+//                             ),
+//                             Container(
+//                               decoration: BoxDecoration(
+//                                 borderRadius: BorderRadius.circular(20),
+//                                 gradient: LinearGradient(
+//                                   begin: Alignment.topCenter,
+//                                   end: Alignment.bottomCenter,
+//                                   colors: [
+//                                     Color.fromARGB(0, 245, 133, 133),
+//                                     Color.fromARGB(255, 240, 104, 104)
+//                                         .withOpacity(0.7),
+//                                   ],
+//                                 ),
+//                               ),
+//                             ),
+//                             Positioned(
+//                               bottom: 16,
+//                               left: 16,
+//                               right: 16,
+//                               child: Column(
+//                                 crossAxisAlignment: CrossAxisAlignment.start,
+//                                 children: [
+//                                   Text(
+//                                     dataList[index]['title'],
+//                                     style: TextStyle(
+//                                       color: Colors.white,
+//                                       fontSize: 18.0,
+//                                       fontWeight: FontWeight.bold,
+//                                     ),
+//                                     maxLines: 2,
+//                                     overflow: TextOverflow.ellipsis,
+//                                   ),
+//                                 ],
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                     );
+//                   },
+//                 )

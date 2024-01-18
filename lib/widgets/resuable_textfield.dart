@@ -47,7 +47,7 @@ class _ReusableTextFieldState extends State<ReusableTextField> {
         controller: widget.controller,
         autovalidateMode: widget.autovalidateMode,
         keyboardType: widget.keyboardType,
-        maxLines: widget.maxline,
+        // maxLines: widget.maxline,
         obscureText:
             (widget.obscureText != true) ? widget.obscureText : _obscureText,
         validator: widget.validator,
