@@ -21,6 +21,7 @@ class Routes {
 
   static String calllog = '/calllog';
   static String followup = '/followup';
+  static String leadhome = '/leadhome';
 }
 
 final getPages = [
@@ -56,5 +57,8 @@ final getPages = [
     name: Routes.followup,
     page: () => FollowUpPage(),
   ),
-
+  GetPage(
+    name: Routes.leadhome,
+    page: () => LeadHomePage(),
+  ),
 ];

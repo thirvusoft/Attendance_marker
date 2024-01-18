@@ -13,6 +13,8 @@ class Search extends GetxController {
   List searchuserlist = [].obs;
 
   Future searchname(name, doctype) async {
+    print('-------------------------------');
+    print(doctype);
     final response = await apiService.get(
       "/api/method/frappe.desk.search.search_link",
       {
@@ -83,7 +85,7 @@ class Search extends GetxController {
 class LeadCreation extends GetxController {
   final ApiService apiService = ApiService();
   Future leadCreation(doctype, name, org_name, mobile, email, source, indusrty,
-      territory) async {
+      territory, nextfollowup, nextfollowby, discription) async {
     final docvalue = {
       "doctype": doctype,
       "first_name": name,
@@ -92,6 +94,15 @@ class LeadCreation extends GetxController {
       'company_name': org_name,
       'source': source,
       'indusrty': indusrty,
+      'custom_follow_ups': [
+        {
+          'date': nextfollowup,
+          'followed_by': email,
+          'next_followup_date': nextfollowup,
+          'next_follow_up_by': nextfollowby,
+          'description': discription
+        }
+      ],
       "ignore_user_permissions": "1",
     };
     final response =

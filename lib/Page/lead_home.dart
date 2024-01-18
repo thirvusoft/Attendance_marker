@@ -1,21 +1,19 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:attendancemarker/Page/lead.dart';
-import 'package:attendancemarker/Controller/apiservice.dart';
 import 'package:attendancemarker/constant.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/cupertino.dart';
 
-class HomePage extends StatefulWidget {
+class LeadHomePage extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _LeadHomePageState createState() => _LeadHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _LeadHomePageState extends State<LeadHomePage> {
   List<Map<String, dynamic>> allLeads = [];
   List<Map<String, dynamic>> filteredLeads = [];
-
   TextEditingController searchController = TextEditingController();
 
   @override
@@ -48,7 +46,7 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: searchController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Search',
                 hintText: 'Search by name...',
                 prefixIcon: Icon(Icons.search),
@@ -130,9 +128,6 @@ class _HomePageState extends State<HomePage> {
       {"user": user[0]['fullname']},
     );
 
-    print("==============================================================");
-    print(response.body);
-
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
 
@@ -173,13 +168,13 @@ class _HomePageState extends State<HomePage> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
       ),
       builder: (BuildContext context) {
         return Container(
-          padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-          decoration: BoxDecoration(
+          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+          decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
           ),
@@ -193,23 +188,18 @@ class _HomePageState extends State<HomePage> {
                       () {
                     _makingPhoneCall(lead["mobile_no"]);
                     print(lead['mobile_no'].runtimeType);
-                    print('0000000000000000000000000000');
-                    Navigator.pop(context);
-                  }),
-                  _buildSegmentedControlItem(Icons.message, Colors.green, "SMS",
-                      () {
-                    _sendSMS(lead["mobile_no"]);
                     Navigator.pop(context);
                   }),
                   _buildSegmentedControlItem(
                       Icons.whatshot, Colors.green, "WhatsApp", () {
-                    _openWhatsApp(lead["mobile_no"]);
                     Navigator.pop(context);
+
+                    _openWhatsApp(lead["mobile_no"]);
                   }),
                   _buildSegmentedControlItem(
                       Icons.edit, Color.fromARGB(255, 31, 3, 3), "Edit", () {
-                    _openWhatsApp(lead["mobile_no"]);
                     Navigator.pop(context);
+                    Get.offAllNamed("/leadpage");
                   }),
                 ],
               ),
@@ -227,7 +217,7 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(12.0),
             decoration: BoxDecoration(
               color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12.0),
@@ -238,10 +228,10 @@ class _HomePageState extends State<HomePage> {
               color: color,
             ),
           ),
-          SizedBox(height: 8.0),
+          const SizedBox(height: 8.0),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12.0,
               color: Colors.black54,
             ),
@@ -251,39 +241,85 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _makingPhoneCall(String mobileNumber) async {
-    final phoneCallUrl = 'tel:$mobileNumber';
+  void _makingPhoneCall(String phoneNumber) async {
+    var url = 'tel:$phoneNumber';
     try {
-      if (await canLaunch(phoneCallUrl)) {
-        await launch(phoneCallUrl);
-      } else {
-        throw 'Could not launch $phoneCallUrl';
-      }
+      await launch(url);
     } catch (e) {
-      // Handle error
-      print('Error making phone call: $e');
-    }
-  }
-
-  void _sendSMS(String mobileNumber) async {
-    final smsUrl = 'sms:$mobileNumber';
-    if (await canLaunch(smsUrl)) {
-      await launch(smsUrl);
-    } else {
-      print('Could not launch $smsUrl');
+      print('Error launching phone call: $e');
     }
   }
 
   void _openWhatsApp(String mobileNumber) async {
-    final whatsappUrl = 'https://wa.me/$mobileNumber';
+    List<String> messageTemplates = [
+      'Hello, I want to contact you.',
+      'Hi, how can I assist you?',
+      'Greetings! Let\'s connect.',
+    ];
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          elevation: 0.0,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16.0),
+                      topRight: Radius.circular(16.0),
+                    ),
+                  ),
+                  child: const Text(
+                    'Select a Message Template',
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                Column(
+                  children: List.generate(messageTemplates.length, (index) {
+                    return ListTile(
+                      title: Text(messageTemplates[index]),
+                      onTap: () {
+                        Navigator.pop(context); // Close the dialog
+                        _launchWhatsAppWithMessage(
+                          mobileNumber,
+                          messageTemplates[index],
+                        );
+                      },
+                    );
+                  }),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _launchWhatsAppWithMessage(String mobileNumber, String message) async {
+    var encodedMessage = Uri.encodeQueryComponent(message);
+    var url = 'https://wa.me/$mobileNumber?text=$encodedMessage';
+
     try {
-      if (await canLaunch(whatsappUrl)) {
-        await launch(whatsappUrl);
-      } else {
-        throw 'Could not launch $whatsappUrl';
-      }
+      await launch(url);
     } catch (e) {
-      // Handle error
       print('Error launching WhatsApp: $e');
     }
   }

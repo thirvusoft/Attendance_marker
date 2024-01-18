@@ -348,6 +348,7 @@ class _FollowUpPageState extends State<FollowUpPage> {
           controller: controller,
           searchInputDecoration: InputDecoration(
             labelText: label,
+            isDense: true,
             labelStyle: const TextStyle(color: Colors.black),
             border: const OutlineInputBorder(
                 borderSide: BorderSide(color: Color(0x0ff2d2e4))),

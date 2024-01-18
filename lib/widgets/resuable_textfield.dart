@@ -41,23 +41,28 @@ class _ReusableTextFieldState extends State<ReusableTextField> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onTap, // Use onTap callback
+      onTap: widget.onTap,
       child: TextFormField(
         readOnly: widget.readyonly,
+
         controller: widget.controller,
         autovalidateMode: widget.autovalidateMode,
         keyboardType: widget.keyboardType,
+
         // maxLines: widget.maxline,
         obscureText:
             (widget.obscureText != true) ? widget.obscureText : _obscureText,
         validator: widget.validator,
         maxLength: widget.maxLength,
+
         onChanged: (text) {
           if (widget.onChange != null) {
             widget.onChange!(text);
           }
         },
         decoration: InputDecoration(
+          isDense: true,
+          counterText: "",
           focusedBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.black)),
           labelText: widget.labelText,

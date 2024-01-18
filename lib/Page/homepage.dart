@@ -802,7 +802,7 @@ class _HomepageState extends State<Homepage> {
   void navigateToScreen(BuildContext context, String title) {
     if (title == 'Lead') {
       Navigator.push(
-          context, MaterialPageRoute(builder: (context) => HomePage()));
+          context, MaterialPageRoute(builder: (context) => LeadHomePage()));
     } else if (title == 'CallHistory') {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => LeadManagerScreen()));

@@ -1,13 +1,12 @@
 import 'package:attendancemarker/Controller/api.dart';
 import 'package:attendancemarker/Controller/apiservice.dart';
+import 'package:attendancemarker/widgets/resuable_datefield.dart';
 import 'package:attendancemarker/widgets/resuable_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:searchfield/searchfield.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
 class LeadPage extends StatefulWidget {
   @override
@@ -19,10 +18,8 @@ class LeadPage extends StatefulWidget {
 }
 
 class _LeadPageState extends State<LeadPage> {
-  final _formKey = GlobalKey<FormState>();
+  // final _formKey = GlobalKey<FormState>();
   final Search searching = Search();
-  final LeadCreation lead = Get.put(LeadCreation());
-  final ApiService apiService = ApiService();
   TextEditingController nameController = TextEditingController();
   TextEditingController organizationController = TextEditingController();
   TextEditingController mobilenoController = TextEditingController();
@@ -30,14 +27,26 @@ class _LeadPageState extends State<LeadPage> {
   TextEditingController sourceController = TextEditingController();
   TextEditingController industryController = TextEditingController();
   TextEditingController territoryController = TextEditingController();
+  TextEditingController followUpDateController = TextEditingController();
+  TextEditingController followUpByController = TextEditingController();
+  TextEditingController followDiscription = TextEditingController();
+  int currentStep = 0;
   bool _isLoading = false;
+  final ApiService apiService = ApiService();
+  final LeadCreation lead = Get.put(LeadCreation());
+  List<GlobalKey<FormState>> _formKeys = List.generate(
+    3,
+    (index) => GlobalKey<FormState>(),
+  );
 
   @override
   void initState() {
     super.initState();
+    searching.searchname("a", "User");
     searching.searchname("a", "Lead Source");
     searching.searchname("a", "Industry Type");
     searching.searchname("a", "Territory");
+
     nameController.text = widget.initialName ?? '';
     mobilenoController.text = widget.initialPhoneNumber ?? '';
   }
@@ -56,175 +65,263 @@ class _LeadPageState extends State<LeadPage> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-            Navigator.pop(context);
+              Get.offAllNamed("/leadhome");
             },
           ),
         ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ReusableTextField(
-                    labelText: 'Name',
-                    controller: nameController,
-                    obscureText: false,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your name';
-                      }
-                      return null;
-                    },
-                    readyonly: false,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                  ),
-                  const SizedBox(height: 16),
-                  ReusableTextField(
-                    labelText: 'Organization Name',
-                    controller: organizationController,
-                    obscureText: false,
-                    readyonly: false,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                  ),
-                  const SizedBox(height: 16),
-                  ReusableTextField(
-                    labelText: 'Mobile No',
-                    controller: mobilenoController,
-                    inputFormatters: FilteringTextInputFormatter.digitsOnly,
-                    obscureText: false,
-                    maxLength: 10,
-                    keyboardType: TextInputType.phone,
-                    readyonly: false,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your mobile no';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  ReusableTextField(
-                    readyonly: false,
-                    controller: emailController,
-                    labelText: 'Email',
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value!.isNotEmpty) {
-                        final RegExp emailRegExp = RegExp(
-                            r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
-                        if (!emailRegExp.hasMatch(value)) {
-                          return 'Please enter a valid email address';
-                        }
-                      }
-                      return null;
-                    },
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildSearchField('Source', 'Please enter Source name',
-                      sourceController, 'Lead Source', searching.searchlist_),
-                  const SizedBox(height: 16),
-                  _buildSearchField(
-                      'Industry Type',
-                      'Please enter industry type',
-                      industryController,
-                      'Industry Type',
-                      searching.searchlistindustry_),
-                  const SizedBox(height: 16),
-                  _buildSearchField(
-                      'Territory',
-                      'Please enter territory',
-                      territoryController,
-                      'Territory',
-                      searching.searchlistterritory_),
-                  const SizedBox(height: 32),
-                  Center(
-                    child: ElevatedButton(
+        body: Form(
+          child: Stepper(
+            type: StepperType.vertical,
+            currentStep: currentStep,
+            connectorColor: MaterialStateProperty.resolveWith<Color>(
+                (Set<MaterialState> states) {
+              return const Color(0xFFEA5455);
+            }),
+            steps: [
+              _buildStep(
+                  title: 'Personal Information',
+                  fields: [
+                    Form(
+                      key: _formKeys[0],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 10),
+                          ReusableTextField(
+                            labelText: 'Name',
+                            controller: nameController,
+                            obscureText: false,
+                            readyonly: false,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            maxline: 3,
+                          ),
+                          const SizedBox(height: 10),
+                          ReusableTextField(
+                            labelText: 'Mobile No',
+                            controller: mobilenoController,
+                            obscureText: false,
+                            readyonly: false,
+                            keyboardType: TextInputType.phone,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            maxLength: 10,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter Mobile no';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                          ReusableTextField(
+                            labelText: 'Email',
+                            controller: emailController,
+                            obscureText: false,
+                            readyonly: false,
+                            keyboardType: TextInputType.emailAddress,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            validator: (value) {
+                              if (value!.isNotEmpty) {
+                                final RegExp emailRegExp = RegExp(
+                                    r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
+                                if (!emailRegExp.hasMatch(value)) {
+                                  return 'Please enter a valid email address';
+                                }
+                              }
+                              return null;
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  isCompleted: currentStep > 0),
+              _buildStep(
+                title: 'Organization Information',
+                fields: [
+                  Form(
+                      key: _formKeys[1],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 10),
+                          ReusableTextField(
+                            labelText: 'Organization Name',
+                            controller: organizationController,
+                            obscureText: false,
+                            readyonly: false,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                          ),
+                          const SizedBox(height: 10),
+                          _buildSearchField('Source', sourceController,
+                              'Lead Source', searching.searchlist_),
+                          const SizedBox(height: 10),
+                          _buildSearchField('Industry Type', industryController,
+                              'Industry Type', searching.searchlistindustry_),
+                          const SizedBox(height: 10),
+                          _buildSearchField('Territory', territoryController,
+                              'Territory', searching.searchlistterritory_),
+                        ],
+                      ))
+                ],
+                isCompleted: currentStep > 1,
+              ),
+              _buildStep(
+                  title: 'Follow-up Information',
+                  fields: [
+                    Form(
+                      key: _formKeys[2],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 10),
+                          ResuableDateFormField(
+                            controller: followUpDateController,
+                            label: 'Next Followup-Date',
+                            errorMessage: 'Select the next Followup-date',
+                          ),
+                          const SizedBox(height: 10),
+                          _buildSearchField(
+                              'Next Follow-up By',
+                              followUpByController,
+                              'user',
+                              searching.searchuserlist),
+                          const SizedBox(height: 10),
+                          ReusableTextField(
+                            labelText: 'Description',
+                            controller: followDiscription,
+                            obscureText: false,
+                            keyboardType: TextInputType.multiline,
+                            readyonly: false,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            maxline: 5,
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                  isCompleted: currentStep > 2),
+            ],
+            controlsBuilder: (
+              BuildContext context,
+              ControlsDetails controlsDetails,
+            ) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    if (currentStep > 0) // Check if not the first step
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            currentStep--;
+                          });
+                        },
+                        child: Text('Back'),
+                      ),
+                    ElevatedButton(
                       onPressed: () async {
-                        FocusScope.of(context).unfocus();
-                        if (_formKey.currentState!.validate()) {
-                          setState(() {
-                            _isLoading = true;
-                          });
+                        if (_formKeys[currentStep].currentState?.validate() ??
+                            false) {
+                          if (currentStep == 2) {
+                            setState(() {
+                              _isLoading = true;
+                            });
 
-                          bool leadCreated = await lead.leadCreation(
-                              "Lead",
-                              nameController.text,
-                              organizationController.text,
-                              mobilenoController.text,
-                              emailController.text,
-                              sourceController.text,
-                              industryController.text,
-                              territoryController.text);
-                          setState(() {
-                            _isLoading = false;
-                          });
-                          if (leadCreated) {
-                            Get.offAllNamed("/homepage");
+                            bool leadCreated = await lead.leadCreation(
+                                "Lead",
+                                nameController.text,
+                                organizationController.text,
+                                mobilenoController.text,
+                                emailController.text,
+                                sourceController.text,
+                                industryController.text,
+                                territoryController.text,
+                                followUpDateController.text,
+                                followUpByController.text,
+                                followDiscription.text);
+                            setState(() {
+                              _isLoading = false;
+                            });
+
+                            if (leadCreated) {
+                              Get.offAllNamed("/leadhome");
+                            }
+                          } else {
+                            setState(() {
+                              currentStep++;
+                            });
                           }
                         }
                       },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 32, vertical: 16),
-                        textStyle: const TextStyle(fontSize: 18),
+                      child: Text(
+                        currentStep == 2 ? 'Submit' : 'Next',
                       ),
-                      child: _isLoading
-                          ? const CircularProgressIndicator()
-                          : const Text('Create Lead'),
                     ),
-                  ),
-                ],
-              ),
-            ),
+                  ],
+                ),
+              );
+            },
           ),
         ));
   }
 
-  Widget _buildSearchField(String label, String errorMessage,
-      TextEditingController controller, String doctype, List suggestion) {
-    return Obx(
-      () {
-        return SearchField(
-          controller: controller,
-          searchInputDecoration: InputDecoration(
-            labelText: label,
-            labelStyle: const TextStyle(color: Colors.black),
-            border: const OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0x0ff2d2e4))),
-            focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black)),
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return errorMessage;
-            }
+  Step _buildStep(
+      {required String title,
+      required List<Widget> fields,
+      required bool isCompleted}) {
+    return Step(
+      title: Text(title),
+      state: isCompleted ? StepState.complete : StepState.indexed,
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: fields,
+      ),
+    );
+  }
 
-            return null;
-          },
-          suggestions:
-              suggestion.map((String) => SearchFieldListItem(String)).toList(),
-          suggestionStyle: const TextStyle(fontSize: 16),
-          suggestionState: Suggestion.expand,
-          suggestionsDecoration: SuggestionDecoration(
-              padding: const EdgeInsets.only(top: 10.0, left: 5, bottom: 20),
-              color: const Color(0xFFEDEFFE),
-              borderRadius: const BorderRadius.all(Radius.circular(5))),
-          textInputAction: TextInputAction.next,
-          marginColor: const Color(0xFFEDEFFE),
-          searchStyle: TextStyle(
-            fontSize: 17,
-            color: Colors.black.withOpacity(0.8),
-          ),
-          onSearchTextChanged: (p0) {
-            searching.searchname(controller.text, doctype);
-            return null;
-          },
-        );
+  Widget _buildSearchField(String label, TextEditingController controller,
+      String doctype, List suggestion) {
+    return SearchField(
+      controller: controller,
+      searchInputDecoration: InputDecoration(
+        isDense: true,
+        counterText: "",
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.black),
+        border: const OutlineInputBorder(
+            borderSide: BorderSide(color: Color(0x0ff2d2e4))),
+        focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black)),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter $label';
+        }
+        return null;
+      },
+      suggestions:
+          suggestion.map((String) => SearchFieldListItem(String)).toList(),
+      suggestionStyle: const TextStyle(fontSize: 16),
+      suggestionState: Suggestion.expand,
+      suggestionsDecoration: SuggestionDecoration(
+        padding: const EdgeInsets.only(top: 10.0, left: 5, bottom: 20),
+        color: const Color(0xFFEDEFFE),
+        borderRadius: const BorderRadius.all(Radius.circular(5)),
+      ),
+      textInputAction: TextInputAction.next,
+      marginColor: const Color(0xFFEDEFFE),
+      searchStyle: TextStyle(
+        fontSize: 17,
+        color: Colors.black.withOpacity(0.8),
+      ),
+      onSearchTextChanged: (p0) {
+        searching.searchname(controller.text, doctype);
       },
     );
   }
