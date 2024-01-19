@@ -16,6 +16,7 @@ import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:get/get.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:bottom_bar_matu/bottom_bar/bottom_bar_bubble.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -68,7 +69,7 @@ class _HomepageState extends State<Homepage> {
               showPopup(context);
             },
             child: Container(
-              width: 60,
+              width: 50,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
@@ -603,105 +604,90 @@ class _HomepageState extends State<Homepage> {
                   ],
                 )
               : GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    crossAxisSpacing: 10.0,
-                    mainAxisSpacing: 10.0,
+                    crossAxisSpacing: 16.0,
+                    mainAxisSpacing: 16.0,
                   ),
+                  padding: const EdgeInsets.only(top: 25.0),
                   itemCount: dataList.length,
                   itemBuilder: (context, index) {
-                    return GestureDetector(
-                        onTap: () {
-                          // Navigate to a new screen based on the title
-                          navigateToScreen(context, dataList[index]['title']);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Color(0xFFEA5455),
+                    return AnimationConfiguration.staggeredGrid(
+                      position: index,
+                      duration: const Duration(milliseconds: 375),
+                      columnCount: 2,
+                      child: ScaleAnimation(
+                        child: GestureDetector(
+                          onTap: () {
+                            navigateToScreen(context, dataList[index]['title']);
+                          },
+                          child: Card(
+                            elevation: 8,
+                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            child: Stack(
                               children: [
-                                Container(
-                                  height:
-                                      100, // Adjust the height of the image container as needed
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image:
-                                          AssetImage(dataList[index]['image']),
-                                      fit: BoxFit
-                                          .contain, // Ensures that the image covers the entire container
-                                    ),
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(20),
-                                      topRight: Radius.circular(20),
+                                Hero(
+                                  tag: "imageHero${dataList[index]['title']}",
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(20)),
+                                    child: Image.asset(
+                                      dataList[index]['image'],
+                                      height: 120,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),
-                                SizedBox(
-                                    height:
-                                        10), // Adjust the spacing between image and text
-                                Text(
-                                  dataList[index]['title'],
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.bold,
+                                Positioned(
+                                  bottom: 0,
+                                  left: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Colors.transparent,
+                                          Colors.black
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.vertical(
+                                          bottom: Radius.circular(20)),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          dataList[index]['title'],
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18.0,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 8),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        ));
+                        ),
+                      ),
+                    );
                   },
-                ),
-          // ListView.builder(
-          //     itemCount: items.length,
-          //     itemBuilder: (context, index) {
-          //       return Card(
-          //         elevation: 6,
-          //         margin: const EdgeInsets.symmetric(
-          //             horizontal: 10, vertical: 5),
-          //         child: ListTile(
-          //           leading: CircleAvatar(
-          //             child: Text((index + 1).toString()),
-          //           ),
-          //           title: Text(
-          //             'Name: ${items[index]["first_name"]} ',
-          //             style: const TextStyle(
-          //               fontSize: 15,
-          //               fontWeight: FontWeight.bold,
-          //             ),
-          //           ),
-          //           subtitle: Column(
-          //             crossAxisAlignment: CrossAxisAlignment.start,
-          //             children: [
-          //               Text(
-          //                 "Company Name: ${items[index]["company_name"]}",
-          //                 style: TextStyle(
-          //                   fontSize: 13,
-          //                   color: Colors.grey[600],
-          //                 ),
-          //               ),
-          //               Text(
-          //                 "Mobile No: ${items[index]["mobile_no"]}",
-          //                 style: TextStyle(
-          //                   fontSize: 13,
-          //                   color: Colors.grey[600],
-          //                 ),
-          //               ),
-          //             ],
-          //           ),
-          //         ),
-          //       );
-          //     },
-          //   )
+                )
         ],
       ),
-      
     );
   }
 
@@ -814,19 +800,16 @@ class _HomepageState extends State<Homepage> {
   }
 
   void navigateToScreen(BuildContext context, String title) {
-    // Implement your navigation logic here
-    // Example: Navigate to different screens based on the title
     if (title == 'Lead') {
       Navigator.push(
-          context, MaterialPageRoute(builder: (context) => HomePage()));
-    }
-    else if (title == 'CallHistory') {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => LeadManagerScreen()));
-    } 
-    else if (title == 'Follow Up') {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => FollowUpPage()));
-    } 
-    else {
+          context, MaterialPageRoute(builder: (context) => LeadHomePage()));
+    } else if (title == 'CallHistory') {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => LeadManagerScreen()));
+    } else if (title == 'Follow Up') {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => FollowUpPage()));
+    } else {
       // Handle other cases as needed
     }
   }

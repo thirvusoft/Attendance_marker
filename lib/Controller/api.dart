@@ -10,8 +10,11 @@ class Search extends GetxController {
   List searchlist_ = [].obs;
   List searchlistindustry_ = [].obs;
   List searchlistterritory_ = [].obs;
+  List searchuserlist = [].obs;
 
   Future searchname(name, doctype) async {
+    print('-------------------------------');
+    print(doctype);
     final response = await apiService.get(
       "/api/method/frappe.desk.search.search_link",
       {
@@ -62,13 +65,27 @@ class Search extends GetxController {
       }
       searchlistterritory_ += (valuesList);
     }
+
+    if (response.statusCode == 200 && doctype == "User") {
+      searchuserlist.clear();
+      List<String> valuesList = [];
+
+      final jsonResponse = json.decode(response.body);
+
+      for (var item in jsonResponse['results']) {
+        if (item.containsKey('value')) {
+          valuesList.add(item['value']);
+        }
+      }
+      searchuserlist += (valuesList);
+    }
   }
 }
 
 class LeadCreation extends GetxController {
   final ApiService apiService = ApiService();
   Future leadCreation(doctype, name, org_name, mobile, email, source, indusrty,
-      territory) async {
+      territory, nextfollowup, nextfollowby, discription) async {
     final docvalue = {
       "doctype": doctype,
       "first_name": name,
@@ -77,6 +94,15 @@ class LeadCreation extends GetxController {
       'company_name': org_name,
       'source': source,
       'indusrty': indusrty,
+      'custom_follow_ups': [
+        {
+          'date': nextfollowup,
+          'followed_by': email,
+          'next_followup_date': nextfollowup,
+          'next_follow_up_by': nextfollowby,
+          'description': discription
+        }
+      ],
       "ignore_user_permissions": "1",
     };
     final response =
@@ -89,6 +115,58 @@ class LeadCreation extends GetxController {
       Get.snackbar(
         "Success",
         'Lead Created',
+        icon: const HeroIcon(HeroIcons.check, color: Colors.white),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xff35394e),
+        borderRadius: 20,
+        margin: const EdgeInsets.all(15),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+        isDismissible: true,
+        forwardAnimationCurve: Curves.easeOutBack,
+      );
+      return true;
+    } else {
+      final Response = json.decode(response.body);
+      Get.snackbar(
+        "Failed",
+        '',
+        icon: const HeroIcon(HeroIcons.xMark, color: Colors.white),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xff35394e),
+        borderRadius: 20,
+        margin: const EdgeInsets.all(15),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+        isDismissible: true,
+        forwardAnimationCurve: Curves.easeOutBack,
+      );
+      return false;
+    }
+  }
+}
+
+class LeadFollowup extends GetxController {
+  final ApiService apiService = ApiService();
+  Future leadFollowup(lead, user, nextdate, nextby, status) async {
+    final docvalue = {
+      "lead": lead,
+      "user": user,
+      'nextfollowup_date': nextdate,
+      'nextfollowup_by': nextby,
+      'status': status,
+    };
+    print('-----------------------------------');
+    final response = await apiService.post(
+        "thirvu__attendance.utils.api.api.followup_table_updating", docvalue);
+    print(response.statusCode);
+    print(response.body);
+    print(jsonEncode(docvalue));
+    if (response.statusCode == 200) {
+      final Response = json.decode(response.body);
+      Get.snackbar(
+        "Success",
+        'Followup Updated',
         icon: const HeroIcon(HeroIcons.check, color: Colors.white),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xff35394e),

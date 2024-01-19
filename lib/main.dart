@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       theme: ThemeData(
-        primaryColor: const Color(0xFFEA5455),
+        primaryColor: Color.fromARGB(255, 234, 84, 85),
         primarySwatch: createMaterialColor(const Color(0xFFEA5455)),
         fontFamily: 'Sansation',
         visualDensity: VisualDensity.adaptivePlatformDensity,

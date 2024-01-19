@@ -47,6 +47,7 @@ class ResuableDateFormField extends StatelessWidget {
     return InputDecoration(
       labelText: label,
       isDense: true,
+      counterText: "",
       border: const OutlineInputBorder(),
       focusedBorder: const OutlineInputBorder(
         borderSide: BorderSide(color: Color.fromARGB(255, 119, 133, 56)),

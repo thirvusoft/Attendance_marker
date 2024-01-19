@@ -10,6 +10,8 @@ class SearchFieldWidget extends StatelessWidget {
     return TextField(
       controller: controller,
       decoration: const InputDecoration(
+        isDense: true,
+        counterText: "",
         labelText: 'Search',
         prefixIcon: Icon(Icons.search),
         border: OutlineInputBorder(
