@@ -4,7 +4,6 @@ import 'package:attendancemarker/Page/homepage.dart';
 import 'package:attendancemarker/Page/lead.dart';
 import 'package:attendancemarker/Page/loginpage.dart';
 import 'package:attendancemarker/Page/loglistpage.dart';
-import 'package:attendancemarker/Page/newloginpage.dart';
 import 'package:attendancemarker/Page/splash_screen.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 
@@ -47,7 +46,7 @@ final getPages = [
   ),
   GetPage(
     name: Routes.leadpage,
-    page: () => LeadPage("", ""),
+    page: () => LeadPage("", "", ""),
   ),
   GetPage(
     name: Routes.calllog,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:attendancemarker/Controller/apiservice.dart';
+import 'package:attendancemarker/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:heroicons/heroicons.dart';
@@ -84,34 +85,53 @@ class Search extends GetxController {
 
 class LeadCreation extends GetxController {
   final ApiService apiService = ApiService();
-  Future leadCreation(doctype, name, org_name, mobile, email, source, indusrty,
-      territory, nextfollowup, nextfollowby, discription) async {
+
+  Future<bool> leadCreation(id, doctype, name, org_name, mobile, email, source,
+      industry, territory, nextfollowup, nextfollowby, discription) async {
+    final currentDate = DateTime.now();
+    final formattedDate =
+        "${currentDate.year}-${currentDate.month}-${currentDate.day}";
+    final user = await controller.getUser();
+
     final docvalue = {
       "doctype": doctype,
+      "id": id,
       "first_name": name,
       'email_id': email,
       'mobile_no': mobile,
       'company_name': org_name,
       'source': source,
-      'indusrty': indusrty,
-      'custom_follow_ups': [
-        {
-          'date': nextfollowup,
-          'followed_by': email,
-          'next_followup_date': nextfollowup,
-          'next_follow_up_by': nextfollowby,
-          'description': discription
-        }
-      ],
+      'industry': industry,
+      'territory': territory,
+      'custom_follow_ups': {
+        'date': formattedDate,
+        'followed_by': user[0]['email'],
+        'next_followup_date': nextfollowup,
+        'next_follow_up_by': nextfollowby,
+        'description': discription
+      },
       "ignore_user_permissions": "1",
     };
-    final response =
-        await apiService.post("frappe.client.insert", {'doc': docvalue});
+
+    var response;
+
+    if (id == "") {
+      print('111111');
+      response =
+          await apiService.post("frappe.client.insert", {'doc': docvalue});
+    } else {
+      print('2222222222');
+
+      response = await apiService.post(
+        'thirvu__attendance.utils.api.api.edit_lead',
+        {"data": jsonEncode(docvalue)},
+      );
+    }
     print(response.statusCode);
     print(response.body);
-    print(jsonEncode(docvalue));
+    print('ppppppppppppppppppppppppppppppppp');
+
     if (response.statusCode == 200) {
-      final Response = json.decode(response.body);
       Get.snackbar(
         "Success",
         'Lead Created',
@@ -127,7 +147,6 @@ class LeadCreation extends GetxController {
       );
       return true;
     } else {
-      final Response = json.decode(response.body);
       Get.snackbar(
         "Failed",
         '',
@@ -148,7 +167,8 @@ class LeadCreation extends GetxController {
 
 class LeadFollowup extends GetxController {
   final ApiService apiService = ApiService();
-  Future leadFollowup(lead, user, nextdate, nextby, status) async {
+
+  Future<bool> leadFollowup(lead, user, nextdate, nextby, status) async {
     final docvalue = {
       "lead": lead,
       "user": user,
@@ -156,14 +176,11 @@ class LeadFollowup extends GetxController {
       'nextfollowup_by': nextby,
       'status': status,
     };
-    print('-----------------------------------');
+
     final response = await apiService.post(
         "thirvu__attendance.utils.api.api.followup_table_updating", docvalue);
-    print(response.statusCode);
-    print(response.body);
-    print(jsonEncode(docvalue));
+
     if (response.statusCode == 200) {
-      final Response = json.decode(response.body);
       Get.snackbar(
         "Success",
         'Followup Updated',
@@ -179,7 +196,6 @@ class LeadFollowup extends GetxController {
       );
       return true;
     } else {
-      final Response = json.decode(response.body);
       Get.snackbar(
         "Failed",
         '',

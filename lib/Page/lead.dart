@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:attendancemarker/Controller/api.dart';
 import 'package:attendancemarker/Controller/apiservice.dart';
+import 'package:attendancemarker/constant.dart';
 import 'package:attendancemarker/widgets/resuable_datefield.dart';
 import 'package:attendancemarker/widgets/resuable_textfield.dart';
 import 'package:flutter/material.dart';
@@ -13,8 +16,9 @@ class LeadPage extends StatefulWidget {
   State<LeadPage> createState() => _LeadPageState();
   final String? initialName;
   final String? initialPhoneNumber;
+  final String id;
 
-  const LeadPage(this.initialName, this.initialPhoneNumber);
+  const LeadPage(this.initialName, this.initialPhoneNumber, this.id);
 }
 
 class _LeadPageState extends State<LeadPage> {
@@ -32,6 +36,8 @@ class _LeadPageState extends State<LeadPage> {
   TextEditingController followDiscription = TextEditingController();
   int currentStep = 0;
   bool _isLoading = false;
+  String id = '';
+
   final ApiService apiService = ApiService();
   final LeadCreation lead = Get.put(LeadCreation());
   List<GlobalKey<FormState>> _formKeys = List.generate(
@@ -41,7 +47,11 @@ class _LeadPageState extends State<LeadPage> {
 
   @override
   void initState() {
+    id = widget.id;
+
     super.initState();
+
+    singlelead();
     searching.searchname("a", "User");
     searching.searchname("a", "Lead Source");
     searching.searchname("a", "Industry Type");
@@ -215,7 +225,7 @@ class _LeadPageState extends State<LeadPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    if (currentStep > 0) // Check if not the first step
+                    if (currentStep > 0)
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
@@ -232,8 +242,8 @@ class _LeadPageState extends State<LeadPage> {
                             setState(() {
                               _isLoading = true;
                             });
-
                             bool leadCreated = await lead.leadCreation(
+                                id,
                                 "Lead",
                                 nameController.text,
                                 organizationController.text,
@@ -324,5 +334,39 @@ class _LeadPageState extends State<LeadPage> {
         searching.searchname(controller.text, doctype);
       },
     );
+  }
+
+  singlelead() async {
+    final response = await apiService.get(
+        '/api/method/thirvu__attendance.utils.api.api.single_lead',
+        {"name": id});
+    final jsonResponse = json.decode(response.body);
+    print(id);
+    if (jsonResponse['message'].isNotEmpty) {
+      final leadData = jsonResponse['message'];
+      nameController.text = leadData['lead_name'] ?? '';
+      organizationController.text = leadData['company_name'] ?? '';
+      mobilenoController.text = leadData['mobile_no'] ?? '';
+      emailController.text = leadData['email_id'] ?? '';
+
+      if (leadData['custom_follow_ups'] != null &&
+          leadData['custom_follow_ups'].isNotEmpty) {
+        final List<dynamic> tableFollowupList =
+            leadData['custom_follow_ups'] ?? '';
+        final Map<String, dynamic> lastTableFollowupList =
+            tableFollowupList.last ?? '';
+        followUpDateController.text =
+            lastTableFollowupList['next_followup_date'] ?? '';
+        followUpByController.text =
+            lastTableFollowupList['next_follow_up_by'] ?? '';
+        followDiscription.text = lastTableFollowupList['description'] ?? '';
+      }
+      setState(() {
+        print(leadData['industry']);
+        sourceController.text = leadData['source'] ?? '';
+        industryController.text = leadData['industry'] ?? '';
+        territoryController.text = leadData['territory'] ?? '';
+      });
+    }
   }
 }

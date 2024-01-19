@@ -158,7 +158,8 @@ class _LeadManagerScreenState extends State<LeadManagerScreen> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LeadPage(name, formattedPhoneNumber),
+                  builder: (context) =>
+                      LeadPage(name, formattedPhoneNumber, ""),
                 ));
           },
         ),

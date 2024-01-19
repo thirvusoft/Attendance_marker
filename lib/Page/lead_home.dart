@@ -29,7 +29,7 @@ class _LeadHomePageState extends State<LeadHomePage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pop(context);
+            Get.offAllNamed("/leadhome");
           },
         ),
         backgroundColor: Color(0xFFEA5455),
@@ -110,7 +110,7 @@ class _LeadHomePageState extends State<LeadHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const LeadPage("", "")),
+            MaterialPageRoute(builder: (context) => const LeadPage("", "", '')),
           );
         },
         tooltip: "Lead Creation",
@@ -199,7 +199,14 @@ class _LeadHomePageState extends State<LeadHomePage> {
                   _buildSegmentedControlItem(
                       Icons.edit, Color.fromARGB(255, 31, 3, 3), "Edit", () {
                     Navigator.pop(context);
-                    Get.offAllNamed("/leadpage");
+                    // Get.offAllNamed("/leadpage");
+                    print(lead['name']);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LeadPage("", "", lead['name']),
+                      ),
+                    );
                   }),
                 ],
               ),

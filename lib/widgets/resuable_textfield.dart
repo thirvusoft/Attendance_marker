@@ -68,7 +68,8 @@ class _ReusableTextFieldState extends State<ReusableTextField> {
           labelText: widget.labelText,
           labelStyle: const TextStyle(color: Colors.black),
           border: const OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0x0ff2d2e4))),
+            borderSide: BorderSide(color: Color(0x0ff2d2e4)),
+          ),
           suffixIcon: widget.suffixIcon != null
               ? (widget.obscureText != true)
                   ? HeroIcon(widget.suffixIcon as HeroIcons)
