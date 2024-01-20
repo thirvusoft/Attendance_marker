@@ -2,13 +2,16 @@ import 'dart:convert';
 
 import 'package:attendancemarker/constant.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Employee {
   final String name;
   final String designation;
+  final String id;
 
-  Employee({required this.name, required this.designation});
+  Employee({required this.name, required this.designation, required this.id});
 }
 
 class EmployeeList extends StatefulWidget {
@@ -40,9 +43,9 @@ class _EmployeeListState extends State<EmployeeList> {
 
       List<Employee> employees = message.map((data) {
         return Employee(
-          name: data['employee_name'] ?? '',
-          designation: data['designation'] ?? 'No Designation',
-        );
+            name: data['employee_name'] ?? '',
+            designation: data['designation'] ?? 'No Designation',
+            id: data['id']);
       }).toList();
 
       setState(() {
@@ -66,7 +69,7 @@ class _EmployeeListState extends State<EmployeeList> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pop(context);
+            Get.offAllNamed("/loglist");
           },
         ),
       ),
@@ -96,37 +99,28 @@ class _EmployeeListState extends State<EmployeeList> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: filteredEmployeeList.length,
-              itemBuilder: (context, index) {
-                Employee employee = filteredEmployeeList[index];
-                return _buildListItem(employee);
-              },
-            ),
-          ),
+              child: ListView.builder(
+            itemCount: filteredEmployeeList.length,
+            itemBuilder: (context, index) {
+              Employee employee = filteredEmployeeList[index];
+              return _buildListItem(index, employee);
+            },
+          )),
         ],
       ),
     );
   }
 
-  Widget _buildListItem(Employee employee) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        elevation: 4.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        child: ListTile(
-          title: Text(
-            '${employee.name}',
-            style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text('${employee.designation}'),
-          onTap: () {
-            // Handle onTap event if needed
-          },
-        ),
+  Widget _buildListItem(int index, Employee employee) {
+    return Card(
+      color: Colors.white,
+      child: ListTile(
+        leading: Text((index + 1).toString()),
+        title: Text(' ${employee.name}'),
+        subtitle: Text('${employee.designation}'),
+        onTap: () {
+          Get.offAllNamed("/mappage");
+        },
       ),
     );
   }

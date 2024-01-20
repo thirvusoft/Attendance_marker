@@ -36,7 +36,7 @@ final getPages = [
   ),
   GetPage(
     name: Routes.mappage,
-    page: () => const Mapview(),
+    page: () => const MapView(),
   ),
   GetPage(
     name: Routes.splashscreen,
