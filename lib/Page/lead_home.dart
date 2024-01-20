@@ -29,7 +29,7 @@ class _LeadHomePageState extends State<LeadHomePage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Get.offAllNamed("/leadhome");
+            Get.offAllNamed("/homepage");
           },
         ),
         backgroundColor: Color(0xFFEA5455),

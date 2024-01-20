@@ -1,4 +1,5 @@
 import 'package:attendancemarker/Page/call_log.dart';
+import 'package:attendancemarker/Page/employeepage.dart';
 import 'package:attendancemarker/Page/followuppage.dart';
 import 'package:attendancemarker/Page/homepage.dart';
 import 'package:attendancemarker/Page/lead.dart';
@@ -21,6 +22,7 @@ class Routes {
   static String calllog = '/calllog';
   static String followup = '/followup';
   static String leadhome = '/leadhome';
+  static String employee = '/employeelist';
 }
 
 final getPages = [
@@ -59,5 +61,9 @@ final getPages = [
   GetPage(
     name: Routes.leadhome,
     page: () => LeadHomePage(),
+  ),
+  GetPage(
+    name: Routes.employee,
+    page: () => EmployeeList(),
   ),
 ];
