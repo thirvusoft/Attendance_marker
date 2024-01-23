@@ -96,12 +96,6 @@ class _HomepageState extends State<Homepage> {
         selectedIndex: currentIndex,
         color: const Color(0xFFEA5455),
         onSelect: (index) {
-          // setState(() {
-          //   currentIndex = index;
-          //   if (currentIndex == 1) {
-          //     print("fdfdfdf");
-          //   }
-          // });
           bottomcontroller.jumpToPage(index);
         },
       ),
@@ -196,11 +190,9 @@ class _HomepageState extends State<Homepage> {
                                                   final location =
                                                       await locationcontroller
                                                           .getLocation(false);
-                                                  print(location);
-                                                  print("lo");
+
                                                   if (location ==
                                                       "Location not enabled") {
-                                                    print("lo");
                                                     showLocationServicesDialog();
                                                   }
                                                   // final data = await controller
@@ -218,7 +210,6 @@ class _HomepageState extends State<Homepage> {
                                                         "lat": location.latitude
                                                             .toString()
                                                       });
-                                                  print(response.body);
                                                   if (response.statusCode ==
                                                       200) {
                                                     final Response = json
@@ -297,7 +288,6 @@ class _HomepageState extends State<Homepage> {
                                                   }
                                                 }
                                               : () async {
-                                                  print(1);
                                                   final user = await controller
                                                       .getUser();
                                                   final response =
@@ -312,8 +302,7 @@ class _HomepageState extends State<Homepage> {
                                                             jsonEncode(
                                                                 pinglocation_)
                                                       });
-                                                  print(response.body);
-                                                  print(response.statusCode);
+
                                                   if (response.statusCode ==
                                                       200) {
                                                     final Response = json
@@ -723,8 +712,6 @@ class _HomepageState extends State<Homepage> {
       "attendance": user[0]["attendanceid"],
       "address_list": jsonEncode(pinglocation_)
     });
-    print(response.statusCode);
-    print(response.body);
   }
 
   void showPopup(BuildContext context) {

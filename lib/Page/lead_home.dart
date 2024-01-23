@@ -23,112 +23,120 @@ class _LeadHomePageState extends State<LeadHomePage> {
     leadlist();
   }
 
+  Future<void> _refreshData() async {
+    leadlist();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Get.offAllNamed("/homepage");
-          },
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 40.0),
-            child: IconButton(
-              icon: const Icon(FontAwesomeIcons.userPen, color: Colors.white),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                      builder: (context) => const LeadPage("", "", '')),
-                );
-              },
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 40.0),
+              child: IconButton(
+                icon: const Icon(FontAwesomeIcons.userPen, color: Colors.white),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (context) => const LeadPage("", "", '')),
+                  );
+                },
+              ),
+            ),
+          ],
+          backgroundColor: Color(0xFFEA5455),
+          title: ListTile(
+            title: Text(
+              "Lead List",
+              style: GoogleFonts.sansita(fontSize: 20, color: Colors.white),
             ),
           ),
-        ],
-        backgroundColor: Color(0xFFEA5455),
-        title: ListTile(
-          title: Text(
-            "Lead List",
-            style: GoogleFonts.sansita(fontSize: 20, color: Colors.white),
-          ),
         ),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchController,
-              decoration: const InputDecoration(
-                labelText: 'Search',
-                hintText: 'Search by name...',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(25.0)),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            await _refreshData();
+          },
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: searchController,
+                  decoration: const InputDecoration(
+                    labelText: 'Search',
+                    hintText: 'Search by name...',
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    filterSearchResults(value);
+                  },
                 ),
               ),
-              onChanged: (value) {
-                filterSearchResults(value);
-              },
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: filteredLeads.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  elevation: 6,
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      child: Text((index + 1).toString()),
-                    ),
-                    title: Text(
-                      'Name: ${filteredLeads[index]["first_name"]} ',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
+              Expanded(
+                child: ListView.builder(
+                  itemCount: filteredLeads.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      elevation: 6,
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          child: Text((index + 1).toString()),
+                        ),
+                        title: Text(
+                          'Name: ${filteredLeads[index]["first_name"]} ',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Company Name: ${filteredLeads[index]["company_name"]}",
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            Text(
+                              "Mobile No: ${filteredLeads[index]["mobile_no"]}",
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  CrmLead(filteredLeads[index]["name"]),
+                            ),
+                          );
+                        },
                       ),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Company Name: ${filteredLeads[index]["company_name"]}",
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        Text(
-                          "Mobile No: ${filteredLeads[index]["mobile_no"]}",
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              CrmLead(filteredLeads[index]["name"]),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ));
   }
 
   void leadlist() async {

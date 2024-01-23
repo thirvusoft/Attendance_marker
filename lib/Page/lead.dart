@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:attendancemarker/Controller/api.dart';
 import 'package:attendancemarker/Controller/apiservice.dart';
+import 'package:attendancemarker/Page/crmleadpage.dart';
 import 'package:attendancemarker/widgets/resuable_datefield.dart';
 import 'package:attendancemarker/widgets/resuable_textfield.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,7 @@ class _LeadPageState extends State<LeadPage> {
   TextEditingController followUpDateController = TextEditingController();
   TextEditingController followUpByController = TextEditingController();
   TextEditingController followDiscription = TextEditingController();
+  TextEditingController websiteController = TextEditingController();
 
   TextEditingController streetController = TextEditingController();
   TextEditingController cityController = TextEditingController();
@@ -293,6 +295,15 @@ class _LeadPageState extends State<LeadPage> {
                           _buildSearchField('Industry Type', industryController,
                               'Industry Type', searching.searchlistindustry_),
                           const SizedBox(height: 10),
+                          ReusableTextField(
+                            labelText: 'Website Name',
+                            controller: websiteController,
+                            obscureText: false,
+                            readyonly: false,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                          ),
+                          const SizedBox(height: 10),
                           _buildSearchField('Territory', territoryController,
                               'Territory', searching.searchlistterritory_),
                         ],
@@ -363,6 +374,7 @@ class _LeadPageState extends State<LeadPage> {
                             setState(() {
                               _isLoading = true;
                             });
+
                             bool leadCreated = await lead.leadCreation(
                                 id,
                                 "Lead",
@@ -375,7 +387,12 @@ class _LeadPageState extends State<LeadPage> {
                                 territoryController.text,
                                 followUpDateController.text,
                                 followUpByController.text,
-                                followDiscription.text);
+                                followDiscription.text,
+                                streetController.text,
+                                cityController.text,
+                                stateController.text,
+                                zipCodeController.text,
+                                websiteController.text);
                             setState(() {
                               _isLoading = false;
                             });
@@ -462,13 +479,13 @@ class _LeadPageState extends State<LeadPage> {
         '/api/method/thirvu__attendance.utils.api.api.single_lead',
         {"name": id});
     final jsonResponse = json.decode(response.body);
-    print(id);
     if (jsonResponse['message'].isNotEmpty) {
       final leadData = jsonResponse['message'];
       nameController.text = leadData['lead_name'] ?? '';
       organizationController.text = leadData['company_name'] ?? '';
       mobilenoController.text = leadData['mobile_no'] ?? '';
       emailController.text = leadData['email_id'] ?? '';
+      websiteController.text = leadData['website'] ?? '';
 
       if (leadData['custom_follow_ups'] != null &&
           leadData['custom_follow_ups'].isNotEmpty) {
@@ -482,8 +499,17 @@ class _LeadPageState extends State<LeadPage> {
             lastTableFollowupList['next_follow_up_by'] ?? '';
         followDiscription.text = lastTableFollowupList['description'] ?? '';
       }
+
+      if (leadData['address_list'] != null &&
+          leadData['address_list'].isNotEmpty) {
+        final List<dynamic> tableAddress = leadData['address_list'] ?? '';
+        final Map<String, dynamic> lastaddress = tableAddress.last ?? '';
+        streetController.text = lastaddress['address_line1'] ?? '';
+        cityController.text = lastaddress['city'] ?? '';
+        stateController.text = lastaddress['state'] ?? '';
+        zipCodeController.text = lastaddress['pincode'] ?? '';
+      }
       setState(() {
-        print(leadData['industry']);
         sourceController.text = leadData['source'] ?? '';
         industryController.text = leadData['industry'] ?? '';
         territoryController.text = leadData['territory'] ?? '';

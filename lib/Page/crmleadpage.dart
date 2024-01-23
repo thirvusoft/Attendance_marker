@@ -35,6 +35,10 @@ String emailId = '';
 String website = '';
 String nextFollowBy = '';
 String nextFollowDate = '';
+String street = '';
+String city = '';
+String state = '';
+String zipcode = '';
 
 class _CrmLeadState extends State<CrmLead> {
   @override
@@ -46,30 +50,42 @@ class _CrmLeadState extends State<CrmLead> {
     searching.searchname("a", "User");
   }
 
+  Future<void> _refreshData() async {
+    await singlelead();
+  }
+
   singlelead() async {
-    print('########################');
-    print(id);
     final response = await apiService.get(
         '/api/method/thirvu__attendance.utils.api.api.single_lead',
         {"name": id});
     final jsonResponse = json.decode(response.body);
-    print(id);
     if (jsonResponse['message'].isNotEmpty) {
       final leadData = jsonResponse['message'];
-      leadName = leadData['lead_name'] ?? '';
-      leadMobileNo = leadData['mobile_no'] ?? '';
-      emailId = leadData['email_id'] ?? '';
-      website = leadData['website'] ?? '';
+      setState(() {
+        leadName = leadData['lead_name'] ?? '';
+        leadMobileNo = leadData['mobile_no'] ?? '';
+        emailId = leadData['email_id'] ?? '';
+        website = leadData['website'] ?? '';
 
-      if (leadData['custom_follow_ups'] != null &&
-          leadData['custom_follow_ups'].isNotEmpty) {
-        final List<dynamic> tableFollowupList =
-            leadData['custom_follow_ups'] ?? '';
-        final Map<String, dynamic> lastTableFollowupList =
-            tableFollowupList.last ?? '';
-        nextFollowDate = lastTableFollowupList['next_followup_date'] ?? '';
-        nextFollowBy = lastTableFollowupList['next_follow_up_by'] ?? '';
-      }
+        if (leadData['custom_follow_ups'] != null &&
+            leadData['custom_follow_ups'].isNotEmpty) {
+          final List<dynamic> tableFollowupList =
+              leadData['custom_follow_ups'] ?? '';
+          final Map<String, dynamic> lastTableFollowupList =
+              tableFollowupList.last ?? '';
+          nextFollowDate = lastTableFollowupList['next_followup_date'] ?? '';
+          nextFollowBy = lastTableFollowupList['next_follow_up_by'] ?? '';
+        }
+        if (leadData['address_list'] != null &&
+            leadData['address_list'].isNotEmpty) {
+          final List<dynamic> tableAddress = leadData['address_list'] ?? '';
+          final Map<String, dynamic> lastaddress = tableAddress.last ?? '';
+          street = lastaddress['address_line1'] ?? '';
+          city = lastaddress['city'] ?? '';
+          state = lastaddress['state'] ?? '';
+          zipcode = lastaddress['pincode'] ?? '';
+        }
+      });
     }
   }
 
@@ -80,7 +96,7 @@ class _CrmLeadState extends State<CrmLead> {
           backgroundColor: const Color(0xFFEA5455),
           title: const ListTile(
             title: Text(
-              "Lead Type",
+              "Lead",
               style: TextStyle(fontSize: 20, color: Colors.white),
             ),
           ),
@@ -91,427 +107,449 @@ class _CrmLeadState extends State<CrmLead> {
             },
           ),
         ),
-        body: ListView(
-          children: [
-            // Lead Card
-            Container(
-              height: 170,
-              margin: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
+        body: RefreshIndicator(
+            onRefresh: () async {
+              await _refreshData();
+            },
+            child: ListView(
+              children: [
+                // Lead Card
+                Container(
+                  height: 170,
+                  margin: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                  child: Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const CircleAvatar(
-                            backgroundColor: Colors.blue,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  leadName,
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: const Color(0xFFEA5455),
+                                radius: 20,
+                                child: Text(
+                                  leadName[0].toUpperCase(),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 18,
+                                    fontSize: 20,
+                                    color: Colors.white, // Text color
                                   ),
                                 ),
-                                Text(
-                                  leadMobileNo,
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                  ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      leadName,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    Text(
+                                      leadMobileNo,
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
                                 ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                buildOption(
+                                    const Color.fromARGB(255, 51, 14, 216),
+                                    FontAwesomeIcons.phone,
+                                    'Call'),
+                                buildOption(Colors.green,
+                                    FontAwesomeIcons.whatsapp, 'WhatsApp'),
+                                buildOption(Colors.blue,
+                                    FontAwesomeIcons.message, 'Message'),
+                                buildOption(Colors.red,
+                                    FontAwesomeIcons.envelope, 'Email'),
+                                buildOption(
+                                    const Color.fromARGB(255, 231, 103, 18),
+                                    FontAwesomeIcons.calendar,
+                                    'Calendar'),
+                                buildOption(
+                                    const Color.fromARGB(255, 167, 6, 241),
+                                    FontAwesomeIcons.locationDot,
+                                    'Location'),
+                                buildOption(Colors.black, FontAwesomeIcons.edit,
+                                    'Edit'),
                               ],
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            buildOption(const Color.fromARGB(255, 51, 14, 216),
-                                FontAwesomeIcons.phone, 'Call'),
-                            buildOption(Colors.green, FontAwesomeIcons.whatsapp,
-                                'WhatsApp'),
-                            buildOption(Colors.blue, FontAwesomeIcons.message,
-                                'Message'),
-                            buildOption(
-                                Colors.red, FontAwesomeIcons.envelope, 'Email'),
-                            buildOption(const Color.fromARGB(255, 231, 103, 18),
-                                FontAwesomeIcons.calendar, 'Calendar'),
-                            buildOption(const Color.fromARGB(255, 167, 6, 241),
-                                FontAwesomeIcons.locationDot, 'Location'),
-                            buildOption(
-                                Colors.black, FontAwesomeIcons.edit, 'Edit'),
-                          ],
-                        ),
+                    ),
+                  ),
+                ),
+
+                // Follow-up Card
+                Container(
+                  margin: const EdgeInsets.all(10),
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
-                ),
-              ),
-            ),
-
-            // Follow-up Card
-            Container(
-              margin: const EdgeInsets.all(10),
-              width: MediaQuery.of(context).size.width * 0.9,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: InkWell(
-                  onTap: () {
-                    _showDetailsDialog();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const ListTile(
-                          title: Text(
-                            "Follow-up Details",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          trailing: Icon(Icons.arrow_forward),
-                        ),
-                        const Divider(
-                          thickness: 1,
-                          color: Colors.grey,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        _showDetailsDialog();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  RichText(
-                                    text: TextSpan(
-                                      children: <TextSpan>[
-                                        const TextSpan(
-                                          text: 'Next Follow-up By: ',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Color.fromARGB(
-                                                255, 175, 19, 19),
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: nextFollowBy,
-                                          style: const TextStyle(
-                                            color: Color.fromARGB(255, 0, 0, 0),
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  RichText(
-                                    text: TextSpan(
-                                      children: <TextSpan>[
-                                        const TextSpan(
-                                          text: 'Next Follow-up Date: ',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Color.fromARGB(
-                                                255, 175, 19, 19),
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: nextFollowDate,
-                                          style: const TextStyle(
-                                            color: Color.fromARGB(255, 0, 0, 0),
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                            const ListTile(
+                              title: Text(
+                                "Follow-up Details",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
+                              trailing: Icon(Icons.arrow_forward),
                             ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.info_outline,
-                                color: Colors.blue,
-                              ),
-                              onPressed: () {
-                                _showDetailsDialog();
-                              },
+                            const Divider(
+                              thickness: 1,
+                              color: Colors.grey,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      RichText(
+                                        text: TextSpan(
+                                          children: <TextSpan>[
+                                            const TextSpan(
+                                              text: 'Next Follow-up By: ',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Color.fromARGB(
+                                                    255, 175, 19, 19),
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: nextFollowBy,
+                                              style: const TextStyle(
+                                                color: Color.fromARGB(
+                                                    255, 0, 0, 0),
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      RichText(
+                                        text: TextSpan(
+                                          children: <TextSpan>[
+                                            const TextSpan(
+                                              text: 'Next Follow-up Date: ',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Color.fromARGB(
+                                                    255, 175, 19, 19),
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: nextFollowDate,
+                                              style: const TextStyle(
+                                                color: Color.fromARGB(
+                                                    255, 0, 0, 0),
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.info_outline,
+                                    color: Colors.blue,
+                                  ),
+                                  onPressed: () {
+                                    _showDetailsDialog();
+                                  },
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
 
-            // Address Info Card
+                // Address Info Card
 
-            ExpansionTile(
-              title: const Text(
-                "Address Information",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              children: [
-                Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  color: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(1.0),
-                    child: Column(
-                      children: [
-                        ListTile(
-                          leading: const Icon(
-                            FontAwesomeIcons.mapLocationDot,
-                            color: Color.fromARGB(255, 167, 6, 241),
-                          ),
-                          title: RichText(
-                            text: const TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: "Street: ",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 16),
-                                ),
-                                TextSpan(
-                                  text: "Your Street",
-                                  style: TextStyle(
-                                      color: Colors.grey, fontSize: 16),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          leading: const Icon(
-                            FontAwesomeIcons.city,
-                            color: Colors.red,
-                          ),
-                          title: RichText(
-                            text: const TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: "City: ",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 16),
-                                ),
-                                TextSpan(
-                                  text: "Your City",
-                                  style: TextStyle(
-                                      color: Colors.grey, fontSize: 16),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          leading: const Icon(
-                            FontAwesomeIcons.flag,
-                            color: Colors.green,
-                          ),
-                          title: RichText(
-                            text: const TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: "State: ",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 16),
-                                ),
-                                TextSpan(
-                                  text: "Your State",
-                                  style: TextStyle(
-                                      color: Colors.grey, fontSize: 16),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          leading: const Icon(
-                            FontAwesomeIcons.locationDot,
-                            color: Color.fromARGB(255, 51, 14, 216),
-                          ),
-                          title: RichText(
-                            text: const TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: "Zip Code: ",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 16),
-                                ),
-                                TextSpan(
-                                  text: "Your Zip Code",
-                                  style: TextStyle(
-                                      color: Colors.grey, fontSize: 16),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
+                ExpansionTile(
+                  title: const Text(
+                    "Address Information",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
+                  children: [
+                    Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(1.0),
+                        child: Column(
+                          children: [
+                            ListTile(
+                              leading: const Icon(
+                                FontAwesomeIcons.mapLocationDot,
+                                color: Color.fromARGB(255, 167, 6, 241),
+                              ),
+                              title: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: "Street: ",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 16),
+                                    ),
+                                    TextSpan(
+                                      text: street,
+                                      style: const TextStyle(
+                                          color: Colors.grey, fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            ListTile(
+                              leading: const Icon(
+                                FontAwesomeIcons.city,
+                                color: Colors.red,
+                              ),
+                              title: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: "City: ",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 16),
+                                    ),
+                                    TextSpan(
+                                      text: city,
+                                      style: const TextStyle(
+                                          color: Colors.grey, fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            ListTile(
+                              leading: const Icon(
+                                FontAwesomeIcons.flag,
+                                color: Colors.green,
+                              ),
+                              title: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: "State: ",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 16),
+                                    ),
+                                    TextSpan(
+                                      text: state,
+                                      style: const TextStyle(
+                                          color: Colors.grey, fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            ListTile(
+                              leading: const Icon(
+                                FontAwesomeIcons.locationDot,
+                                color: Color.fromARGB(255, 51, 14, 216),
+                              ),
+                              title: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: "Zip Code: ",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 16),
+                                    ),
+                                    TextSpan(
+                                      text: zipcode,
+                                      style: const TextStyle(
+                                          color: Colors.grey, fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Contact Info Card
+                ExpansionTile(
+                  title: const Text(
+                    "Contact Information",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  children: [
+                    Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(1.0),
+                        child: Column(
+                          children: [
+                            ListTile(
+                              leading: const Icon(
+                                FontAwesomeIcons.phone,
+                                color: Color.fromARGB(255, 167, 6, 241),
+                              ),
+                              title: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: "Contact No. : ",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 16),
+                                    ),
+                                    TextSpan(
+                                      text: leadMobileNo,
+                                      style: const TextStyle(
+                                          color: Colors.grey, fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            ListTile(
+                              leading: const Icon(
+                                FontAwesomeIcons.envelopeCircleCheck,
+                                color: Colors.red,
+                              ),
+                              title: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: "Email Id: ",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 16),
+                                    ),
+                                    TextSpan(
+                                      text: emailId,
+                                      style: const TextStyle(
+                                          color: Colors.grey, fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            ListTile(
+                              leading: const Icon(
+                                FontAwesomeIcons.globe,
+                                color: Colors.blue,
+                              ),
+                              title: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: "Website: ",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 16),
+                                    ),
+                                    TextSpan(
+                                      text: website,
+                                      style: const TextStyle(
+                                          color: Colors.grey, fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ),
-
-            // Contact Info Card
-            ExpansionTile(
-              title: const Text(
-                "Contact Information",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              children: [
-                Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  color: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(1.0),
-                    child: Column(
-                      children: [
-                        ListTile(
-                          leading: const Icon(
-                            FontAwesomeIcons.phone,
-                            color: Color.fromARGB(255, 167, 6, 241),
-                          ),
-                          title: RichText(
-                            text: TextSpan(
-                              children: [
-                                const TextSpan(
-                                  text: "Contact No. : ",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 16),
-                                ),
-                                TextSpan(
-                                  text: leadMobileNo,
-                                  style: const TextStyle(
-                                      color: Colors.grey, fontSize: 16),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          leading: const Icon(
-                            FontAwesomeIcons.envelopeCircleCheck,
-                            color: Colors.red,
-                          ),
-                          title: RichText(
-                            text: TextSpan(
-                              children: [
-                                const TextSpan(
-                                  text: "Email Id: ",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 16),
-                                ),
-                                TextSpan(
-                                  text: emailId,
-                                  style: const TextStyle(
-                                      color: Colors.grey, fontSize: 16),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          leading: const Icon(
-                            FontAwesomeIcons.globe,
-                            color: Colors.blue,
-                          ),
-                          title: RichText(
-                            text: TextSpan(
-                              children: [
-                                const TextSpan(
-                                  text: "Website: ",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 16),
-                                ),
-                                TextSpan(
-                                  text: website,
-                                  style: const TextStyle(
-                                      color: Colors.grey, fontSize: 16),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ));
+            )));
   }
 
   Widget buildOption(Color color, IconData icon, String option) {
@@ -612,7 +650,8 @@ class _CrmLeadState extends State<CrmLead> {
                       "Open",
                     );
                     if (leadfollow) {
-                      Get.offAllNamed("/homepage");
+                      singlelead();
+                      Navigator.pop(context);
                     }
                   }
                 },
@@ -796,9 +835,7 @@ class _CrmLeadState extends State<CrmLead> {
 
     if (await canLaunch(url)) {
       await launch(url);
-    } else {
-      print('Could not open the location map.');
-    }
+    } 
   }
 
   void _sendEmail(String emailid, String message) async {

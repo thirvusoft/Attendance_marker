@@ -86,8 +86,24 @@ class Search extends GetxController {
 class LeadCreation extends GetxController {
   final ApiService apiService = ApiService();
 
-  Future<bool> leadCreation(id, doctype, name, org_name, mobile, email, source,
-      industry, territory, nextfollowup, nextfollowby, discription) async {
+  Future<bool> leadCreation(
+      id,
+      doctype,
+      name,
+      org_name,
+      mobile,
+      email,
+      source,
+      industry,
+      territory,
+      nextfollowup,
+      nextfollowby,
+      discription,
+      street,
+      city,
+      state,
+      zipcode,
+      website) async {
     final currentDate = DateTime.now();
     final formattedDate =
         "${currentDate.year}-${currentDate.month}-${currentDate.day}";
@@ -103,6 +119,11 @@ class LeadCreation extends GetxController {
       'source': source,
       'industry': industry,
       'territory': territory,
+      'website': website,
+      'street': street,
+      'city': city,
+      'state': state,
+      'zipcode': zipcode,
       'custom_follow_ups': {
         'date': formattedDate,
         'followed_by': user[0]['email'],
@@ -117,8 +138,10 @@ class LeadCreation extends GetxController {
 
     if (id == "") {
       print('111111');
-      response =
-          await apiService.post("frappe.client.insert", {'doc': docvalue});
+      response = await apiService.post(
+        'thirvu__attendance.utils.api.api.new_lead',
+        {"data": jsonEncode(docvalue)},
+      );
     } else {
       print('2222222222');
 
@@ -127,9 +150,6 @@ class LeadCreation extends GetxController {
         {"data": jsonEncode(docvalue)},
       );
     }
-    print(response.statusCode);
-    print(response.body);
-    print('ppppppppppppppppppppppppppppppppp');
 
     if (response.statusCode == 200) {
       Get.snackbar(

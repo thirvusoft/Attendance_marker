@@ -118,7 +118,6 @@ class Loginpage extends StatelessWidget {
                         innerText: 'Login',
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
-                          print(loginFormkey.currentState!.validate());
                           if (loginFormkey.currentState!.validate()) {
                             final response = await apiService.get(
                                 "/api/method/thirvu__attendance.utils.api.api.login",
