@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'package:attendancemarker/Page/crmleadpage.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:attendancemarker/Page/lead.dart';
 import 'package:attendancemarker/constant.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class LeadHomePage extends StatefulWidget {
   @override
@@ -15,7 +16,7 @@ class _LeadHomePageState extends State<LeadHomePage> {
   List<Map<String, dynamic>> allLeads = [];
   List<Map<String, dynamic>> filteredLeads = [];
   TextEditingController searchController = TextEditingController();
-
+  String leadId = '';
   @override
   void initState() {
     super.initState();
@@ -32,6 +33,20 @@ class _LeadHomePageState extends State<LeadHomePage> {
             Get.offAllNamed("/homepage");
           },
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 40.0),
+            child: IconButton(
+              icon: const Icon(FontAwesomeIcons.userPen, color: Colors.white),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (context) => const LeadPage("", "", '')),
+                );
+              },
+            ),
+          ),
+        ],
         backgroundColor: Color(0xFFEA5455),
         title: ListTile(
           title: Text(
@@ -98,7 +113,13 @@ class _LeadHomePageState extends State<LeadHomePage> {
                       ],
                     ),
                     onTap: () {
-                      showFeatureBottomSheet(context, filteredLeads[index]);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              CrmLead(filteredLeads[index]["name"]),
+                        ),
+                      );
                     },
                   ),
                 );
@@ -106,15 +127,6 @@ class _LeadHomePageState extends State<LeadHomePage> {
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const LeadPage("", "", '')),
-          );
-        },
-        tooltip: "Lead Creation",
-        child: const Icon(Icons.add),
       ),
     );
   }
@@ -162,172 +174,5 @@ class _LeadHomePageState extends State<LeadHomePage> {
     setState(() {
       filteredLeads = searchResults;
     });
-  }
-
-  void showFeatureBottomSheet(BuildContext context, Map<String, dynamic> lead) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
-      ),
-      builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildSegmentedControlItem(Icons.phone, Colors.blue, "Call",
-                      () {
-                    _makingPhoneCall(lead["mobile_no"]);
-                    print(lead['mobile_no'].runtimeType);
-                    Navigator.pop(context);
-                  }),
-                  _buildSegmentedControlItem(
-                      Icons.whatshot, Colors.green, "WhatsApp", () {
-                    Navigator.pop(context);
-
-                    _openWhatsApp(lead["mobile_no"]);
-                  }),
-                  _buildSegmentedControlItem(
-                      Icons.edit, Color.fromARGB(255, 31, 3, 3), "Edit", () {
-                    Navigator.pop(context);
-                    // Get.offAllNamed("/leadpage");
-                    print(lead['name']);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LeadPage("", "", lead['name']),
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildSegmentedControlItem(
-      IconData icon, Color color, String label, VoidCallback onPressed) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12.0),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12.0),
-            ),
-            child: Icon(
-              icon,
-              size: 30.0,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 8.0),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12.0,
-              color: Colors.black54,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _makingPhoneCall(String phoneNumber) async {
-    var url = 'tel:$phoneNumber';
-    try {
-      await launch(url);
-    } catch (e) {
-      print('Error launching phone call: $e');
-    }
-  }
-
-  void _openWhatsApp(String mobileNumber) async {
-    List<String> messageTemplates = [
-      'Hello, I want to contact you.',
-      'Hi, how can I assist you?',
-      'Greetings! Let\'s connect.',
-    ];
-
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
-          ),
-          elevation: 0.0,
-          backgroundColor: Colors.transparent,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(16.0),
-                      topRight: Radius.circular(16.0),
-                    ),
-                  ),
-                  child: const Text(
-                    'Select a Message Template',
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16.0),
-                Column(
-                  children: List.generate(messageTemplates.length, (index) {
-                    return ListTile(
-                      title: Text(messageTemplates[index]),
-                      onTap: () {
-                        Navigator.pop(context); // Close the dialog
-                        _launchWhatsAppWithMessage(
-                          mobileNumber,
-                          messageTemplates[index],
-                        );
-                      },
-                    );
-                  }),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _launchWhatsAppWithMessage(String mobileNumber, String message) async {
-    var encodedMessage = Uri.encodeQueryComponent(message);
-    var url = 'https://wa.me/$mobileNumber?text=$encodedMessage';
-
-    try {
-      await launch(url);
-    } catch (e) {
-      print('Error launching WhatsApp: $e');
-    }
   }
 }
