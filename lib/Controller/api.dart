@@ -14,8 +14,7 @@ class Search extends GetxController {
   List searchuserlist = [].obs;
 
   Future searchname(name, doctype) async {
-    print('-------------------------------');
-    print(doctype);
+
     final response = await apiService.get(
       "/api/method/frappe.desk.search.search_link",
       {
@@ -103,11 +102,14 @@ class LeadCreation extends GetxController {
       city,
       state,
       zipcode,
-      website) async {
+      website,
+      lat,
+      long) async {
     final currentDate = DateTime.now();
     final formattedDate =
         "${currentDate.year}-${currentDate.month}-${currentDate.day}";
     final user = await controller.getUser();
+
 
     final docvalue = {
       "doctype": doctype,
@@ -124,6 +126,8 @@ class LeadCreation extends GetxController {
       'city': city,
       'state': state,
       'zipcode': zipcode,
+      'latitude': lat,
+      'longitude': long,
       'custom_follow_ups': {
         'date': formattedDate,
         'followed_by': user[0]['email'],
@@ -137,14 +141,11 @@ class LeadCreation extends GetxController {
     var response;
 
     if (id == "") {
-      print('111111');
       response = await apiService.post(
         'thirvu__attendance.utils.api.api.new_lead',
         {"data": jsonEncode(docvalue)},
       );
     } else {
-      print('2222222222');
-
       response = await apiService.post(
         'thirvu__attendance.utils.api.api.edit_lead',
         {"data": jsonEncode(docvalue)},

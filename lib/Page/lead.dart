@@ -43,6 +43,9 @@ class _LeadPageState extends State<LeadPage> {
   TextEditingController cityController = TextEditingController();
   TextEditingController stateController = TextEditingController();
   TextEditingController zipCodeController = TextEditingController();
+  String lat = '';
+  String long = '';
+  // TextEditingController long = TextEditingController();
   int currentStep = 0;
   bool _isLoading = false;
   String id = '';
@@ -192,6 +195,7 @@ class _LeadPageState extends State<LeadPage> {
                                     street =
                                         '${currentPlace.street ?? ''}, ${currentPlace.thoroughfare ?? ''}';
                                   }
+
                                   setState(() {
                                     streetController.text = street;
                                     cityController.text = placemarks.isNotEmpty
@@ -204,6 +208,8 @@ class _LeadPageState extends State<LeadPage> {
                                         placemarks.isNotEmpty
                                             ? placemarks[0].postalCode ?? ''
                                             : '';
+                                    lat = position.latitude.toString();
+                                    long = position.longitude.toString();
                                   });
                                 } catch (e) {
                                   print('Error retrieving address: $e');
@@ -392,7 +398,9 @@ class _LeadPageState extends State<LeadPage> {
                                 cityController.text,
                                 stateController.text,
                                 zipCodeController.text,
-                                websiteController.text);
+                                websiteController.text,
+                                lat,
+                                long);
                             setState(() {
                               _isLoading = false;
                             });

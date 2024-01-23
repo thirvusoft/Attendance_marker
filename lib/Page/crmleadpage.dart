@@ -39,6 +39,8 @@ String street = '';
 String city = '';
 String state = '';
 String zipcode = '';
+String lat = '';
+String long = '';
 
 class _CrmLeadState extends State<CrmLead> {
   @override
@@ -66,6 +68,8 @@ class _CrmLeadState extends State<CrmLead> {
         leadMobileNo = leadData['mobile_no'] ?? '';
         emailId = leadData['email_id'] ?? '';
         website = leadData['website'] ?? '';
+        lat = leadData['custom_latitude'] ?? '';
+        long = leadData['custom_longitude'] ?? '';
 
         if (leadData['custom_follow_ups'] != null &&
             leadData['custom_follow_ups'].isNotEmpty) {
@@ -568,7 +572,7 @@ class _CrmLeadState extends State<CrmLead> {
                 if (option == 'Call') {
                   _makingPhoneCall(leadMobileNo);
                 } else if (option == 'Message') {
-                  _openMessageApp();
+                  _openWhatsApp(leadMobileNo, option);
                 } else if (option == 'WhatsApp') {
                   _openWhatsApp(leadMobileNo, option);
                 } else if (option == 'Email') {
@@ -576,7 +580,7 @@ class _CrmLeadState extends State<CrmLead> {
                 } else if (option == 'Calendar') {
                   _openGoogleCalendar();
                 } else if (option == 'Location') {
-                  _openLocationMap();
+                  _openLocationMap(lat, long);
                 } else if (option == 'Edit') {
                   Navigator.push(
                     context,
@@ -775,6 +779,11 @@ class _CrmLeadState extends State<CrmLead> {
                             mobileNumber,
                             messageTemplates[index],
                           );
+                        } else if (options == "Message") {
+                          _openMessageApp(
+                            mobileNumber,
+                            messageTemplates[index],
+                          );
                         }
                       },
                     );
@@ -799,9 +808,9 @@ class _CrmLeadState extends State<CrmLead> {
     }
   }
 
-  void _openMessageApp() {
+  void _openMessageApp(String mobileNumber, String message) {
     // Example: Open the default messaging app with a pre-filled message
-    launch("sms:1234567890?body=Hello%20from%20your%20app");
+    launch("sms:$mobileNumber?body=$message");
   }
 
   void _openGoogleCalendar() async {
@@ -827,15 +836,15 @@ class _CrmLeadState extends State<CrmLead> {
     }
   }
 
-  void _openLocationMap() async {
-    const latitude = 37.7749;
-    const longitude = -122.4194;
+  void _openLocationMap(String lat, String long) async {
+    final latitude = lat;
+    final longitude = long;
 
-    const url = 'https://www.google.com/maps?q=$latitude,$longitude';
+    final url = 'https://www.google.com/maps?q=$latitude,$longitude';
 
     if (await canLaunch(url)) {
       await launch(url);
-    } 
+    }
   }
 
   void _sendEmail(String emailid, String message) async {
