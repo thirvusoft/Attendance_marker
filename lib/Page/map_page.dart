@@ -1,77 +1,102 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:attendancemarker/Controller/apiservice.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:heroicons/heroicons.dart';
-import 'package:label_marker/label_marker.dart';
-import 'package:http/http.dart' as http;
 
-class Mapview extends StatefulWidget {
-  const Mapview({super.key});
+class MapView extends StatefulWidget {
+  const MapView({Key? key}) : super(key: key);
 
   @override
-  State<Mapview> createState() => _MapviewState();
+  State<MapView> createState() => _MapViewState();
 }
 
-class _MapviewState extends State<Mapview> {
+class _MapViewState extends State<MapView> {
   late GoogleMapController mapController;
   MapType currentMapType = MapType.normal;
   Set<Marker> markers = {};
-
+  Set<Polyline> polylines = {};
   List empLocations = [];
   final ApiService apiService = ApiService();
 
   @override
   initState() {
     super.initState();
-    getEmployeeData();
+    fetchData();
   }
 
-  Future getEmployeeData() async {
-    final response = await apiService.get(
+  Future<void> fetchData() async {
+    try {
+      final response = await apiService.get(
         "/api/method/thirvu__attendance.utils.api.api.get_employee_locations",
-        {},);
+        {'name': "HR-EMP-00001"},
+      );
 
-    if (response.statusCode == 200) {
-      final Response = json.decode(response.body);
-      setState(() {
-        empLocations = Response["message"];
-      });
-      for (var empDetail in empLocations) {
-        markers
-            .addLabelMarker(LabelMarker(
-          label: empDetail[0],
-          textStyle: const TextStyle(fontSize: 50),
-          markerId: MarkerId(empDetail[0]),
-          position:
-              LatLng(double.parse(empDetail[1]), double.parse(empDetail[2])),
-          backgroundColor: Colors.red,
-        ))
-            .then(
-          (value) {
-            setState(() {});
-          },
-        );
+      if (response.statusCode == 200) {
+        final decodedResponse = json.decode(response.body);
+        updateMarkersAndPolylines(decodedResponse["message"]);
+      } else {
+        showErrorSnackbar("Failed to fetch data");
       }
-
-      if (empLocations.isEmpty) {
-        Get.snackbar(
-          "No Records Found",
-          "",
-          icon: const HeroIcon(HeroIcons.check, color: Colors.white),
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xff35394e),
-          borderRadius: 20,
-          margin: const EdgeInsets.all(15),
-          colorText: Colors.white,
-          duration: const Duration(seconds: 2),
-          isDismissible: true,
-          forwardAnimationCurve: Curves.easeOutBack,
-        );
-      }
+    } catch (error) {
+      showErrorSnackbar("An error occurred");
     }
+  }
+
+  void updateMarkersAndPolylines(List locations) {
+    setState(() {
+      empLocations = locations;
+    });
+
+    if (empLocations.length > 1) {
+      List<LatLng> points = empLocations
+          .map((location) =>
+              LatLng(double.parse(location[1]), double.parse(location[2])))
+          .toList();
+
+      polylines.add(Polyline(
+        polylineId: PolylineId('route'),
+        points: points,
+        color: Color.fromARGB(255, 241, 5, 5),
+        width: 5,
+      ));
+    }
+
+    for (int i = 0; i < empLocations.length; i++) {
+      var empDetail = empLocations[i];
+
+      markers.add(Marker(
+        markerId: MarkerId(empDetail[0]),
+        position: LatLng(
+          double.parse(empDetail[1]),
+          double.parse(empDetail[2]),
+        ),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        infoWindow: InfoWindow(
+          title: "Location ${i + 1}",
+        ),
+      ));
+    }
+
+    if (empLocations.isEmpty) {
+      showErrorSnackbar("No Records Found");
+    }
+  }
+
+  void showErrorSnackbar(String message) {
+    Get.snackbar(
+      "Error",
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xff35394e),
+      borderRadius: 20,
+      margin: const EdgeInsets.all(15),
+      colorText: Colors.white,
+      duration: const Duration(seconds: 2),
+      isDismissible: true,
+    );
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -85,19 +110,10 @@ class _MapviewState extends State<Mapview> {
     return Scaffold(
       body: SafeArea(
         child: empLocations.isEmpty
-            ? const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(
-                      color: Colors.red,
-                    )
-                  ],
-                ),
-              )
+            ? buildLoadingWidget()
             : GoogleMap(
                 onMapCreated: _onMapCreated,
-                myLocationEnabled: false,
+                myLocationEnabled: true,
                 trafficEnabled: true,
                 indoorViewEnabled: true,
                 mapType: currentMapType,
@@ -112,19 +128,18 @@ class _MapviewState extends State<Mapview> {
                   zoom: 6,
                 ),
                 markers: markers,
+                polylines: polylines,
               ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            currentMapType = currentMapType == MapType.normal
-                ? MapType.hybrid
-                : MapType.normal;
-          });
-        },
-        child: const Icon(Icons.layers),
-      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+    );
+  }
+
+  Widget buildLoadingWidget() {
+    return const Center(
+      child: CircularProgressIndicator(
+        color: Colors.red,
+      ),
     );
   }
 }

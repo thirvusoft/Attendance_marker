@@ -1,10 +1,11 @@
 import 'package:attendancemarker/Page/call_log.dart';
+import 'package:attendancemarker/Page/crmleadpage.dart';
+import 'package:attendancemarker/Page/employeepage.dart';
 import 'package:attendancemarker/Page/followuppage.dart';
 import 'package:attendancemarker/Page/homepage.dart';
 import 'package:attendancemarker/Page/lead.dart';
 import 'package:attendancemarker/Page/loginpage.dart';
 import 'package:attendancemarker/Page/loglistpage.dart';
-import 'package:attendancemarker/Page/newloginpage.dart';
 import 'package:attendancemarker/Page/splash_screen.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 
@@ -22,6 +23,8 @@ class Routes {
   static String calllog = '/calllog';
   static String followup = '/followup';
   static String leadhome = '/leadhome';
+  static String employee = '/employeelist';
+  static String crmlead = '/crmlead';
 }
 
 final getPages = [
@@ -35,7 +38,7 @@ final getPages = [
   ),
   GetPage(
     name: Routes.mappage,
-    page: () => const Mapview(),
+    page: () => const MapView(),
   ),
   GetPage(
     name: Routes.splashscreen,
@@ -47,7 +50,7 @@ final getPages = [
   ),
   GetPage(
     name: Routes.leadpage,
-    page: () => LeadPage("", ""),
+    page: () => LeadPage("", "", ""),
   ),
   GetPage(
     name: Routes.calllog,
@@ -61,4 +64,13 @@ final getPages = [
     name: Routes.leadhome,
     page: () => LeadHomePage(),
   ),
+  GetPage(
+    name: Routes.employee,
+    page: () => EmployeeList(),
+  ),
+  GetPage(
+    name: Routes.crmlead,
+    page: () => CrmLead(""),
+  ),
+
 ];

@@ -57,7 +57,7 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
             child: IconButton(
               icon: const HeroIcon(HeroIcons.mapPin, color: Colors.white),
               onPressed: () {
-                Get.to(Mapview());
+                Get.offAllNamed("/employeelist");
               },
             ),
           ),

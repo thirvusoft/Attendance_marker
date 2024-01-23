@@ -1,20 +1,26 @@
+import 'dart:convert';
+
 import 'package:attendancemarker/Controller/api.dart';
 import 'package:attendancemarker/Controller/apiservice.dart';
 import 'package:attendancemarker/widgets/resuable_datefield.dart';
 import 'package:attendancemarker/widgets/resuable_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:searchfield/searchfield.dart';
+import 'package:geolocator/geolocator.dart';
 
 class LeadPage extends StatefulWidget {
   @override
   State<LeadPage> createState() => _LeadPageState();
   final String? initialName;
   final String? initialPhoneNumber;
+  final String id;
 
-  const LeadPage(this.initialName, this.initialPhoneNumber);
+  const LeadPage(this.initialName, this.initialPhoneNumber, this.id);
 }
 
 class _LeadPageState extends State<LeadPage> {
@@ -30,18 +36,29 @@ class _LeadPageState extends State<LeadPage> {
   TextEditingController followUpDateController = TextEditingController();
   TextEditingController followUpByController = TextEditingController();
   TextEditingController followDiscription = TextEditingController();
+
+  TextEditingController streetController = TextEditingController();
+  TextEditingController cityController = TextEditingController();
+  TextEditingController stateController = TextEditingController();
+  TextEditingController zipCodeController = TextEditingController();
   int currentStep = 0;
   bool _isLoading = false;
+  String id = '';
+
   final ApiService apiService = ApiService();
   final LeadCreation lead = Get.put(LeadCreation());
-  List<GlobalKey<FormState>> _formKeys = List.generate(
-    3,
+  final List<GlobalKey<FormState>> _formKeys = List.generate(
+    4,
     (index) => GlobalKey<FormState>(),
   );
 
   @override
   void initState() {
+    id = widget.id;
+
     super.initState();
+
+    singlelead();
     searching.searchname("a", "User");
     searching.searchname("a", "Lead Source");
     searching.searchname("a", "Industry Type");
@@ -77,6 +94,13 @@ class _LeadPageState extends State<LeadPage> {
                 (Set<MaterialState> states) {
               return const Color(0xFFEA5455);
             }),
+            onStepTapped: (value) {
+              if (_formKeys[currentStep].currentState?.validate() ?? false) {
+                setState(() {
+                  currentStep = value;
+                });
+              }
+            },
             steps: [
               _buildStep(
                   title: 'Personal Information',
@@ -139,10 +163,117 @@ class _LeadPageState extends State<LeadPage> {
                   ],
                   isCompleted: currentStep > 0),
               _buildStep(
+                title: 'Address Information',
+                fields: [
+                  Form(
+                    key: _formKeys[1],
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                Position position =
+                                    await Geolocator.getCurrentPosition(
+                                  desiredAccuracy: LocationAccuracy.high,
+                                );
+
+                                try {
+                                  List<Placemark> placemarks =
+                                      await placemarkFromCoordinates(
+                                    position.latitude,
+                                    position.longitude,
+                                  );
+                                  String street = '';
+                                  if (placemarks.isNotEmpty) {
+                                    Placemark currentPlace = placemarks[0];
+                                    street =
+                                        '${currentPlace.street ?? ''}, ${currentPlace.thoroughfare ?? ''}';
+                                  }
+                                  setState(() {
+                                    streetController.text = street;
+                                    cityController.text = placemarks.isNotEmpty
+                                        ? placemarks[0].locality ?? ''
+                                        : '';
+                                    stateController.text = placemarks.isNotEmpty
+                                        ? placemarks[0].administrativeArea ?? ''
+                                        : '';
+                                    zipCodeController.text =
+                                        placemarks.isNotEmpty
+                                            ? placemarks[0].postalCode ?? ''
+                                            : '';
+                                  });
+                                } catch (e) {
+                                  print('Error retrieving address: $e');
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFEA5455),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(
+                                    FontAwesomeIcons.locationDot,
+                                    color: Colors.white,
+                                    size: 15,
+                                  ),
+                                  Text(
+                                    'Get Current Address',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        ReusableTextField(
+                          labelText: 'Street',
+                          controller: streetController,
+                          obscureText: false,
+                          readyonly: false,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                        ),
+                        const SizedBox(height: 10),
+                        ReusableTextField(
+                          labelText: 'City',
+                          controller: cityController,
+                          obscureText: false,
+                          readyonly: false,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                        ),
+                        const SizedBox(height: 10),
+                        ReusableTextField(
+                          labelText: 'State',
+                          controller: stateController,
+                          obscureText: false,
+                          readyonly: false,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                        ),
+                        const SizedBox(height: 10),
+                        ReusableTextField(
+                          labelText: 'Zip Code',
+                          controller: zipCodeController,
+                          obscureText: false,
+                          readyonly: false,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                  ),
+                ],
+                isCompleted: currentStep > 1,
+              ),
+              _buildStep(
                 title: 'Organization Information',
                 fields: [
                   Form(
-                      key: _formKeys[1],
+                      key: _formKeys[2],
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -167,13 +298,13 @@ class _LeadPageState extends State<LeadPage> {
                         ],
                       ))
                 ],
-                isCompleted: currentStep > 1,
+                isCompleted: currentStep > 2,
               ),
               _buildStep(
                   title: 'Follow-up Information',
                   fields: [
                     Form(
-                      key: _formKeys[2],
+                      key: _formKeys[3],
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -204,7 +335,7 @@ class _LeadPageState extends State<LeadPage> {
                       ),
                     )
                   ],
-                  isCompleted: currentStep > 2),
+                  isCompleted: currentStep > 3),
             ],
             controlsBuilder: (
               BuildContext context,
@@ -215,7 +346,7 @@ class _LeadPageState extends State<LeadPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    if (currentStep > 0) // Check if not the first step
+                    if (currentStep > 0)
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
@@ -228,12 +359,12 @@ class _LeadPageState extends State<LeadPage> {
                       onPressed: () async {
                         if (_formKeys[currentStep].currentState?.validate() ??
                             false) {
-                          if (currentStep == 2) {
+                          if (currentStep == 3) {
                             setState(() {
                               _isLoading = true;
                             });
-
                             bool leadCreated = await lead.leadCreation(
+                                id,
                                 "Lead",
                                 nameController.text,
                                 organizationController.text,
@@ -260,7 +391,7 @@ class _LeadPageState extends State<LeadPage> {
                         }
                       },
                       child: Text(
-                        currentStep == 2 ? 'Submit' : 'Next',
+                        currentStep == 3 ? 'Submit' : 'Next',
                       ),
                     ),
                   ],
@@ -324,5 +455,39 @@ class _LeadPageState extends State<LeadPage> {
         searching.searchname(controller.text, doctype);
       },
     );
+  }
+
+  singlelead() async {
+    final response = await apiService.get(
+        '/api/method/thirvu__attendance.utils.api.api.single_lead',
+        {"name": id});
+    final jsonResponse = json.decode(response.body);
+    print(id);
+    if (jsonResponse['message'].isNotEmpty) {
+      final leadData = jsonResponse['message'];
+      nameController.text = leadData['lead_name'] ?? '';
+      organizationController.text = leadData['company_name'] ?? '';
+      mobilenoController.text = leadData['mobile_no'] ?? '';
+      emailController.text = leadData['email_id'] ?? '';
+
+      if (leadData['custom_follow_ups'] != null &&
+          leadData['custom_follow_ups'].isNotEmpty) {
+        final List<dynamic> tableFollowupList =
+            leadData['custom_follow_ups'] ?? '';
+        final Map<String, dynamic> lastTableFollowupList =
+            tableFollowupList.last ?? '';
+        followUpDateController.text =
+            lastTableFollowupList['next_followup_date'] ?? '';
+        followUpByController.text =
+            lastTableFollowupList['next_follow_up_by'] ?? '';
+        followDiscription.text = lastTableFollowupList['description'] ?? '';
+      }
+      setState(() {
+        print(leadData['industry']);
+        sourceController.text = leadData['source'] ?? '';
+        industryController.text = leadData['industry'] ?? '';
+        territoryController.text = leadData['territory'] ?? '';
+      });
+    }
   }
 }

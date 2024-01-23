@@ -199,7 +199,7 @@ class _HomepageState extends State<Homepage> {
                                                   print(location);
                                                   print("lo");
                                                   if (location ==
-                                                      "Locatuon not enabled") {
+                                                      "Location not enabled") {
                                                     print("lo");
                                                     showLocationServicesDialog();
                                                   }
