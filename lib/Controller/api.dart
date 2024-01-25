@@ -14,7 +14,8 @@ class Search extends GetxController {
   List searchuserlist = [].obs;
 
   Future searchname(name, doctype) async {
-
+    print(doctype);
+    print('pppppppppppppppppppppppppppppppppp');
     final response = await apiService.get(
       "/api/method/frappe.desk.search.search_link",
       {
@@ -35,6 +36,7 @@ class Search extends GetxController {
           valuesList.add(item['value']);
         }
       }
+
       searchlist_ += (valuesList);
     }
 
@@ -96,8 +98,10 @@ class LeadCreation extends GetxController {
       industry,
       territory,
       nextfollowup,
+      nextfollowupend,
       nextfollowby,
       discription,
+      status,
       street,
       city,
       state,
@@ -109,7 +113,6 @@ class LeadCreation extends GetxController {
     final formattedDate =
         "${currentDate.year}-${currentDate.month}-${currentDate.day}";
     final user = await controller.getUser();
-
 
     final docvalue = {
       "doctype": doctype,
@@ -132,6 +135,8 @@ class LeadCreation extends GetxController {
         'date': formattedDate,
         'followed_by': user[0]['email'],
         'next_followup_date': nextfollowup,
+        'next_followup_end_date': nextfollowupend,
+        'status': status,
         'next_follow_up_by': nextfollowby,
         'description': discription
       },
@@ -139,6 +144,7 @@ class LeadCreation extends GetxController {
     };
 
     var response;
+    print(id);
 
     if (id == "") {
       response = await apiService.post(
@@ -151,6 +157,7 @@ class LeadCreation extends GetxController {
         {"data": jsonEncode(docvalue)},
       );
     }
+    print(response.body);
 
     if (response.statusCode == 200) {
       Get.snackbar(
@@ -189,18 +196,21 @@ class LeadCreation extends GetxController {
 class LeadFollowup extends GetxController {
   final ApiService apiService = ApiService();
 
-  Future<bool> leadFollowup(lead, user, nextdate, nextby, status) async {
+  Future<bool> leadFollowup(
+      lead, user, nextdate, nextenddate, nextby, status, desc) async {
     final docvalue = {
       "lead": lead,
       "user": user,
       'nextfollowup_date': nextdate,
+      'nextfollowup_end_date': nextenddate,
       'nextfollowup_by': nextby,
       'status': status,
+      'description': desc,
     };
 
     final response = await apiService.post(
         "thirvu__attendance.utils.api.api.followup_table_updating", docvalue);
-
+    print(response.statusCode);
     if (response.statusCode == 200) {
       Get.snackbar(
         "Success",

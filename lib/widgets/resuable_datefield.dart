@@ -6,14 +6,14 @@ class ResuableDateFormField extends StatelessWidget {
   final String errorMessage;
   final TextEditingController controller;
   final String? Function(String?)? validator;
-  final Function(DateTime)? onDateSelected;
+  final Function(DateTime)? onDateTimeSelected;
 
   ResuableDateFormField({
     required this.label,
     required this.errorMessage,
     required this.controller,
     this.validator,
-    this.onDateSelected,
+    this.onDateTimeSelected,
   });
 
   @override
@@ -25,19 +25,35 @@ class ResuableDateFormField extends StatelessWidget {
       validator: validator,
       readOnly: true,
       onTap: () async {
-        DateTime? selectedDate = DateTime.now();
+        DateTime? selectedDateTime = DateTime.now();
         FocusScope.of(context).requestFocus(FocusNode());
 
-        selectedDate = await showDatePicker(
+        selectedDateTime = await showDatePicker(
           context: context,
-          initialDate: selectedDate,
+          initialDate: selectedDateTime,
           firstDate: DateTime(2000),
           lastDate: DateTime(2101),
         );
 
-        if (selectedDate != null) {
-          controller.text = DateFormat('yyyy-MM-dd').format(selectedDate);
-          onDateSelected?.call(selectedDate); // Callback function
+        if (selectedDateTime != null) {
+          TimeOfDay? selectedTime = await showTimePicker(
+            context: context,
+            initialTime: TimeOfDay.fromDateTime(selectedDateTime),
+          );
+
+          if (selectedTime != null) {
+            selectedDateTime = DateTime(
+              selectedDateTime.year,
+              selectedDateTime.month,
+              selectedDateTime.day,
+              selectedTime.hour,
+              selectedTime.minute,
+            );
+
+            controller.text =
+                DateFormat('yyyy-MM-dd HH:mm').format(selectedDateTime);
+            onDateTimeSelected?.call(selectedDateTime); // Callback function
+          }
         }
       },
     );

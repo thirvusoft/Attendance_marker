@@ -5,12 +5,11 @@ import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 
 void main() async {
-  runApp(const MyApp());
+  runApp(MyApp());
   await dotenv.load(fileName: ".env");
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {

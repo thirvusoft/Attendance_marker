@@ -13,7 +13,6 @@ import 'package:heroicons/heroicons.dart';
 import 'package:http/http.dart' as http;
 
 class Loglist extends StatefulWidget {
-  const Loglist({super.key});
 
   @override
   State<Loglist> createState() => _LoglistState();

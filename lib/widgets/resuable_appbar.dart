@@ -8,7 +8,6 @@ class ReusableAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
   final Widget? leading;
   const ReusableAppBar({
-    super.key,
     required this.title,
     this.actions,
     this.leading,

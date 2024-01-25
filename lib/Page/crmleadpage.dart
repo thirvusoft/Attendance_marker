@@ -24,6 +24,7 @@ class CrmLead extends StatefulWidget {
 final _formKey = GlobalKey<FormState>();
 
 TextEditingController nextFollowupDateController = TextEditingController();
+TextEditingController nextFollowupDateEndController = TextEditingController();
 TextEditingController nextFollowupByController = TextEditingController();
 TextEditingController nextFollowDiscriptionController = TextEditingController();
 final Search searching = Search();
@@ -41,12 +42,15 @@ String state = '';
 String zipcode = '';
 String lat = '';
 String long = '';
+String selectedStatus = 'Open';
+List<String> statusOptions = [];
 
 class _CrmLeadState extends State<CrmLead> {
   @override
   void initState() {
     id = widget.id;
     singlelead();
+    leadStatus();
     super.initState();
 
     searching.searchname("a", "User");
@@ -107,7 +111,7 @@ class _CrmLeadState extends State<CrmLead> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Get.offAllNamed("/leadhome");
+              Navigator.of(context).pop();
             },
           ),
         ),
@@ -235,6 +239,7 @@ class _CrmLeadState extends State<CrmLead> {
                     child: InkWell(
                       onTap: () {
                         _showDetailsDialog();
+                        leadStatus();
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -319,6 +324,7 @@ class _CrmLeadState extends State<CrmLead> {
                                   ),
                                   onPressed: () {
                                     _showDetailsDialog();
+                                    leadStatus();
                                   },
                                 ),
                               ],
@@ -585,7 +591,7 @@ class _CrmLeadState extends State<CrmLead> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => LeadPage("", "", id),
+                      builder: (context) => LeadPage("", "", id, ""),
                     ),
                   );
                 }
@@ -606,7 +612,7 @@ class _CrmLeadState extends State<CrmLead> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Center(
+        return SingleChildScrollView(
           child: AlertDialog(
             title: const Text('Next Followup'),
             content: Form(
@@ -617,7 +623,13 @@ class _CrmLeadState extends State<CrmLead> {
                 children: [
                   ResuableDateFormField(
                     controller: nextFollowupDateController,
-                    label: 'Next Followup-Date',
+                    label: 'Next Followup Start Date',
+                    errorMessage: 'Select the next Followup-date',
+                  ),
+                  const SizedBox(height: 10),
+                  ResuableDateFormField(
+                    controller: nextFollowupDateEndController,
+                    label: 'Next Followup End Date',
                     errorMessage: 'Select the next Followup-date',
                   ),
                   const SizedBox(height: 10),
@@ -637,6 +649,37 @@ class _CrmLeadState extends State<CrmLead> {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     maxline: 3,
                   ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: selectedStatus,
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedStatus = newValue!;
+                      });
+                    },
+                    items: statusOptions
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    decoration: const InputDecoration(
+                      labelText: "Status",
+                      isDense: true,
+                      labelStyle: TextStyle(color: Colors.black),
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0x0ff2d2e4))),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black)),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select the status';
+                      }
+                      return null;
+                    },
+                  ),
                 ],
               ),
             ),
@@ -650,11 +693,14 @@ class _CrmLeadState extends State<CrmLead> {
                       id,
                       user[0]['email'],
                       nextFollowupDateController.text,
+                      nextFollowupDateEndController.text,
                       nextFollowupByController.text,
-                      "Open",
+                      selectedStatus,
+                      nextFollowDiscriptionController.text,
                     );
                     if (leadfollow) {
                       singlelead();
+                      // ignore: use_build_context_synchronously
                       Navigator.pop(context);
                     }
                   }
@@ -859,6 +905,27 @@ class _CrmLeadState extends State<CrmLead> {
       await launch(url);
     } catch (e) {
       print('Could not open the email app: $e');
+    }
+  }
+
+  Future leadStatus() async {
+    final response = await apiService.get(
+        "/api/method/thirvu__attendance.utils.api.api.get_lead_status_options",
+        {});
+    print(response.statusCode);
+    print(response.body);
+    if (response.statusCode == 200) {
+      statusOptions.clear();
+
+      final jsonResponse = json.decode(response.body);
+
+      if (jsonResponse.containsKey('message')) {
+        for (var item in jsonResponse['message']) {
+          if (item is String) {
+            statusOptions.add(item);
+          }
+        }
+      }
     }
   }
 }

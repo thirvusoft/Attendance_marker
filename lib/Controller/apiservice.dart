@@ -12,8 +12,7 @@ class ApiService extends GetxService {
   final Databasehelper controller = Get.put(Databasehelper());
 
   Future<ApiResponse> get(String methodName, args) async {
-    print(args);
-    print(methodName);
+
     final data = await controller.getUser();
 
     final url = "${dotenv.env['API_URL']}$methodName";

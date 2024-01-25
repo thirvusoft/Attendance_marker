@@ -20,8 +20,10 @@ class LeadPage extends StatefulWidget {
   final String? initialName;
   final String? initialPhoneNumber;
   final String id;
+  final String? source;
 
-  const LeadPage(this.initialName, this.initialPhoneNumber, this.id);
+  const LeadPage(
+      this.initialName, this.initialPhoneNumber, this.id, this.source);
 }
 
 class _LeadPageState extends State<LeadPage> {
@@ -35,6 +37,7 @@ class _LeadPageState extends State<LeadPage> {
   TextEditingController industryController = TextEditingController();
   TextEditingController territoryController = TextEditingController();
   TextEditingController followUpDateController = TextEditingController();
+  TextEditingController followUpEndDateController = TextEditingController();
   TextEditingController followUpByController = TextEditingController();
   TextEditingController followDiscription = TextEditingController();
   TextEditingController websiteController = TextEditingController();
@@ -49,7 +52,8 @@ class _LeadPageState extends State<LeadPage> {
   int currentStep = 0;
   bool _isLoading = false;
   String id = '';
-
+  String selectedStatus = 'Open';
+  List<String> statusOptions = [];
   final ApiService apiService = ApiService();
   final LeadCreation lead = Get.put(LeadCreation());
   final List<GlobalKey<FormState>> _formKeys = List.generate(
@@ -58,19 +62,24 @@ class _LeadPageState extends State<LeadPage> {
   );
 
   @override
-  void initState() {
+  initState() {
     id = widget.id;
-
     super.initState();
-
-    singlelead();
-    searching.searchname("a", "User");
     searching.searchname("a", "Lead Source");
+    searching.searchname("a", "User");
     searching.searchname("a", "Industry Type");
     searching.searchname("a", "Territory");
-
+    sourceController.text = widget.source ?? '';
+    leadStatus();
+    singlelead();
     nameController.text = widget.initialName ?? '';
     mobilenoController.text = widget.initialPhoneNumber ?? '';
+  }
+
+  @override
+  void dispose() {
+    sourceController.dispose();
+    super.dispose();
   }
 
   @override
@@ -87,7 +96,7 @@ class _LeadPageState extends State<LeadPage> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Get.offAllNamed("/leadhome");
+              Navigator.of(context).pop();
             },
           ),
         ),
@@ -162,6 +171,9 @@ class _LeadPageState extends State<LeadPage> {
                               return null;
                             },
                           ),
+                          const SizedBox(height: 10),
+                          _buildSearchField('Source', sourceController,
+                              'Lead Source', searching.searchlist_),
                         ],
                       ),
                     ),
@@ -294,9 +306,9 @@ class _LeadPageState extends State<LeadPage> {
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
                           ),
-                          const SizedBox(height: 10),
-                          _buildSearchField('Source', sourceController,
-                              'Lead Source', searching.searchlist_),
+                          // const SizedBox(height: 10),
+                          // _buildSearchField('Source', sourceController,
+                          //     'Lead Source', searching.searchlist_),
                           const SizedBox(height: 10),
                           _buildSearchField('Industry Type', industryController,
                               'Industry Type', searching.searchlistindustry_),
@@ -328,7 +340,13 @@ class _LeadPageState extends State<LeadPage> {
                           const SizedBox(height: 10),
                           ResuableDateFormField(
                             controller: followUpDateController,
-                            label: 'Next Followup-Date',
+                            label: 'Next Followup Start Date',
+                            errorMessage: 'Select the next Followup-date',
+                          ),
+                          const SizedBox(height: 10),
+                          ResuableDateFormField(
+                            controller: followUpEndDateController,
+                            label: 'Next Followup End Date',
                             errorMessage: 'Select the next Followup-date',
                           ),
                           const SizedBox(height: 10),
@@ -347,6 +365,38 @@ class _LeadPageState extends State<LeadPage> {
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
                             maxline: 5,
+                          ),
+                          const SizedBox(height: 10),
+                          DropdownButtonFormField<String>(
+                            value: selectedStatus,
+                            onChanged: (newValue) {
+                              setState(() {
+                                selectedStatus = newValue!;
+                              });
+                            },
+                            items: statusOptions
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            decoration: const InputDecoration(
+                              labelText: "Status",
+                              isDense: true,
+                              labelStyle: TextStyle(color: Colors.black),
+                              border: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Color(0x0ff2d2e4))),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black)),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please select the status';
+                              }
+                              return null;
+                            },
                           ),
                         ],
                       ),
@@ -392,8 +442,10 @@ class _LeadPageState extends State<LeadPage> {
                                 industryController.text,
                                 territoryController.text,
                                 followUpDateController.text,
+                                followUpEndDateController.text,
                                 followUpByController.text,
                                 followDiscription.text,
+                                selectedStatus,
                                 streetController.text,
                                 cityController.text,
                                 stateController.text,
@@ -478,6 +530,7 @@ class _LeadPageState extends State<LeadPage> {
       ),
       onSearchTextChanged: (p0) {
         searching.searchname(controller.text, doctype);
+        setState(() {});
       },
     );
   }
@@ -487,7 +540,7 @@ class _LeadPageState extends State<LeadPage> {
         '/api/method/thirvu__attendance.utils.api.api.single_lead',
         {"name": id});
     final jsonResponse = json.decode(response.body);
-    if (jsonResponse['message'].isNotEmpty) {
+    if (jsonResponse['message']!.isNotEmpty) {
       final leadData = jsonResponse['message'];
       nameController.text = leadData['lead_name'] ?? '';
       organizationController.text = leadData['company_name'] ?? '';
@@ -503,9 +556,12 @@ class _LeadPageState extends State<LeadPage> {
             tableFollowupList.last ?? '';
         followUpDateController.text =
             lastTableFollowupList['next_followup_date'] ?? '';
+        followUpEndDateController.text =
+            lastTableFollowupList['next_followup_end_date'] ?? '';
         followUpByController.text =
             lastTableFollowupList['next_follow_up_by'] ?? '';
         followDiscription.text = lastTableFollowupList['description'] ?? '';
+        selectedStatus = lastTableFollowupList['status'] ?? '';
       }
 
       if (leadData['address_list'] != null &&
@@ -522,6 +578,27 @@ class _LeadPageState extends State<LeadPage> {
         industryController.text = leadData['industry'] ?? '';
         territoryController.text = leadData['territory'] ?? '';
       });
+    }
+  }
+
+  Future leadStatus() async {
+    final response = await apiService.get(
+        "/api/method/thirvu__attendance.utils.api.api.get_lead_status_options",
+        {});
+    print(response.statusCode);
+    print(response.body);
+    if (response.statusCode == 200) {
+      statusOptions.clear();
+
+      final jsonResponse = json.decode(response.body);
+
+      if (jsonResponse.containsKey('message')) {
+        for (var item in jsonResponse['message']) {
+          if (item is String) {
+            statusOptions.add(item);
+          }
+        }
+      }
     }
   }
 }
