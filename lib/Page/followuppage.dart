@@ -26,8 +26,11 @@ class _FollowUpPageState extends State<FollowUpPage> {
   List<String> filteredTodayItems = [];
   final Search searching = Search();
   final _formKey = GlobalKey<FormState>();
+  String selectedStatus = 'Open';
+  List<String> statusOptions = [];
 
   TextEditingController nextFollowupDateController = TextEditingController();
+  TextEditingController nextFollowupEndDateController = TextEditingController();
   TextEditingController nextFollowupByController = TextEditingController();
   TextEditingController nextFollowDiscriptionController =
       TextEditingController();
@@ -152,6 +155,12 @@ class _FollowUpPageState extends State<FollowUpPage> {
                     errorMessage: 'Select the next Followup-date',
                   ),
                   const SizedBox(height: 10),
+                  ResuableDateFormField(
+                    controller: nextFollowupEndDateController,
+                    label: 'Next Followup End Date',
+                    errorMessage: 'Select the next Followup-date',
+                  ),
+                  const SizedBox(height: 10),
                   _buildSearchField(
                       'Next Followup By',
                       'Please next followup by',
@@ -168,6 +177,37 @@ class _FollowUpPageState extends State<FollowUpPage> {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     maxline: 3,
                   ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: selectedStatus,
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedStatus = newValue!;
+                      });
+                    },
+                    items: statusOptions
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    decoration: const InputDecoration(
+                      labelText: "Status",
+                      isDense: true,
+                      labelStyle: TextStyle(color: Colors.black),
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0x0ff2d2e4))),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black)),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select the status';
+                      }
+                      return null;
+                    },
+                  ),
                 ],
               ),
             ),
@@ -178,12 +218,13 @@ class _FollowUpPageState extends State<FollowUpPage> {
                     final user = await controller.getUser();
 
                     bool leadfollow = await lead.leadFollowup(
-                      leadname,
-                      user[0]['email'],
-                      nextFollowupDateController.text,
-                      nextFollowupByController.text,
-                      "Open",
-                    );
+                        leadname,
+                        user[0]['email'],
+                        nextFollowupDateController.text,
+                        nextFollowupEndDateController,
+                        nextFollowupByController.text,
+                        selectedStatus,
+                        nextFollowDiscriptionController);
                     if (leadfollow) {
                       Get.offAllNamed("/homepage");
                     }
@@ -383,5 +424,26 @@ class _FollowUpPageState extends State<FollowUpPage> {
         );
       },
     );
+  }
+
+  Future leadStatus() async {
+    final response = await apiService.get(
+        "/api/method/thirvu__attendance.utils.api.api.get_lead_status_options",
+        {});
+    print(response.statusCode);
+    print(response.body);
+    if (response.statusCode == 200) {
+      statusOptions.clear();
+
+      final jsonResponse = json.decode(response.body);
+
+      if (jsonResponse.containsKey('message')) {
+        for (var item in jsonResponse['message']) {
+          if (item is String) {
+            statusOptions.add(item);
+          }
+        }
+      }
+    }
   }
 }

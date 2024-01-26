@@ -13,7 +13,6 @@ import 'package:heroicons/heroicons.dart';
 import 'package:http/http.dart' as http;
 
 class Loglist extends StatefulWidget {
-  const Loglist({super.key});
 
   @override
   State<Loglist> createState() => _LoglistState();
@@ -233,7 +232,6 @@ class _LoglistState extends State<Loglist> with TickerProviderStateMixin {
         imgurl = user[0]['image'].toString();
       }
 
-      print(imgurl);
       fullname = user[0]['fullname'];
       gmail = user[0]['email'];
       if (checkinstatus.statusCode == 200) {

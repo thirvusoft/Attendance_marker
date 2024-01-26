@@ -22,7 +22,6 @@ class Loginpage extends StatelessWidget {
 
   final TextEditingController _passwordController = TextEditingController();
 
-  Loginpage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +117,6 @@ class Loginpage extends StatelessWidget {
                         innerText: 'Login',
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
-                          print(loginFormkey.currentState!.validate());
                           if (loginFormkey.currentState!.validate()) {
                             final response = await apiService.get(
                                 "/api/method/thirvu__attendance.utils.api.api.login",

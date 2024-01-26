@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:attendancemarker/Controller/api.dart';
 import 'package:attendancemarker/Controller/apiservice.dart';
+import 'package:attendancemarker/Page/crmleadpage.dart';
 import 'package:attendancemarker/widgets/resuable_datefield.dart';
 import 'package:attendancemarker/widgets/resuable_textfield.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +20,10 @@ class LeadPage extends StatefulWidget {
   final String? initialName;
   final String? initialPhoneNumber;
   final String id;
+  final String? source;
 
-  const LeadPage(this.initialName, this.initialPhoneNumber, this.id);
+  const LeadPage(
+      this.initialName, this.initialPhoneNumber, this.id, this.source);
 }
 
 class _LeadPageState extends State<LeadPage> {
@@ -34,17 +37,23 @@ class _LeadPageState extends State<LeadPage> {
   TextEditingController industryController = TextEditingController();
   TextEditingController territoryController = TextEditingController();
   TextEditingController followUpDateController = TextEditingController();
+  TextEditingController followUpEndDateController = TextEditingController();
   TextEditingController followUpByController = TextEditingController();
   TextEditingController followDiscription = TextEditingController();
+  TextEditingController websiteController = TextEditingController();
 
   TextEditingController streetController = TextEditingController();
   TextEditingController cityController = TextEditingController();
   TextEditingController stateController = TextEditingController();
   TextEditingController zipCodeController = TextEditingController();
+  String lat = '';
+  String long = '';
+  // TextEditingController long = TextEditingController();
   int currentStep = 0;
   bool _isLoading = false;
   String id = '';
-
+  String selectedStatus = 'Open';
+  List<String> statusOptions = [];
   final ApiService apiService = ApiService();
   final LeadCreation lead = Get.put(LeadCreation());
   final List<GlobalKey<FormState>> _formKeys = List.generate(
@@ -53,19 +62,24 @@ class _LeadPageState extends State<LeadPage> {
   );
 
   @override
-  void initState() {
+  initState() {
     id = widget.id;
-
     super.initState();
-
-    singlelead();
-    searching.searchname("a", "User");
     searching.searchname("a", "Lead Source");
+    searching.searchname("a", "User");
     searching.searchname("a", "Industry Type");
     searching.searchname("a", "Territory");
-
+    sourceController.text = widget.source ?? '';
+    leadStatus();
+    singlelead();
     nameController.text = widget.initialName ?? '';
     mobilenoController.text = widget.initialPhoneNumber ?? '';
+  }
+
+  @override
+  void dispose() {
+    sourceController.dispose();
+    super.dispose();
   }
 
   @override
@@ -82,7 +96,7 @@ class _LeadPageState extends State<LeadPage> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Get.offAllNamed("/leadhome");
+              Navigator.of(context).pop();
             },
           ),
         ),
@@ -157,6 +171,9 @@ class _LeadPageState extends State<LeadPage> {
                               return null;
                             },
                           ),
+                          const SizedBox(height: 10),
+                          _buildSearchField('Source', sourceController,
+                              'Lead Source', searching.searchlist_),
                         ],
                       ),
                     ),
@@ -190,6 +207,7 @@ class _LeadPageState extends State<LeadPage> {
                                     street =
                                         '${currentPlace.street ?? ''}, ${currentPlace.thoroughfare ?? ''}';
                                   }
+
                                   setState(() {
                                     streetController.text = street;
                                     cityController.text = placemarks.isNotEmpty
@@ -202,6 +220,8 @@ class _LeadPageState extends State<LeadPage> {
                                         placemarks.isNotEmpty
                                             ? placemarks[0].postalCode ?? ''
                                             : '';
+                                    lat = position.latitude.toString();
+                                    long = position.longitude.toString();
                                   });
                                 } catch (e) {
                                   print('Error retrieving address: $e');
@@ -286,12 +306,21 @@ class _LeadPageState extends State<LeadPage> {
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
                           ),
-                          const SizedBox(height: 10),
-                          _buildSearchField('Source', sourceController,
-                              'Lead Source', searching.searchlist_),
+                          // const SizedBox(height: 10),
+                          // _buildSearchField('Source', sourceController,
+                          //     'Lead Source', searching.searchlist_),
                           const SizedBox(height: 10),
                           _buildSearchField('Industry Type', industryController,
                               'Industry Type', searching.searchlistindustry_),
+                          const SizedBox(height: 10),
+                          ReusableTextField(
+                            labelText: 'Website Name',
+                            controller: websiteController,
+                            obscureText: false,
+                            readyonly: false,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                          ),
                           const SizedBox(height: 10),
                           _buildSearchField('Territory', territoryController,
                               'Territory', searching.searchlistterritory_),
@@ -311,7 +340,13 @@ class _LeadPageState extends State<LeadPage> {
                           const SizedBox(height: 10),
                           ResuableDateFormField(
                             controller: followUpDateController,
-                            label: 'Next Followup-Date',
+                            label: 'Next Followup Start Date',
+                            errorMessage: 'Select the next Followup-date',
+                          ),
+                          const SizedBox(height: 10),
+                          ResuableDateFormField(
+                            controller: followUpEndDateController,
+                            label: 'Next Followup End Date',
                             errorMessage: 'Select the next Followup-date',
                           ),
                           const SizedBox(height: 10),
@@ -330,6 +365,38 @@ class _LeadPageState extends State<LeadPage> {
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
                             maxline: 5,
+                          ),
+                          const SizedBox(height: 10),
+                          DropdownButtonFormField<String>(
+                            value: selectedStatus,
+                            onChanged: (newValue) {
+                              setState(() {
+                                selectedStatus = newValue!;
+                              });
+                            },
+                            items: statusOptions
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            decoration: const InputDecoration(
+                              labelText: "Status",
+                              isDense: true,
+                              labelStyle: TextStyle(color: Colors.black),
+                              border: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Color(0x0ff2d2e4))),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black)),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please select the status';
+                              }
+                              return null;
+                            },
                           ),
                         ],
                       ),
@@ -363,6 +430,7 @@ class _LeadPageState extends State<LeadPage> {
                             setState(() {
                               _isLoading = true;
                             });
+
                             bool leadCreated = await lead.leadCreation(
                                 id,
                                 "Lead",
@@ -374,8 +442,17 @@ class _LeadPageState extends State<LeadPage> {
                                 industryController.text,
                                 territoryController.text,
                                 followUpDateController.text,
+                                followUpEndDateController.text,
                                 followUpByController.text,
-                                followDiscription.text);
+                                followDiscription.text,
+                                selectedStatus,
+                                streetController.text,
+                                cityController.text,
+                                stateController.text,
+                                zipCodeController.text,
+                                websiteController.text,
+                                lat,
+                                long);
                             setState(() {
                               _isLoading = false;
                             });
@@ -453,6 +530,7 @@ class _LeadPageState extends State<LeadPage> {
       ),
       onSearchTextChanged: (p0) {
         searching.searchname(controller.text, doctype);
+        setState(() {});
       },
     );
   }
@@ -462,13 +540,13 @@ class _LeadPageState extends State<LeadPage> {
         '/api/method/thirvu__attendance.utils.api.api.single_lead',
         {"name": id});
     final jsonResponse = json.decode(response.body);
-    print(id);
-    if (jsonResponse['message'].isNotEmpty) {
+    if (jsonResponse['message']!.isNotEmpty) {
       final leadData = jsonResponse['message'];
       nameController.text = leadData['lead_name'] ?? '';
       organizationController.text = leadData['company_name'] ?? '';
       mobilenoController.text = leadData['mobile_no'] ?? '';
       emailController.text = leadData['email_id'] ?? '';
+      websiteController.text = leadData['website'] ?? '';
 
       if (leadData['custom_follow_ups'] != null &&
           leadData['custom_follow_ups'].isNotEmpty) {
@@ -478,16 +556,47 @@ class _LeadPageState extends State<LeadPage> {
             tableFollowupList.last ?? '';
         followUpDateController.text =
             lastTableFollowupList['next_followup_date'] ?? '';
+        followUpEndDateController.text =
+            lastTableFollowupList['next_followup_end_date'] ?? '';
         followUpByController.text =
             lastTableFollowupList['next_follow_up_by'] ?? '';
         followDiscription.text = lastTableFollowupList['description'] ?? '';
+        selectedStatus = lastTableFollowupList['status'] ?? 'Open';
+      }
+
+      if (leadData['address_list'] != null &&
+          leadData['address_list'].isNotEmpty) {
+        final List<dynamic> tableAddress = leadData['address_list'] ?? '';
+        final Map<String, dynamic> lastaddress = tableAddress.last ?? '';
+        streetController.text = lastaddress['address_line1'] ?? '';
+        cityController.text = lastaddress['city'] ?? '';
+        stateController.text = lastaddress['state'] ?? '';
+        zipCodeController.text = lastaddress['pincode'] ?? '';
       }
       setState(() {
-        print(leadData['industry']);
         sourceController.text = leadData['source'] ?? '';
         industryController.text = leadData['industry'] ?? '';
         territoryController.text = leadData['territory'] ?? '';
       });
+    }
+  }
+
+  Future leadStatus() async {
+    final response = await apiService.get(
+        "/api/method/thirvu__attendance.utils.api.api.get_lead_status_options",
+        {});
+    if (response.statusCode == 200) {
+      statusOptions.clear();
+
+      final jsonResponse = json.decode(response.body);
+
+      if (jsonResponse.containsKey('message')) {
+        for (var item in jsonResponse['message']) {
+          if (item is String) {
+            statusOptions.add(item);
+          }
+        }
+      }
     }
   }
 }

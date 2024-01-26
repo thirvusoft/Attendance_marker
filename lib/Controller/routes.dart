@@ -34,7 +34,7 @@ final getPages = [
   ),
   GetPage(
     name: Routes.homepage,
-    page: () => const Homepage(),
+    page: () => Homepage(),
   ),
   GetPage(
     name: Routes.mappage,
@@ -42,15 +42,15 @@ final getPages = [
   ),
   GetPage(
     name: Routes.splashscreen,
-    page: () => const Splashscreen(),
+    page: () => Splashscreen(),
   ),
   GetPage(
     name: Routes.loglist,
-    page: () => const Loglist(),
+    page: () => Loglist(),
   ),
   GetPage(
     name: Routes.leadpage,
-    page: () => LeadPage("", "", ""),
+    page: () => LeadPage("", "", "", ''),
   ),
   GetPage(
     name: Routes.calllog,
@@ -60,10 +60,10 @@ final getPages = [
     name: Routes.followup,
     page: () => FollowUpPage(),
   ),
-  GetPage(
-    name: Routes.leadhome,
-    page: () => LeadHomePage(),
-  ),
+  // GetPage(
+  //   name: Routes.leadhome,
+  //   page: () => LeadHomePage(),
+  // ),
   GetPage(
     name: Routes.employee,
     page: () => EmployeeList(),
@@ -72,5 +72,4 @@ final getPages = [
     name: Routes.crmlead,
     page: () => CrmLead(""),
   ),
-
 ];

@@ -14,8 +14,8 @@ class Search extends GetxController {
   List searchuserlist = [].obs;
 
   Future searchname(name, doctype) async {
-    print('-------------------------------');
     print(doctype);
+    print('pppppppppppppppppppppppppppppppppp');
     final response = await apiService.get(
       "/api/method/frappe.desk.search.search_link",
       {
@@ -36,6 +36,7 @@ class Search extends GetxController {
           valuesList.add(item['value']);
         }
       }
+
       searchlist_ += (valuesList);
     }
 
@@ -86,8 +87,28 @@ class Search extends GetxController {
 class LeadCreation extends GetxController {
   final ApiService apiService = ApiService();
 
-  Future<bool> leadCreation(id, doctype, name, org_name, mobile, email, source,
-      industry, territory, nextfollowup, nextfollowby, discription) async {
+  Future<bool> leadCreation(
+      id,
+      doctype,
+      name,
+      org_name,
+      mobile,
+      email,
+      source,
+      industry,
+      territory,
+      nextfollowup,
+      nextfollowupend,
+      nextfollowby,
+      discription,
+      status,
+      street,
+      city,
+      state,
+      zipcode,
+      website,
+      lat,
+      long) async {
     final currentDate = DateTime.now();
     final formattedDate =
         "${currentDate.year}-${currentDate.month}-${currentDate.day}";
@@ -103,10 +124,19 @@ class LeadCreation extends GetxController {
       'source': source,
       'industry': industry,
       'territory': territory,
+      'website': website,
+      'street': street,
+      'city': city,
+      'state': state,
+      'zipcode': zipcode,
+      'latitude': lat,
+      'longitude': long,
       'custom_follow_ups': {
         'date': formattedDate,
         'followed_by': user[0]['email'],
         'next_followup_date': nextfollowup,
+        'next_followup_end_date': nextfollowupend,
+        'status': status,
         'next_follow_up_by': nextfollowby,
         'description': discription
       },
@@ -114,22 +144,20 @@ class LeadCreation extends GetxController {
     };
 
     var response;
+    print(id);
 
     if (id == "") {
-      print('111111');
-      response =
-          await apiService.post("frappe.client.insert", {'doc': docvalue});
+      response = await apiService.post(
+        'thirvu__attendance.utils.api.api.new_lead',
+        {"data": jsonEncode(docvalue)},
+      );
     } else {
-      print('2222222222');
-
       response = await apiService.post(
         'thirvu__attendance.utils.api.api.edit_lead',
         {"data": jsonEncode(docvalue)},
       );
     }
-    print(response.statusCode);
     print(response.body);
-    print('ppppppppppppppppppppppppppppppppp');
 
     if (response.statusCode == 200) {
       Get.snackbar(
@@ -168,18 +196,21 @@ class LeadCreation extends GetxController {
 class LeadFollowup extends GetxController {
   final ApiService apiService = ApiService();
 
-  Future<bool> leadFollowup(lead, user, nextdate, nextby, status) async {
+  Future<bool> leadFollowup(
+      lead, user, nextdate, nextenddate, nextby, status, desc) async {
     final docvalue = {
       "lead": lead,
       "user": user,
       'nextfollowup_date': nextdate,
+      'nextfollowup_end_date': nextenddate,
       'nextfollowup_by': nextby,
       'status': status,
+      'description': desc,
     };
 
     final response = await apiService.post(
         "thirvu__attendance.utils.api.api.followup_table_updating", docvalue);
-
+    print(response.statusCode);
     if (response.statusCode == 200) {
       Get.snackbar(
         "Success",

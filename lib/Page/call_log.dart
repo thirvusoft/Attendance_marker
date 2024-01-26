@@ -159,7 +159,7 @@ class _LeadManagerScreenState extends State<LeadManagerScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      LeadPage(name, formattedPhoneNumber, ""),
+                      LeadPage(name, formattedPhoneNumber, "", "Cold Calling"),
                 ));
           },
         ),
