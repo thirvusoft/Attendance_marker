@@ -561,7 +561,7 @@ class _LeadPageState extends State<LeadPage> {
         followUpByController.text =
             lastTableFollowupList['next_follow_up_by'] ?? '';
         followDiscription.text = lastTableFollowupList['description'] ?? '';
-        selectedStatus = lastTableFollowupList['status'] ?? '';
+        selectedStatus = lastTableFollowupList['status'] ?? 'Open';
       }
 
       if (leadData['address_list'] != null &&
@@ -585,8 +585,6 @@ class _LeadPageState extends State<LeadPage> {
     final response = await apiService.get(
         "/api/method/thirvu__attendance.utils.api.api.get_lead_status_options",
         {});
-    print(response.statusCode);
-    print(response.body);
     if (response.statusCode == 200) {
       statusOptions.clear();
 

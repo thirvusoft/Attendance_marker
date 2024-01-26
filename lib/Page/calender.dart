@@ -14,6 +14,7 @@ class Calender extends StatefulWidget {
 
 class _CalenderState extends State<Calender> {
   List<Meeting> meetings = [];
+  bool isRefreshing = false;
 
   @override
   void initState() {
@@ -21,34 +22,42 @@ class _CalenderState extends State<Calender> {
     fetchMeetingData();
   }
 
-  void fetchMeetingData() async {
-    final user = await controller.getUser();
-
-    final response = await apiService
-        .get('/api/method/thirvu__attendance.utils.api.api.lead_todo', {
-      "user": user[0]['email'],
+  Future<void> fetchMeetingData() async {
+    setState(() {
+      isRefreshing = true;
     });
 
-    final jsonResponse = json.decode(response.body);
+    final user = await controller.getUser();
 
-    if (jsonResponse['message'] != null) {
-      final List<dynamic> meetingList = jsonResponse['message'];
-      meetings = meetingList.map((data) {
-        final String description = data.containsKey('description')
-            ? parse(data['description']).documentElement!.text
-            : data['description'];
+    try {
+      final response = await apiService
+          .get('/api/method/thirvu__attendance.utils.api.api.lead_todo', {
+        "user": user[0]['email'],
+      });
 
-        return Meeting(
-          description,
-          DateTime.parse(data['custom_start_date']),
-          DateTime.parse(data['date']),
-          data['reference_name'],
-          Colors.green,
-          false,
-        );
-      }).toList();
+      final jsonResponse = json.decode(response.body);
 
-      setState(() {});
+      if (jsonResponse['message'] != null) {
+        final List<dynamic> meetingList = jsonResponse['message'];
+        meetings = meetingList.map((data) {
+          final String description = data.containsKey('description')
+              ? parse(data['description']).documentElement!.text
+              : data['description'];
+
+          return Meeting(
+            description,
+            DateTime.parse(data['custom_start_date']),
+            DateTime.parse(data['date']),
+            data['reference_name'],
+            Colors.green,
+            false,
+          );
+        }).toList();
+      }
+    } finally {
+      setState(() {
+        isRefreshing = false;
+      });
     }
   }
 
@@ -69,37 +78,53 @@ class _CalenderState extends State<Calender> {
             Navigator.pop(context);
           },
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(14.0),
+            child: IconButton(
+              icon: const Icon(Icons.refresh, color: Colors.white),
+              onPressed: () {
+                fetchMeetingData();
+              },
+            ),
+          ),
+        ],
       ),
       body: Container(
         color: Colors.grey[200],
-        padding: EdgeInsets.all(16.0),
-        child: SfCalendar(
-          view: CalendarView.month,
-          dataSource: MeetingDataSource(meetings),
-          monthViewSettings: const MonthViewSettings(
-            appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
-            showAgenda: true,
-          ),
-          todayHighlightColor: Colors.red,
-          selectionDecoration: BoxDecoration(
-            color: Colors.transparent,
-            border: Border.all(color: Colors.blue, width: 2),
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(5),
-          ),
-          onLongPress: (CalendarLongPressDetails details) {
-            if (details.appointments != null &&
-                details.appointments!.isNotEmpty) {
-              Meeting tappedMeeting = details.appointments![0];
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CrmLead(tappedMeeting.reference),
+        padding: const EdgeInsets.all(16.0),
+        child: isRefreshing
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : SfCalendar(
+                view: CalendarView.month,
+                dataSource: MeetingDataSource(meetings),
+                monthViewSettings: const MonthViewSettings(
+                  appointmentDisplayMode:
+                      MonthAppointmentDisplayMode.appointment,
+                  showAgenda: true,
                 ),
-              );
-            }
-          },
-        ),
+                todayHighlightColor: Colors.red,
+                selectionDecoration: BoxDecoration(
+                  color: Colors.transparent,
+                  border: Border.all(color: Colors.blue, width: 2),
+                  shape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                onLongPress: (CalendarLongPressDetails details) {
+                  if (details.appointments != null &&
+                      details.appointments!.isNotEmpty) {
+                    Meeting tappedMeeting = details.appointments![0];
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CrmLead(tappedMeeting.reference),
+                      ),
+                    );
+                  }
+                },
+              ),
       ),
     );
   }
@@ -153,7 +178,7 @@ class Meeting {
   String eventName;
   DateTime from;
   DateTime to;
-  String reference; // Add this line to include the reference field
+  String reference;
   Color background;
   bool isAllDay;
 }

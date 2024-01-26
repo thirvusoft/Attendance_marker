@@ -742,8 +742,8 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      CrmLead(filteredLeads[index]["name"].toString()),
+                                  builder: (context) => CrmLead(
+                                      filteredLeads[index]["name"].toString()),
                                 ),
                               );
                             }
