@@ -46,13 +46,22 @@ class _LeadManagerScreenState extends State<LeadManagerScreen> {
   }
 
   Future<void> _getCallLogs() async {
-    Iterable<CallLogEntry> logs = await CallLog.get();
+    var now = DateTime.now();
+    int from = now.subtract(Duration(days: 7)).millisecondsSinceEpoch;
+    int to = now.millisecondsSinceEpoch;
+    Iterable<CallLogEntry> logs = await CallLog.query(
+      dateFrom: from,
+      dateTo: to,
+    );
     List<CallLogEntry> attendedCalls =
         logs.where((log) => log.callType == CallType.incoming).toList();
 
     setState(() {
       callLogs = attendedCalls;
       filteredCallLogs = List.from(callLogs); // Initialize filtered list
+      print(callLogs);
+      print("gfjsgfjgdjfgjdfgjdgjdgjdgj");
+      print(filteredCallLogs);
     });
   }
 
@@ -118,6 +127,7 @@ class _LeadManagerScreenState extends State<LeadManagerScreen> {
                 CallLogEntry log = filteredCallLogs[index];
                 String phoneNumber = log.formattedNumber ?? 'Unknown';
                 String name = log.name ?? 'Unknown';
+
                 Duration duration = Duration(seconds: log.duration ?? 0);
 
                 return _buildListItem(

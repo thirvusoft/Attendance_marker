@@ -130,6 +130,7 @@ class _ExpandableFabState extends State<ExpandableFab>
           curve: const Interval(0.25, 1.0, curve: Curves.easeInOut),
           duration: const Duration(milliseconds: 250),
           child: FloatingActionButton(
+           
             onPressed: _toggle,
             child: const Icon(Icons.add),
           ),
