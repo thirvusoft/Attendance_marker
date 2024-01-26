@@ -22,7 +22,7 @@ class CrmLead extends StatefulWidget {
 }
 
 final _formKey = GlobalKey<FormState>();
-
+List<dynamic> messageTemplates = [];
 TextEditingController nextFollowupDateController = TextEditingController();
 TextEditingController nextFollowupDateEndController = TextEditingController();
 TextEditingController nextFollowupByController = TextEditingController();
@@ -51,6 +51,7 @@ class _CrmLeadState extends State<CrmLead> {
     id = widget.id;
     singlelead();
     leadStatus();
+    messageTemplateslist();
     super.initState();
 
     searching.searchname("a", "User");
@@ -769,11 +770,8 @@ class _CrmLeadState extends State<CrmLead> {
   }
 
   void _openWhatsApp(String mobileNumber, String options) async {
-    List<String> messageTemplates = [
-      'Hello, I want to contact you.',
-      'Hi, how can I assist you?',
-      'Greetings! Let\'s connect.',
-    ];
+    
+   
 
     await showDialog(
       context: context,
@@ -812,23 +810,23 @@ class _CrmLeadState extends State<CrmLead> {
                 Column(
                   children: List.generate(messageTemplates.length, (index) {
                     return ListTile(
-                      title: Text(messageTemplates[index]),
+                      title: Text(messageTemplates[index]["subject"]),
                       onTap: () {
                         Navigator.pop(context); // Close the dialog
                         if (options == "WhatsApp") {
                           _launchWhatsAppWithMessage(
                             mobileNumber,
-                            messageTemplates[index],
+                            messageTemplates[index]["message"],
                           );
                         } else if (options == "Email") {
                           _sendEmail(
                             mobileNumber,
-                            messageTemplates[index],
+                            messageTemplates[index]["message"],
                           );
                         } else if (options == "Message") {
                           _openMessageApp(
                             mobileNumber,
-                            messageTemplates[index],
+                            messageTemplates[index]["message"],
                           );
                         }
                       },
@@ -912,8 +910,7 @@ class _CrmLeadState extends State<CrmLead> {
     final response = await apiService.get(
         "/api/method/thirvu__attendance.utils.api.api.get_lead_status_options",
         {});
-    print(response.statusCode);
-    print(response.body);
+    
     if (response.statusCode == 200) {
       statusOptions.clear();
 
@@ -926,6 +923,25 @@ class _CrmLeadState extends State<CrmLead> {
           }
         }
       }
+    }
+  }
+
+  Future messageTemplateslist() async {
+    final response = await apiService
+        .get("/api/method/thirvu__attendance.utils.api.api.message_list", {});
+   
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+     
+      messageTemplates.clear();
+      for (var item in jsonResponse['message']) {
+      
+        messageTemplates.add(item);
+       
+       
+      }
+      
+      
     }
   }
 }
