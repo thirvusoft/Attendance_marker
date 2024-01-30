@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:attendancemarker/Controller/apiservice.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapView extends StatefulWidget {
@@ -108,6 +109,21 @@ class _MapViewState extends State<MapView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFEA5455),
+        title: ListTile(
+          title: Text(
+            "Map View",
+            style: GoogleFonts.sansita(fontSize: 20, color: Colors.white),
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Get.offAllNamed("/employeelist");
+          },
+        ),
+      ),
       body: SafeArea(
         child: empLocations.isEmpty
             ? buildLoadingWidget()

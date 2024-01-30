@@ -7,6 +7,7 @@ import 'package:attendancemarker/Controller/batterycontroller.dart';
 import 'package:attendancemarker/Controller/dbhelpercontroller.dart';
 import 'package:attendancemarker/Page/calender.dart';
 import 'package:attendancemarker/Page/call_log.dart';
+import 'package:attendancemarker/Page/contact.dart';
 import 'package:attendancemarker/Page/crmleadpage.dart';
 import 'package:attendancemarker/Page/followuppage.dart';
 import 'package:attendancemarker/Page/lead.dart';
@@ -639,7 +640,7 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
                   ),
                   Expanded(
                       child: ListView.builder(
-                    itemExtent: 110,
+                    // itemExtent: 110,
                     itemCount: filteredLeads.length,
                     itemBuilder: (context, index) {
                       IconData sourceIcon = Icons.business; // Default icon
@@ -783,17 +784,17 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
             ),
             label: 'New Lead',
           ),
-          ActionButton(
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => FollowUpPage()));
-            },
-            icon: const Icon(
-              FontAwesomeIcons.headset,
-              color: Colors.green,
-            ),
-            label: 'FollowUp',
-          ),
+          // ActionButton(
+          //   onPressed: () {
+          //     Navigator.push(context,
+          //         MaterialPageRoute(builder: (context) => FollowUpPage()));
+          //   },
+          //   icon: const Icon(
+          //     FontAwesomeIcons.headset,
+          //     color: Colors.green,
+          //   ),
+          //   label: 'FollowUp',
+          // ),
           ActionButton(
             onPressed: () {
               Navigator.push(
@@ -803,6 +804,15 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
                 color: Color.fromARGB(255, 231, 103, 18)),
             label: 'Calender',
           ),
+          // ActionButton(
+          //   onPressed: () {
+          //     Navigator.push(context,
+          //         MaterialPageRoute(builder: (context) => ContactListScreen()));
+          //   },
+          //   icon: const Icon(FontAwesomeIcons.phoenixFramework,
+          //       color: Color.fromARGB(255, 231, 103, 18)),
+          //   label: 'Contact',
+          // ),
         ],
       ),
     );

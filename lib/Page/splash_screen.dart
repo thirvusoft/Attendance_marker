@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class Splashscreen extends StatefulWidget {
-
   @override
   State<Splashscreen> createState() => _SplashscreenState();
 }
@@ -31,7 +30,7 @@ class _SplashscreenState extends State<Splashscreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "Attendance Marker",
+              "CRM",
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 25,

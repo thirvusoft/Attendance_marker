@@ -59,6 +59,7 @@ class _CrmLeadState extends State<CrmLead> {
 
   Future<void> _refreshData() async {
     await singlelead();
+    messageTemplateslist();
   }
 
   singlelead() async {
@@ -770,9 +771,6 @@ class _CrmLeadState extends State<CrmLead> {
   }
 
   void _openWhatsApp(String mobileNumber, String options) async {
-    
-   
-
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -910,7 +908,7 @@ class _CrmLeadState extends State<CrmLead> {
     final response = await apiService.get(
         "/api/method/thirvu__attendance.utils.api.api.get_lead_status_options",
         {});
-    
+
     if (response.statusCode == 200) {
       statusOptions.clear();
 
@@ -929,19 +927,14 @@ class _CrmLeadState extends State<CrmLead> {
   Future messageTemplateslist() async {
     final response = await apiService
         .get("/api/method/thirvu__attendance.utils.api.api.message_list", {});
-   
+
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
-     
+
       messageTemplates.clear();
       for (var item in jsonResponse['message']) {
-      
         messageTemplates.add(item);
-       
-       
       }
-      
-      
     }
   }
 }

@@ -242,10 +242,13 @@ class _FollowUpPageState extends State<FollowUpPage> {
   void todayfollup() async {
     try {
       final user = await controller.getUser();
+      print('------------------------------------------');
+
       final response = await apiService.get(
         '/api/method/thirvu__attendance.utils.api.api.today_followups',
         {"next_follow_up": user[0]['email']},
       );
+      print(response.body);
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
@@ -278,6 +281,7 @@ class _FollowUpPageState extends State<FollowUpPage> {
         '/api/method/thirvu__attendance.utils.api.api.missed_followups',
         {"next_follow_up": user[0]['email']},
       );
+      print(response.body);
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
@@ -419,6 +423,7 @@ class _FollowUpPageState extends State<FollowUpPage> {
           ),
           onSearchTextChanged: (p0) {
             searching.searchname(controller.text, doctype);
+            setState(() {});
             return null;
           },
         );

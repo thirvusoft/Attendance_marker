@@ -22,7 +22,7 @@ class Routes {
 
   static String calllog = '/calllog';
   static String followup = '/followup';
-  static String leadhome = '/leadhome';
+  // static String leadhome = '/leadhome';
   static String employee = '/employeelist';
   static String crmlead = '/crmlead';
 }
