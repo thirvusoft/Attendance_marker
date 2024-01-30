@@ -640,7 +640,7 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
                   ),
                   Expanded(
                       child: ListView.builder(
-                    itemExtent: 110,
+                    // itemExtent: 110,
                     itemCount: filteredLeads.length,
                     itemBuilder: (context, index) {
                       IconData sourceIcon = Icons.business; // Default icon
@@ -784,17 +784,17 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
             ),
             label: 'New Lead',
           ),
-          ActionButton(
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => FollowUpPage()));
-            },
-            icon: const Icon(
-              FontAwesomeIcons.headset,
-              color: Colors.green,
-            ),
-            label: 'FollowUp',
-          ),
+          // ActionButton(
+          //   onPressed: () {
+          //     Navigator.push(context,
+          //         MaterialPageRoute(builder: (context) => FollowUpPage()));
+          //   },
+          //   icon: const Icon(
+          //     FontAwesomeIcons.headset,
+          //     color: Colors.green,
+          //   ),
+          //   label: 'FollowUp',
+          // ),
           ActionButton(
             onPressed: () {
               Navigator.push(

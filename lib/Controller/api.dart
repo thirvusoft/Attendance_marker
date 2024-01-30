@@ -25,28 +25,28 @@ class Search extends GetxController {
         "reference_doctype": "Lead"
       },
     );
+    print(response.body);
     if (response.statusCode == 200 && doctype == "Lead Source") {
       searchlist_.clear();
       List<String> valuesList = [];
 
       final jsonResponse = json.decode(response.body);
 
-      for (var item in jsonResponse['results']) {
+      for (var item in jsonResponse['message']) {
         if (item.containsKey('value')) {
           valuesList.add(item['value']);
         }
       }
 
-      searchlist_ += (valuesList);
+      searchlist_ += valuesList;
     }
-
     if (response.statusCode == 200 && doctype == "Industry Type") {
       searchlistindustry_.clear();
       List<String> valuesList = [];
 
       final jsonResponse = json.decode(response.body);
 
-      for (var item in jsonResponse['results']) {
+      for (var item in jsonResponse['message']) {
         if (item.containsKey('value')) {
           valuesList.add(item['value']);
         }
@@ -60,7 +60,7 @@ class Search extends GetxController {
 
       final jsonResponse = json.decode(response.body);
 
-      for (var item in jsonResponse['results']) {
+      for (var item in jsonResponse['message']) {
         if (item.containsKey('value')) {
           valuesList.add(item['value']);
         }
@@ -74,7 +74,7 @@ class Search extends GetxController {
 
       final jsonResponse = json.decode(response.body);
 
-      for (var item in jsonResponse['results']) {
+      for (var item in jsonResponse['message']) {
         if (item.containsKey('value')) {
           valuesList.add(item['value']);
         }
@@ -144,7 +144,6 @@ class LeadCreation extends GetxController {
     };
 
     var response;
-    print(id);
 
     if (id == "") {
       response = await apiService.post(
@@ -157,7 +156,6 @@ class LeadCreation extends GetxController {
         {"data": jsonEncode(docvalue)},
       );
     }
-    print(response.body);
 
     if (response.statusCode == 200) {
       Get.snackbar(

@@ -133,13 +133,18 @@ class _LeadPageState extends State<LeadPage> {
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
                             maxline: 3,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter Name no';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 10),
                           ReusableTextField(
                             labelText: 'Mobile No',
                             controller: mobilenoController,
                             obscureText: false,
-                            readyonly: false,
                             keyboardType: TextInputType.phone,
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
@@ -147,9 +152,13 @@ class _LeadPageState extends State<LeadPage> {
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter Mobile no';
+                              } else if (value.length != 10 ||
+                                  !RegExp(r'^[0-9]+$').hasMatch(value)) {
+                                return 'Mobile number must be 10 digits.';
                               }
                               return null;
                             },
+                            readyonly: false,
                           ),
                           const SizedBox(height: 10),
                           ReusableTextField(
@@ -458,7 +467,7 @@ class _LeadPageState extends State<LeadPage> {
                             });
 
                             if (leadCreated) {
-                              Get.offAllNamed("/leadhome");
+                              Get.offAllNamed("/homepage");
                             }
                           } else {
                             setState(() {
@@ -507,12 +516,12 @@ class _LeadPageState extends State<LeadPage> {
         focusedBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.black)),
       ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter $label';
-        }
-        return null;
-      },
+      // validator: (value) {
+      //   if (value == null || value.isEmpty) {
+      //     return 'Please enter $label';
+      //   }
+      //   return null;
+      // },
       suggestions:
           suggestion.map((String) => SearchFieldListItem(String)).toList(),
       suggestionStyle: const TextStyle(fontSize: 16),
